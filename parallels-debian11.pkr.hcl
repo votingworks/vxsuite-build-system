@@ -14,6 +14,11 @@ variable "box_basename" {
   default = "debian-11.6-arm64"
 }
 
+variable "branch" {
+  type = string
+  default = "main"
+}
+
 variable "build_directory" {
   type = string
   default = "./builds"
@@ -213,7 +218,7 @@ build {
     inline = [
       "echo 'packer' | TERM=xterm sudo -S mv /tmp/packer-sudo /etc/sudoers.d/packer",
       "echo 'packer' | TERM=xterm sudo -S chown root.root /etc/sudoers.d/packer",
-      "/tmp/${var.provisioner_script}"
+      "/tmp/${var.provisioner_script} ${var.branch}"
     ]
   }
 }
