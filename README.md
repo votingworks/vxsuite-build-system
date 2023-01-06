@@ -5,7 +5,7 @@
 1. Parallels for Mac
 2. Parallels Virtualization SDK for Mac: https://www.parallels.com/products/desktop/download/
 3. After both of these are installed, run: `sudo ln -s /Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/prlsdkapi.pth /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/prlsdkapi.pth`
-4. Install `packer` via homebrew:
+4. Install `packer` via homebrew (install homebrew via instructions here https://brew.sh/):
     1. `brew tap hashicorp/tap`
     2. `brew install hashicorp/tap/packer`
     3. (Optional, but recommended): `brew upgrade hashicorp/tap/packer`
