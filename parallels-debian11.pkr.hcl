@@ -109,14 +109,14 @@ variable "preseed_path" {
   default = "base-preseed.cfg"
 }
 
-variable "provisioner_script" {
-  type = string
-  default = "vxsuite_config.sh"
-}
-
 variable "qemu_display" {
   type = string
   default = "none"
+}
+
+variable "repo" {
+  type = string
+  default = "vxsuite"
 }
 
 variable "shared_path" {
@@ -197,8 +197,8 @@ build {
   sources = ["source.parallels-iso.debian11"]
 
   provisioner "file" {
-    source = "${var.provisioner_script}"
-    destination = "/tmp/${var.provisioner_script}"
+    source = "${var.repo}_config.sh"
+    destination = "/tmp/${var.repo}_config.sh"
   }
 
   provisioner "file" {
@@ -218,7 +218,7 @@ build {
     inline = [
       "echo 'packer' | TERM=xterm sudo -S mv /tmp/packer-sudo /etc/sudoers.d/packer",
       "echo 'packer' | TERM=xterm sudo -S chown root.root /etc/sudoers.d/packer",
-      "/tmp/${var.provisioner_script} ${var.branch}"
+      "/tmp/${var.repo}_config.sh ${var.branch}"
     ]
   }
 }
