@@ -1,9 +1,6 @@
 export DEBCONF_FRONTEND=noninteractive
 export DEBIAN_FRONTEND=noninteractive
 export TERM=xterm
-echo "#####################################################"
-echo `whoami`
-echo "#####################################################"
 sudo apt update
 sudo apt install -y git make
 mkdir -p /home/packer/code/
