@@ -9,6 +9,7 @@
     1. `brew tap hashicorp/tap`
     2. `brew install hashicorp/tap/packer`
     3. (Optional, but recommended): `brew upgrade hashicorp/tap/packer`
+5. Initialize packer: `packer init .`
 
 # Build a base vxsuite VM with no shared path from your Mac
 
