@@ -180,7 +180,7 @@ source "parallels-iso" "debian11" {
   parallels_tools_flavor = "lin-arm"
   parallels_tools_mode = "upload"
   prlctl_version_file = ".prlctl_version"
-  shutdown_command = "echo 'packer' | sudo -S /sbin/shutdown -hP now"
+  shutdown_command = "sudo su root -c \"userdel -rf packer; rm /etc/sudoers.d/packer; /sbin/shutdown -hP now\""
   ssh_password = "packer"
   ssh_port = 22
   ssh_timeout = "30m"
@@ -213,13 +213,13 @@ build {
     ]
   }
 
-  #provisioner "shell" {
-    #inline = [
-      #"TERM=xterm sudo -S mkdir -p /tmp/parallels",
-      #"TERM=xterm sudo -S mount -o loop /home/packer/prl-tools-lin-arm.iso /tmp/parallels",
-      #"TERM=xterm sudo -S /tmp/parallels/install --install-unattended-with-deps"
-    #]
-  #}
+  provisioner "shell" {
+    inline = [
+      "TERM=xterm sudo -S mkdir -p /tmp/parallels",
+      "TERM=xterm sudo -S mount -o loop /home/packer/prl-tools-lin-arm.iso /tmp/parallels",
+      "TERM=xterm sudo -S /tmp/parallels/install --install-unattended-with-deps"
+    ]
+  }
 
   provisioner "shell" {
     script = "scripts/install-ansible.sh"  
