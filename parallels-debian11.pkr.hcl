@@ -106,7 +106,7 @@ variable "no_proxy" {
 
 variable "preseed_path" {
   type = string
-  default = "base-preseed.cfg"
+  default = "preseeds/base-preseed.cfg"
 }
 
 variable "qemu_display" {
@@ -178,7 +178,7 @@ source "parallels-iso" "debian11" {
   shutdown_command = "echo 'packer' | sudo -S /sbin/shutdown -hP now"
   ssh_password = "packer"
   ssh_port = 22
-  ssh_timeout = "15m"
+  ssh_timeout = "30m"
   ssh_username = "packer"
   vm_name = "${var.template}"
 
@@ -197,12 +197,12 @@ build {
   sources = ["source.parallels-iso.debian11"]
 
   provisioner "file" {
-    source = "${var.repo}_config.sh"
+    source = "scripts/${var.repo}_config.sh"
     destination = "/tmp/${var.repo}_config.sh"
   }
 
   provisioner "file" {
-    source = "packer-sudo"
+    source = "scripts/packer-sudo"
     destination = "/tmp/packer-sudo"
   }
 
