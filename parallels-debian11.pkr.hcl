@@ -79,6 +79,11 @@ variable "iso_name" {
   default = "debian-11.6.0-arm64-netinst.iso"
 }
 
+variable "local_user" {
+  type = string
+  default = "vx"
+}
+
 variable "memory" {
   type = number
   default = 1024
@@ -175,7 +180,7 @@ source "parallels-iso" "debian11" {
   parallels_tools_flavor = "lin-arm"
   parallels_tools_mode = "upload"
   prlctl_version_file = ".prlctl_version"
-  shutdown_command = "echo 'packer' | sudo -S /sbin/shutdown -hP now"
+  shutdown_command = "sudo su root -c \"userdel -rf packer; rm /etc/sudoers.d/packer; /sbin/shutdown -hP now\""
   ssh_password = "packer"
   ssh_port = 22
   ssh_timeout = "30m"
@@ -208,21 +213,21 @@ build {
     ]
   }
 
-  #provisioner "shell" {
-    #inline = [
-      #"TERM=xterm sudo -S mkdir -p /tmp/parallels",
-      #"TERM=xterm sudo -S mount -o loop /home/packer/prl-tools-lin-arm.iso /tmp/parallels",
-      #"TERM=xterm sudo -S /tmp/parallels/install --install-unattended-with-deps"
-    #]
-  #}
+  provisioner "shell" {
+    inline = [
+      "TERM=xterm sudo -S mkdir -p /tmp/parallels",
+      "TERM=xterm sudo -S mount -o loop /home/packer/prl-tools-lin-arm.iso /tmp/parallels",
+      "TERM=xterm sudo -S /tmp/parallels/install --install-unattended-with-deps"
+    ]
+  }
 
   provisioner "shell" {
     script = "scripts/install-ansible.sh"  
   }
 
   provisioner "ansible-local" {
-    playbook_file   = "playbooks/test_playbook.yaml"
-    extra_arguments = ["--extra-vars", "\"branch=${var.branch}\""]
+    playbook_file   = "playbooks/create_local_user.yaml"
+    extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
   }
 
 }
