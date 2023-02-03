@@ -226,7 +226,10 @@ build {
   }
 
   provisioner "ansible-local" {
-    playbook_file   = "playbooks/create_local_user.yaml"
+    playbook_files  = [
+      "playbooks/create_local_user.yaml",
+      "playbooks/clone_repos.yaml"
+    ]
     extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
   }
 

@@ -1,0 +1,43 @@
+---
+- name: Clone votingworks repos
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+  vars:
+    repos:
+      - kiosk-browser
+      - vxsuite
+      - vxsuite-complete-system
+
+  tasks:
+    - name: Install git
+      ansible.builtin.package:
+        name: git
+        state: present
+
+    - name: Create the code subdir in local user home dir
+      ansible.builtin.file:
+        path: "/home/{{ local_user }}/code"
+        owner: "{{ local_user }}"
+        group: "{{ local_user }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create the repo subdirs in the code dir
+      ansible.builtin.file:
+        path: "/home/{{ local_user }}/code/{{ item }}"
+        owner: "{{ local_user }}"
+        group: "{{ local_user }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ repos }}"
+  
+    - name: Clone the votingworks repos
+      ansible.builtin.git:
+        repo: "https://github.com/votingworks/{{ item }}.git"
+        dest: "/home/{{ local_user }}/code/{{ item }}"
+      loop: "{{ repos }}"
+      become: yes
+      become_user: "{{ local_user }}"
+
