@@ -1,0 +1,23 @@
+---
+- name: Create Local Dev User
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - name: Create user
+      ansible.builtin.user:
+        name: "{{ local_user }}"
+        shell: "/bin/bash"
+        password: "{{ 'changeme' | password_hash('sha512') }}"
+        state: present
+      when: (local_user is defined) and (local_user|length > 0) 
+
+    - name: Grant full sudo to user
+      community.general.sudoers:
+        name: "{{ local_user }}"
+        state: present
+        user: "{{ local_user }}"
+        commands: ALL
+      when: (local_user is defined) and (local_user|length > 0) 
+

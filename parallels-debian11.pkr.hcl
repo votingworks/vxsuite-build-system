@@ -79,6 +79,11 @@ variable "iso_name" {
   default = "debian-11.6.0-arm64-netinst.iso"
 }
 
+variable "local_user" {
+  type = string
+  default = "vx"
+}
+
 variable "memory" {
   type = number
   default = 1024
@@ -221,8 +226,8 @@ build {
   }
 
   provisioner "ansible-local" {
-    playbook_file   = "playbooks/test_playbook.yaml"
-    extra_arguments = ["--extra-vars", "\"branch=${var.branch}\""]
+    playbook_file   = "playbooks/create_local_user.yaml"
+    extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
   }
 
 }
