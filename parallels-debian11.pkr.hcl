@@ -197,30 +197,34 @@ build {
   sources = ["source.parallels-iso.debian11"]
 
   provisioner "file" {
-    source = "scripts/${var.repo}_config.sh"
-    destination = "/tmp/${var.repo}_config.sh"
-  }
-
-  provisioner "file" {
     source = "scripts/packer-sudo"
     destination = "/tmp/packer-sudo"
   }
 
   provisioner "shell" {
     inline = [
-      "echo 'packer' | TERM=xterm sudo -S mkdir -p /tmp/parallels",
-      "echo 'packer' | TERM=xterm sudo -S mount -o loop /home/packer/prl-tools-lin-arm.iso /tmp/parallels",
-      "echo 'packer' | TERM=xterm sudo -S /tmp/parallels/install --install-unattended-with-deps"
+      "echo 'packer' | TERM=xterm sudo -S mv /tmp/packer-sudo /etc/sudoers.d/packer",
+      "echo 'packer' | TERM=xterm sudo -S chown root.root /etc/sudoers.d/packer",
     ]
   }
 
+  #provisioner "shell" {
+    #inline = [
+      #"TERM=xterm sudo -S mkdir -p /tmp/parallels",
+      #"TERM=xterm sudo -S mount -o loop /home/packer/prl-tools-lin-arm.iso /tmp/parallels",
+      #"TERM=xterm sudo -S /tmp/parallels/install --install-unattended-with-deps"
+    #]
+  #}
+
   provisioner "shell" {
-    inline = [
-      "echo 'packer' | TERM=xterm sudo -S mv /tmp/packer-sudo /etc/sudoers.d/packer",
-      "echo 'packer' | TERM=xterm sudo -S chown root.root /etc/sudoers.d/packer",
-      "/tmp/${var.repo}_config.sh ${var.branch}"
-    ]
+    script = "scripts/install-ansible.sh"  
   }
+
+  provisioner "ansible-local" {
+    playbook_file   = "playbooks/test_playbook.yaml"
+    extra_arguments = ["--extra-vars", "\"branch=${var.branch}\""]
+  }
+
 }
 
 
