@@ -233,6 +233,19 @@ build {
     extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
   }
 
+  provisioner "shell" {
+    inline = [
+      "echo \"VM IP: `hostname -I | cut -d' ' -f1`\""
+    ]
+  }
+
+  #-- Need to think through this a bit more, but also need feedback
+  post-processor "shell-local" {
+    inline = [
+      "mv ${var.build_directory}/packer-${var.template}-parallels/${var.box_basename}.pvm ~/Parallels/",
+      "rmdir ${var.build_directory}/packer-${var.template}-parallels"
+    ]
+  }
 }
 
 
