@@ -9,10 +9,6 @@ packer {
   }
 }
 
-variable "box_basename" {
-  type = string
-  default = "debian-11.6-arm64"
-}
 
 variable "branch" {
   type = string
@@ -134,16 +130,25 @@ variable "enable_shared_path" {
   default = "disable"
 }
 
-variable "template" {
-  type = string
-  default = "debian-11.6-arm64"
-}
-
 variable "version" {
   type = string
   default = "TIMESTAMP"
 }
 
+variable "vm_name" {
+  type = string
+  default = "debian-11.6-arm64"
+}
+
+variable "vm_cpus" {
+  type = number
+  default = "2"
+}
+
+variable "vm_memory" {
+  type = number
+  default = "8192"
+}
 
 source "parallels-iso" "debian11" {
   boot_command = [
@@ -176,7 +181,7 @@ source "parallels-iso" "debian11" {
   iso_checksum = "${var.iso_checksum}"
   iso_url = "${var.mirror}/${var.mirror_directory}/${var.iso_name}"
   memory = "${var.memory}"
-  output_directory = "${var.build_directory}/packer-${var.template}-parallels"
+  output_directory = "${var.build_directory}/${var.vm_name}"
   parallels_tools_flavor = "lin-arm"
   parallels_tools_mode = "upload"
   prlctl_version_file = ".prlctl_version"
@@ -185,11 +190,11 @@ source "parallels-iso" "debian11" {
   ssh_port = 22
   ssh_timeout = "30m"
   ssh_username = "packer"
-  vm_name = "${var.template}"
+  vm_name = "${var.vm_name}"
 
   prlctl = [
-    ["set", "{{ .Name }}", "--cpus", "2"],
-    ["set", "{{ .Name }}", "--memsize", "8192"], 
+    ["set", "{{ .Name }}", "--cpus", "${var.vm_cpus}"],
+    ["set", "{{ .Name }}", "--memsize", "${var.vm_memory}"], 
     ["set", "{{ .Name }}", "--shf-host-add", "Shared", "--path", "${var.shared_path}", "--mode", "rw", "--${var.enable_shared_path}"],
     ["set", "{{ .Name }}", "--shf-host", "on"],
     ["set", "{{ .Name }}", "--sync-host-printers", "off"],
@@ -242,8 +247,8 @@ build {
   #-- Need to think through this a bit more, but also need feedback
   post-processor "shell-local" {
     inline = [
-      "mv ${var.build_directory}/packer-${var.template}-parallels/${var.box_basename}.pvm ~/Parallels/",
-      "rmdir ${var.build_directory}/packer-${var.template}-parallels"
+      "mv ${var.build_directory}/${var.vm_name}/${var.vm_name}.pvm ~/Parallels/",
+      "rmdir ${var.build_directory}/${var.vm_name}"
     ]
   }
 }
