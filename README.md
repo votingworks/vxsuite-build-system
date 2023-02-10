@@ -1,6 +1,6 @@
 # vxsuite-build-system
 
-# Prerequisites
+## Prerequisites
 
 1. Parallels Pro for Mac: https://www.parallels.com/products/desktop/pro/
 2. Parallels Virtualization SDK for Mac: https://www.parallels.com/products/desktop/download/
@@ -12,7 +12,7 @@
     2. `brew install hashicorp/tap/packer`
     3. (Optional, but recommended): `brew upgrade hashicorp/tap/packer`
 
-# Clone and initialize the `vxsuite-build-system` repository
+## Clone and initialize the `vxsuite-build-system` repository
 
 1. Clone `vxsuite-build-system` via https or ssh
     1. Via https: `git clone https://github.com/votingworks/vxsuite-build-system.git`
@@ -21,7 +21,7 @@
     1. Be sure to cd into the newly cloned `vxsuite-build-system` repo
     2. Run: `packer init .`
 
-# Build a base Debian VM with VotingWorks repositories cloned
+## Build a base Debian VM with VotingWorks repositories cloned
 
 1. Run: `packer build parallels-debian11.pkr.hcl` (This will take 10-20 minutes, depending on your machine)
 2. Once it completes, you will have a new VM available in your local Parallels directory. This is `~/Parallels` by default. To start this VM, run: `open ~/Parallels/debian-11.6-arm64.pvm/`
