@@ -60,5 +60,5 @@ For example, to allocate 4 CPUs and 16 GB of RAM to a VM:
 
 To change the name of the VM being built, use the `vm_name` variable (default is debian-11.6-arm64.pvm)
 
-For example, to name your VM name to "MyVM":
+For example, to name your VM "MyVM":
 `packer build -var "vm_name=MyVM" parallels-debian11.pkr.hcl`
