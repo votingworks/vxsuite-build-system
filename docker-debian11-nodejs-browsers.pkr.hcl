@@ -26,9 +26,14 @@ build {
 
   provisioner "ansible-local" {
     playbook_files  = [
+      "playbooks/install-app-packages.yaml",
       "playbooks/setup-node.yaml",
       "playbooks/install-selenium.yaml"
     ]
+  }
+
+  provisioner "shell" {
+    script = "scripts/package-cleanup.sh"
   }
 
   post-processor "docker-tag" {

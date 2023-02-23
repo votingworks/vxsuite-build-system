@@ -26,6 +26,7 @@ build {
 
   provisioner "ansible-local" {
     playbook_files  = [
+      "playbooks/install-app-packages.yaml",
       "playbooks/setup-node.yaml"
     ]
   }
