@@ -10,6 +10,8 @@
         name: "{{ local_user }}"
         shell: "/bin/bash"
         password: "{{ 'changeme' | password_hash('sha512') }}"
+        append: true
+        groups: "lpadmin"
         state: present
       when: (local_user is defined) and (local_user|length > 0) 
 
@@ -21,3 +23,8 @@
         commands: ALL
       when: (local_user is defined) and (local_user|length > 0) 
 
+    - name: Ensure /usr/sbin is part of PATH
+      ansible.builtin.lineinfile:
+        path: "/home/{{ local_user }}/.bashrc"
+        line: "PATH=$PATH:/usr/sbin"
+      when: (local_user is defined) and (local_user|length > 0)
