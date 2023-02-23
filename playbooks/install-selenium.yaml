@@ -1,0 +1,28 @@
+---
+
+- name: Install Selenium and other browser testing dependencies
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    selenium_url: "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar"
+    packages:
+      - xvfb
+      - openjdk-11-jre
+
+  tasks:
+
+    - name: Install system packages
+      ansible.builtin.apt:
+        install_recommends: false
+        update_cache: true
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+
+    - name: Download the Selenium jar
+      ansible.builtin.get_url:
+        url: "{{ selenium_url }}"
+        dest: "/usr/local/bin/selenium.jar"
+
