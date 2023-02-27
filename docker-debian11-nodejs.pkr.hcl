@@ -31,6 +31,10 @@ build {
     ]
   }
 
+  provisioner "shell" {
+    script = "scripts/package-cleanup.sh"
+  }
+
   post-processor "docker-tag" {
     repository = "adammcmanus/cimg-debian11"
     tags = ["latest"]
