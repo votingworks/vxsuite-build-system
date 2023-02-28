@@ -227,13 +227,18 @@ build {
   }
 
   provisioner "shell" {
-    script = "scripts/install-ansible.sh"  
+    scripts = [ 
+      "scripts/install-base-packages.sh",
+      "scripts/install-ansible.sh"
+    ]
   }
 
   provisioner "ansible-local" {
     playbook_files  = [
       "playbooks/create_local_user.yaml",
-      "playbooks/clone_repos.yaml"
+      "playbooks/clone_repos.yaml",
+      "playbooks/install-app-packages.yaml",
+      "playbooks/setup-node.yaml"
     ]
     extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
   }
