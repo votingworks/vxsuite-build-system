@@ -14,22 +14,31 @@
 
     - name: Determine system architecture
       set_fact:
-        architecture: "{{ 'arm64' if (ansible_architecture == 'aarch64' || ansible_architecture == 'arm64') else 'x64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+        architecture: "{{ 'arm64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
 
     - name: Install/Upgrade Node on supported architectures
       block:
 
         - name: Set Node release URL
           set_fact:
-            release_url: "https://nodejs.org/dist/v{{ node_version }}}/node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
+            release_url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
 
         - name: Download and extract Node
-        ansible.builtin.unarchive:
-          src: "{{ release_url }}"
-          dest: /usr/local
-          remote_src: yes
-          extra_opts:
-            - --strip-components=1
+          ansible.builtin.unarchive:
+            src: "{{ release_url }}"
+            dest: /usr/local
+            remote_src: yes
+            extra_opts:
+              - --strip-components=1
+
+        - name: See if corepack is present
+          command: "which corepack"
+          register: corepack_installed
+          ignore_errors: yes
+
+        - name: Disable corepack if installed
+          command: corepack disable
+          when: corepack_installed.rc == 0
 
         - name: Install package managers
           community.general.npm:
