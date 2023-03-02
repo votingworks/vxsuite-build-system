@@ -16,6 +16,11 @@
       set_fact:
         architecture: "{{ 'arm64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
 
+    - name: Remove pre-packaged Node (if present)
+      ansible.builtin.package:
+        name: nodejs
+        state: absent
+
     - name: Install/Upgrade Node on supported architectures
       block:
 
@@ -41,9 +46,7 @@
           when: corepack_installed.rc == 0
 
         - name: Install package managers
-          community.general.npm:
-            global: yes
-            name: "{{ item }}"
+          command: "npm install -g {{ item }}"
           loop: "{{ npm_packages }}"
 
       when: architecture != 'unsupported'
