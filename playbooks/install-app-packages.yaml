@@ -17,6 +17,8 @@
       - libcairo2-dev 
       - libpango1.0-dev 
       - libgif-dev 
+      - libpcsclite1 
+      - libpcsclite-dev
 
     svc_converter_ms_sems_packages:
       - python3.9 
