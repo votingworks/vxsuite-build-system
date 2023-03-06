@@ -42,7 +42,7 @@ build {
   }
 
   post-processor "docker-tag" {
-    repository = "adammcmanus/cimg-debian11-browsers"
+    repository = "votingworks/cimg-debian11-browsers"
     tags = ["${var.version}"]
   }
 

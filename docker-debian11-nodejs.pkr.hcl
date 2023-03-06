@@ -41,7 +41,7 @@ build {
   }
 
   post-processor "docker-tag" {
-    repository = "adammcmanus/cimg-debian11"
+    repository = "votingworks/cimg-debian11"
     tags = ["${var.version}"]
   }
 
