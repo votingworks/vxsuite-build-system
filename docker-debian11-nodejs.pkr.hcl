@@ -7,6 +7,11 @@ packer {
   }
 }
 
+variable "version" {
+  type = string
+  default = "2.0.0"
+}
+
 source "docker" "debian11" {
   image = "debian:11.6"
   platform = "linux/amd64"
@@ -36,8 +41,8 @@ build {
   }
 
   post-processor "docker-tag" {
-    repository = "adammcmanus/cimg-debian11"
-    tags = ["latest"]
+    repository = "votingworks/cimg-debian11"
+    tags = ["${var.version}"]
   }
 
 }
