@@ -80,6 +80,7 @@
         all_packages: "{{ all_packages | default([]) + [ item ] }}"
       with_items:
         - "{{ base_packages | default([]) }}"
+        - "{{ libs_auth_packages | default([]) }}"
         - "{{ svc_converter_ms_sems_packages | default([]) }}"
         - "{{ svc_smartcards_packages | default([]) }}"
         - "{{ app_admin_packages | default([]) }}"
