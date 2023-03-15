@@ -19,11 +19,11 @@
     2. Via ssh: `git clone git@github.com:votingworks/vxsuite-build-system.git`
 2. Initialize packer
     1. Be sure to cd into the newly cloned `vxsuite-build-system` repo
-    2. Run: `packer init .`
+    2. Run: `packer init parallels-debian11.pkr.hcl`
 
 ## Build a base Debian VM with VotingWorks repositories cloned
 
-1. Run: `packer build parallels-debian11.pkr.hcl` (This will take 10-20 minutes, depending on your machine and internet speed.)
+1. Run: `packer build parallels-debian11.pkr.hcl` (This will take 10-20 minutes, depending on your machine and internet speed. You can watch the progress by opening the VM from the Parallels Control Center.)
 2. Once it completes, you will have a new VM available in your local Parallels directory. This is `~/Parallels` by default. To start this VM, run: `open ~/Parallels/debian-11.6-arm64.pvm/`
 3. The default username is `vx` with a default password of `changeme`
 
