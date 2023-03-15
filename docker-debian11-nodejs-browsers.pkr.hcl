@@ -9,7 +9,7 @@ packer {
 
 variable "version" {
   type = string
-  default = "2.0.1"
+  default = "2.0.2"
 }
 
 source "docker" "debian11-browsers" {
@@ -33,6 +33,7 @@ build {
     playbook_files  = [
       "playbooks/install-vxsuite-packages.yaml",
       "playbooks/install-node.yaml",
+      "playbooks/install-rust.yaml",
       "playbooks/install-selenium.yaml"
     ]
   }
