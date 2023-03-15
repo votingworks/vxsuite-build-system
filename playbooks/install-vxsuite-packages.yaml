@@ -17,8 +17,10 @@
       - libcairo2-dev 
       - libpango1.0-dev 
       - libgif-dev 
-      - libpcsclite1 
-      - libpcsclite-dev
+
+    libs_auth_packages:
+      - default-jdk
+      - wget
 
     svc_converter_ms_sems_packages:
       - python3.9 
@@ -41,6 +43,8 @@
       - fdisk 
       - dosfstools 
       - exfat-utils
+      - libpcsclite1
+      - libpcsclite-dev
 
     app_central_scan_packages:
       - libsane 
@@ -51,9 +55,12 @@
       - libcairo2-dev 
       - libpango1.0-dev 
       - libgif-dev
+      - libpcsclite1
+      - libpcsclite-dev
 
-    # No package dependencies yet
-    #app_mark_packages:
+    app_mark_packages:
+      - libpcsclite1
+      - libpcsclite-dev
 
     app_scan_packages:
       - libsane 
@@ -64,6 +71,8 @@
       - libcairo2-dev 
       - libpango1.0-dev 
       - libgif-dev
+      - libpcsclite1
+      - libpcsclite-dev
 
   tasks:
     - name: Create a list of all the packages we need
@@ -71,6 +80,7 @@
         all_packages: "{{ all_packages | default([]) + [ item ] }}"
       with_items:
         - "{{ base_packages | default([]) }}"
+        - "{{ libs_auth_packages | default([]) }}"
         - "{{ svc_converter_ms_sems_packages | default([]) }}"
         - "{{ svc_smartcards_packages | default([]) }}"
         - "{{ app_admin_packages | default([]) }}"

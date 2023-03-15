@@ -9,7 +9,7 @@ packer {
 
 variable "version" {
   type = string
-  default = "2.0.0"
+  default = "2.0.1"
 }
 
 source "docker" "debian11-browsers" {
@@ -31,8 +31,8 @@ build {
 
   provisioner "ansible-local" {
     playbook_files  = [
-      "playbooks/install-app-packages.yaml",
-      "playbooks/setup-node.yaml",
+      "playbooks/install-vxsuite-packages.yaml",
+      "playbooks/install-node.yaml",
       "playbooks/install-selenium.yaml"
     ]
   }
