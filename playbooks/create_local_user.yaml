@@ -4,9 +4,6 @@
   connection: local
   become: true
 
-  vars:
-    cargo_home: "/usr/local/cargo"
-
   tasks:
     - name: Create user
       ansible.builtin.user:
@@ -32,20 +29,5 @@
         line: "export PATH=$PATH:/usr/sbin"
       when: (local_user is defined) and (local_user|length > 0)
 
-    - name: Set Rustup path
-      ansible.builtin.lineinfile:
-        path: "~{{ local_user }}/.bashrc"
-        line: "export RUSTUP_HOME=/usr/local/rustup"
-      when: (local_user is defined) and (local_user|length > 0)
-
-    - name: Set Rust Cargo path
-      ansible.builtin.lineinfile:
-        path: "~{{ local_user }}/.bashrc"
-        line: "export CARGO_HOME=/usr/local/cargo"
-      when: (local_user is defined) and (local_user|length > 0)
-
-    - name: Ensure we source the global cargo ENV
-      ansible.builtin.lineinfile:
-        path: "~{{ local_user }}/.bashrc"
-        line: ". {{ cargo_home }}/env"
-      when: (local_user is defined) and (local_user|length > 0)
+- import_playbook: configure-rust-env.yaml
+  when: (local_user is defined) and (local_user|length > 0)

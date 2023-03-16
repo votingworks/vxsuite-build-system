@@ -2,7 +2,6 @@
 - name: Install Rust
   hosts: 127.0.0.1
   connection: local
-  become: true
 
   vars:
     rust_version: '1.68.0'
@@ -18,7 +17,10 @@
         url: "{{ rustup_install_url }}"
         dest: "{{ rustup_install_cmd }}"
 
+    #-- Runs as root
     - name: Install Rust {{ rust_version }}
       ansible.builtin.shell:
         cmd: "cat {{ rustup_install_cmd }} | RUSTUP_HOME={{ rustup_home }} CARGO_HOME={{ cargo_home }} sh -s -- --default-toolchain {{ rust_version }} -y"
+      become: true
 
+- import_playbook: configure-rust-env.yaml
