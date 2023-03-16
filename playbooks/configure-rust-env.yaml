@@ -5,7 +5,7 @@
   become: true
 
   vars:
-    user_to_configure: "{{ ansible_env.SUDO_USER }}"
+    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
     rustup_home: "/usr/local/rustup"
     cargo_home: "/usr/local/cargo"
 
