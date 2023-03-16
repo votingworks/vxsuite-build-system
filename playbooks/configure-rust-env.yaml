@@ -7,7 +7,7 @@
   vars:
     user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
     rustup_home: "/usr/local/rustup"
-    cargo_home: "/usr/local/cargo"
+    cargo_env: "/usr/local/cargo"
 
   tasks:
 
@@ -21,12 +21,20 @@
         path: "~{{ user_to_configure }}/.bashrc"
         line: "export RUSTUP_HOME={{ rustup_home }}"
 
+    - name: Create local cargo registry for {{ user_to_configure }}
+      ansible.builtin.file:
+        path: "~{{ user_to_configure }}/.cargo"
+        owner: "{{ user_to_configure }}"
+        group: "{{ user_to_configure }}"
+        state: directory
+        mode: '0755'
+
     - name: Set Rust Cargo path for {{ user_to_configure }}
       ansible.builtin.lineinfile:
         path: "~{{ user_to_configure }}/.bashrc"
-        line: "export CARGO_HOME={{ cargo_home }}"
+        line: "export CARGO_HOME=~{{ user_to_configure }}/.cargo"
 
     - name: Ensure we source the global cargo ENV for {{ user_to_configure }}
       ansible.builtin.lineinfile:
         path: "~{{ user_to_configure }}/.bashrc"
-        line: ". {{ cargo_home }}/env"
+        line: ". {{ cargo_env }}/env"
