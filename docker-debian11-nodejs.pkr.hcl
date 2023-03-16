@@ -30,6 +30,7 @@ build {
   }
 
   provisioner "ansible-local" {
+    playbook_dir = "./playbooks"
     playbook_files  = [
       "playbooks/install-vxsuite-packages.yaml",
       "playbooks/install-node.yaml",
