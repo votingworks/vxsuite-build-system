@@ -1,0 +1,40 @@
+---     
+- name: Configure the rust environment for a user
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
+    rustup_home: "/usr/local/rustup"
+    cargo_env: "/usr/local/cargo"
+
+  tasks:
+
+    - name: Override user if local_user is defined
+      set_fact:
+        user_to_configure: "{{ local_user }}"
+      when: (local_user is defined) and (local_user|length > 0)
+
+    - name: Set Rustup path for {{ user_to_configure }}
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: "export RUSTUP_HOME={{ rustup_home }}"
+
+    - name: Create local cargo registry for {{ user_to_configure }}
+      ansible.builtin.file:
+        path: "~{{ user_to_configure }}/.cargo"
+        owner: "{{ user_to_configure }}"
+        group: "{{ user_to_configure }}"
+        state: directory
+        mode: '0755'
+
+    - name: Set Rust Cargo path for {{ user_to_configure }}
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: "export CARGO_HOME=~{{ user_to_configure }}/.cargo"
+
+    - name: Ensure we source the global cargo ENV for {{ user_to_configure }}
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: ". {{ cargo_env }}/env"

@@ -25,6 +25,9 @@
 
     - name: Ensure /usr/sbin is part of PATH
       ansible.builtin.lineinfile:
-        path: "/home/{{ local_user }}/.bashrc"
-        line: "PATH=$PATH:/usr/sbin"
+        path: "~{{ local_user }}/.bashrc"
+        line: "export PATH=$PATH:/usr/sbin"
       when: (local_user is defined) and (local_user|length > 0)
+
+- import_playbook: configure-rust-env.yaml
+  when: (local_user is defined) and (local_user|length > 0)

@@ -234,11 +234,13 @@ build {
   }
 
   provisioner "ansible-local" {
+    playbook_dir = "./playbooks"
     playbook_files  = [
       "playbooks/create_local_user.yaml",
       "playbooks/clone_repos.yaml",
       "playbooks/install-vxsuite-packages.yaml",
-      "playbooks/install-node.yaml"
+      "playbooks/install-node.yaml",
+      "playbooks/install-rust.yaml"
     ]
     extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
   }
