@@ -41,7 +41,7 @@
 
     - name: Add sccache to optimize build time
       ansible.builtin.shell: 
-        cmd: "cargo install sccache"
+        cmd: ". {{ cargo_env }}/env && cargo install sccache"
       become: true
       become_user: "{{ user_to_configure }}"
 
