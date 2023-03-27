@@ -38,3 +38,20 @@
       ansible.builtin.lineinfile:
         path: "~{{ user_to_configure }}/.bashrc"
         line: ". {{ cargo_env }}/env"
+
+    - name: Add sccache to optimize build time
+      ansible.builtin.shell: 
+        cmd: "cargo install sccache"
+      become: true
+      become_user: "{{ user_to_configure }}"
+
+    - name: Configure sccache as the rust wrapper
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: "export RUSTC_WRAPPER=sccache"
+
+    - name: Configure sccache size to 1G
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: "export SCCACHE_CACHE_SIZE=1G"
+
