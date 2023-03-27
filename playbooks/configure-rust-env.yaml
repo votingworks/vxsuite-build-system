@@ -39,11 +39,21 @@
         path: "~{{ user_to_configure }}/.bashrc"
         line: ". {{ cargo_env }}/env"
 
-    - name: Add sccache to optimize build time
-      ansible.builtin.shell: 
-        cmd: ". {{ cargo_env }}/env && cargo install sccache"
+    - name: Install openssl and libssl-dev for sccache
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        install_recommends: false
+      loop:
+        - openssl
+        - libssl-dev
+
+    - name: Install sccache using cargo
       become: true
       become_user: "{{ user_to_configure }}"
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        cargo install sccache
 
     - name: Configure sccache as the rust wrapper
       ansible.builtin.lineinfile:
