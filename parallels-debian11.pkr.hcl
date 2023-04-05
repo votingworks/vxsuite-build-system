@@ -142,12 +142,12 @@ variable "vm_name" {
 
 variable "vm_cpus" {
   type = number
-  default = "2"
+  default = "4"
 }
 
 variable "vm_memory" {
   type = number
-  default = "8192"
+  default = "16384"
 }
 
 source "parallels-iso" "debian11" {

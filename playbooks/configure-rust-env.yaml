@@ -38,3 +38,8 @@
       ansible.builtin.lineinfile:
         path: "~{{ user_to_configure }}/.bashrc"
         line: ". {{ cargo_env }}/env"
+
+    - name: Add local CARGO_HOME/bin to user's path
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: "export PATH=$PATH:${CARGO_HOME}/bin"
