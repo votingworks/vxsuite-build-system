@@ -29,5 +29,3 @@
         line: "export PATH=$PATH:/usr/sbin"
       when: (local_user is defined) and (local_user|length > 0)
 
-- import_playbook: configure-rust-env.yaml
-  when: (local_user is defined) and (local_user|length > 0)
