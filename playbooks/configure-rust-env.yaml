@@ -16,30 +16,9 @@
         user_to_configure: "{{ local_user }}"
       when: (local_user is defined) and (local_user|length > 0)
 
-    - name: Set Rustup path for {{ user_to_configure }}
-      ansible.builtin.lineinfile:
-        path: "~{{ user_to_configure }}/.bashrc"
-        line: "export RUSTUP_HOME={{ rustup_home }}"
-
-    - name: Create local cargo registry for {{ user_to_configure }}
-      ansible.builtin.file:
-        path: "~{{ user_to_configure }}/.cargo"
-        owner: "{{ user_to_configure }}"
-        group: "{{ user_to_configure }}"
-        state: directory
-        mode: '0755'
-
-    - name: Set Rust Cargo path for {{ user_to_configure }}
-      ansible.builtin.lineinfile:
-        path: "~{{ user_to_configure }}/.bashrc"
-        line: "export CARGO_HOME=~{{ user_to_configure }}/.cargo"
-
+    #-- This should be configured automatically by Rust, but add if not
     - name: Ensure we source the global cargo ENV for {{ user_to_configure }}
       ansible.builtin.lineinfile:
         path: "~{{ user_to_configure }}/.bashrc"
-        line: ". {{ cargo_env }}/env"
+        line: '. "$HOME/.cargo/env"'
 
-    - name: Add local CARGO_HOME/bin to user's path
-      ansible.builtin.lineinfile:
-        path: "~{{ user_to_configure }}/.bashrc"
-        line: "export PATH=$PATH:${CARGO_HOME}/bin"

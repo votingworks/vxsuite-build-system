@@ -5,22 +5,33 @@
 
   vars:
     rust_version: '1.68.0'
-    rustup_home: '/usr/local/rustup'
-    cargo_home: '/usr/local/cargo'
+    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
     rustup_install_url: 'https://sh.rustup.rs'
     rustup_install_cmd: '/tmp/rustup.sh'
 
   tasks:
 
+    - name: Override user if local_user is defined
+      set_fact:
+        user_to_configure: "{{ local_user }}"
+      when: (local_user is defined) and (local_user|length > 0)
+
     - name: Download rustup
       ansible.builtin.get_url:
         url: "{{ rustup_install_url }}"
         dest: "{{ rustup_install_cmd }}"
+      become: true
+      become_user: "{{ user_to_configure }}"
 
-    #-- Runs as root
+    #-- Runs as user_to_configure
     - name: Install Rust {{ rust_version }}
       ansible.builtin.shell:
-        cmd: "cat {{ rustup_install_cmd }} | RUSTUP_HOME={{ rustup_home }} CARGO_HOME={{ cargo_home }} sh -s -- --default-toolchain {{ rust_version }} -y"
+        cmd: "cat {{ rustup_install_cmd }} | sh -s -- --default-toolchain {{ rust_version }} -y"
       become: true
+      become_user: "{{ user_to_configure }}"
 
-- import_playbook: configure-rust-env.yaml
+    #-- This should be configured automatically by Rust, but add if not
+    - name: Ensure we source the global cargo ENV for {{ user_to_configure }}
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: '. "$HOME/.cargo/env"'
