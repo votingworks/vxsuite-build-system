@@ -9,6 +9,10 @@
     base_packages:
       - build-essential
       - curl
+      - make
+      - gzip
+      - zip
+      - tar
       - libsane 
       - libpng-dev 
       - libjpeg-dev 

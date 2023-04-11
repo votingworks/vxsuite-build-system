@@ -1,0 +1,9 @@
+---
+- name: Prepare for setup-machine process
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+- import_playbook: install-vxsuite-packages.yaml
+- import_playbook: install-node.yaml
+- import_playbook: install-rust.yaml
