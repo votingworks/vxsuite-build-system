@@ -1,0 +1,45 @@
+---
+- name: Manage VX users, groups, and directories
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    system_groups:
+      vx-group:
+        gid: 800
+
+    users:
+      vx-services:
+        uid: 750
+        home: /var/vx/services
+        secondary_groups: 'adm,scanner,vx-group'
+      vx-ui:
+        uid: 751
+        home: /var/vx/ui
+        secondary_groups: 'adm,lpadmin,plugdev,vx-group'
+      vx-admin:
+        uid: 752
+        home: /var/vx/admin
+        secondary_groups: 'adm,plugdev,vx-group'
+
+  tasks:
+    - name: Manage groups
+      group:
+        name: "{{ item.key }}"
+        gid: "{{ item.value.gid }}"
+        state: "{{ item.value.state | default('present') }}"
+      with_dict:
+        - "{{ system_groups }}"
+
+    - name: Manage users
+      user:
+        name: "{{ item.key }}"
+        comment: "{{ item.value.comment | default('No Comment') }}"
+        uid: "{{ item.value.uid }}"
+        groups: "{{ item.value.secondary_groups | default('') }}"
+        shell: "{{ item.value.shell | default('/bin/bash') }}"
+        home: "{{ item.value.home }}"
+        state: "{{ item.value.state | default('present') }}"
+      with_dict:
+        - "{{ users }}"
