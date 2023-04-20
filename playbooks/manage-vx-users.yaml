@@ -23,9 +23,19 @@
         home: /var/vx/admin
         secondary_groups: 'adm,plugdev,vx-group'
 
+    directories:
+      - /vx
+      - /var/vx
+      - /var/vx/data/module-scan
+      - /var/vx/data/module-sems-converter
+      - /var/vx/data/admin-service
+      - /var/vx/ui
+      - /var/vx/admin
+      - /var/vx/services
+
   tasks:
     - name: Manage groups
-      group:
+      ansible.builtin.group:
         name: "{{ item.key }}"
         gid: "{{ item.value.gid }}"
         state: "{{ item.value.state | default('present') }}"
@@ -33,7 +43,7 @@
         - "{{ system_groups }}"
 
     - name: Manage users
-      user:
+      ansible.builtin.user:
         name: "{{ item.key }}"
         comment: "{{ item.value.comment | default('No Comment') }}"
         uid: "{{ item.value.uid }}"
@@ -43,3 +53,9 @@
         state: "{{ item.value.state | default('present') }}"
       with_dict:
         - "{{ users }}"
+
+    - name: Create directory structure, don't address permissions yet
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop: "{{ directories }}"
