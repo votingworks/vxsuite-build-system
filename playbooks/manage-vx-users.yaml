@@ -33,6 +33,16 @@
         uid: 752
         home: /var/vx/admin
         secondary_groups: 'adm,plugdev,vx-group'
+        sudo_commands:
+          - /vx/admin/admin-functions/set-clock.sh
+          - /vx/admin/admin-functions/lockdown.sh
+          - /vx/admin/admin-functions/generate-key.sh
+          - /vx/admin/admin-functions/setup-boot-entry.sh
+          - /vx/admin/admin-functions/create-machine-cert.sh
+          - /vx/admin/admin-functions/program-system-administrator-cards.sh
+          - /usr/local/bin/tpm2-totp
+          - /vx/code/app-scripts/mount-usb.sh
+          - /vx/code/app-scripts/unmount-usb.sh
 
     directories:
       - /vx
