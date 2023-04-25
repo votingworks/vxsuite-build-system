@@ -54,6 +54,10 @@
       - /var/vx/admin
       - /var/vx/services
 
+    links:
+      /var/vx/config:
+        link: /vx/config  
+
   tasks:
     - name: Manage groups
       ansible.builtin.group:
@@ -92,3 +96,12 @@
         path: "{{ item }}"
         state: directory
       loop: "{{ directories }}"
+
+    - name: Create links
+      ansible.builtin.file:
+        src: "{{ item.key }}"
+        dest: "{{ item.value.link }}"
+        state: link
+      with_dict:
+        - "{{ links }}"
+        
