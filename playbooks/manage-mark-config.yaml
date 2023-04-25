@@ -1,0 +1,30 @@
+---
+- name: Manage VxMark specific configs
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    config_files:
+      01-wacom.conf:
+        dest: /etc/X11/xorg.conf.d/
+        src: files/wacom.conf
+
+  tasks:
+    - name: Copy config file locally
+      ansible.builtin.copy:
+        dest: "{{ item.value.dest }}"
+        src: "{{ item.value.src }}"
+      delegate_to: localhost
+      when: inventory_hostname == "localhost" 
+      with_dict:
+        - "{{ config_files }}"
+
+    - name: Copy config file remotely
+      ansible.builtin.copy:
+        dest: "{{ item.value.dest }}"
+        src: "{{ item.value.src }}"
+      when: inventory_hostname != "localhost" 
+      with_dict:
+        - "{{ config_files }}"
+
