@@ -14,7 +14,7 @@
   tasks:
     - name: Create udev rule files
       ansible.builtin.copy:
-        dest: "/etc/udev/rules.d/{{ item.key }}"
+        dest: "/etc/udev/rules.d/{{ item.key }}.rules"
         content: "{{ item.value.rule }}"
       with_dict:
         - "{{ udev_rules }}"
