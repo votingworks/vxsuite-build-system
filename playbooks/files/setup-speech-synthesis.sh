@@ -27,7 +27,7 @@ cd "$INSTALL_DIR"
 rm -rf /tmp/vx
 
 # set up festival voice
-sudo cp config/speechd.conf /etc/speech-dispatcher/
+sudo cp speechd.conf /etc/speech-dispatcher/
 
 # festival auto-start
 sudo cp config/vx-festival.service /etc/systemd/system/
