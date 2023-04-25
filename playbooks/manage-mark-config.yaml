@@ -13,7 +13,7 @@
   tasks:
     - name: Copy config file locally
       ansible.builtin.copy:
-        dest: "{{ item.value.dest }}"
+        dest: "{{ item.value.dest }}/{{ item.key }}"
         src: "{{ item.value.src }}"
       delegate_to: localhost
       when: inventory_hostname == "localhost" 
@@ -22,7 +22,7 @@
 
     - name: Copy config file remotely
       ansible.builtin.copy:
-        dest: "{{ item.value.dest }}"
+        dest: "{{ item.value.dest }}"/{{ item.key }}
         src: "{{ item.value.src }}"
       when: inventory_hostname != "localhost" 
       with_dict:
