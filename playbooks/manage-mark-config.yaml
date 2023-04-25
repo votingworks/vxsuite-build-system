@@ -33,6 +33,7 @@
         dest: /vx/config/app-mode
         content: "MarkAndPrint"
 
-    - name: Run the speech synthesis script (for now)
+    - name: Run the speech synthesis script (for now). It's so fragile
       ansible.builtin.command: bash ./files/setup-speech-synthesis.sh
+      creates: /usr/share/festival/voices/us/cmu_us_slt_arctic_clunits
 
