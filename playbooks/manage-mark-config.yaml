@@ -22,7 +22,7 @@
 
     - name: Copy config file remotely
       ansible.builtin.copy:
-        dest: "{{ item.value.dest }}"/{{ item.key }}
+        dest: "{{ item.value.dest }}/{{ item.key }}"
         src: "{{ item.value.src }}"
       when: inventory_hostname != "localhost" 
       with_dict:
