@@ -52,6 +52,7 @@
       - /var/vx/data/admin-service
       - /var/vx/ui
       - /var/vx/admin
+      - /var/vx/config
       - /var/vx/services
 
     links:
