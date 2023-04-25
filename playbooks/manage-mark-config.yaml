@@ -34,5 +34,7 @@
         content: "MarkAndPrint"
 
     - name: Run the speech synthesis script (for now)
-      ansible.builtin.command: bash files/setup-speech-synthesis.sh
+      ansible.builtin.command: bash setup-speech-synthesis.sh
+      args:
+        chdir: playbooks/files
 
