@@ -34,6 +34,6 @@
       loop: "{{ cups_configs }}"
 
     - name: Copy the cups service definition
-      ansible.builtin.copy:
+      ansible.builtin.command: "cp files/cups.service /usr/lib/systemd/system/" 
         src: "files/cups.service"
-        dest: "/usr/lib/systemd/systemd/system/"
+        dest: "/usr/lib/systemd/systemd/system/cups.service"
