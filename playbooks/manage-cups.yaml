@@ -14,3 +14,9 @@
       ansible.builtin.file:
         path: /var/etc
         state: directory
+
+    - name: Recursively copy /etc/cups to /var/etc
+      ansible.builtin.copy:
+        src: /etc/cups
+        dest: /var/etc
+        recursive: true
