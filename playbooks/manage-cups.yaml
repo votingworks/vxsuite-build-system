@@ -16,5 +16,5 @@
         state: directory
 
     - name: Recursively copy /etc/cups to /var/etc
-      ansible.builtin.cmd: "cp -rp /etc/cups /var/etc"
+      ansible.builtin.command: "cp -rp /etc/cups /var/etc"
 
