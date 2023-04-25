@@ -18,17 +18,17 @@
         uid: 751
         home: /var/vx/ui
         secondary_groups: 'adm,lpadmin,plugdev,vx-group'
-        sudo_rules:
-          - ALL=(root:ALL) NOPASSWD: /vx/code/config/admin-functions/timedatectl
-          - ALL=(root:ALL) NOPASSWD: /usr/bin/brightnessctl
-          - ALL=(root:ALL) NOPASSWD: /usr/local/bin/tpm2-totp
-          - ALL=(root:ALL) NOPASSWD: /vx/code/app-scripts/sign.sh
-          - ALL=(root:ALL) NOPASSWD: /vx/code/app-scripts/mount-usb.sh
-          - ALL=(root:ALL) NOPASSWD: /vx/code/app-scripts/unmount-usb.sh
-          - ALL=(root:ALL) NOPASSWD: /bin/efibootmgr
-          - ALL=(root:ALL) NOPASSWD: /usr/sbin/sfdisk
-          - ALL=(root:ALL) NOPASSWD: /usr/sbin/mkfs.fat
-          - ALL=(root:ALL) NOPASSWD: /usr/sbin/mkfs.exfat
+        sudo_commands:
+          - /vx/code/config/admin-functions/timedatectl
+          - /usr/bin/brightnessctl
+          - /usr/local/bin/tpm2-totp
+          - /vx/code/app-scripts/sign.sh
+          - /vx/code/app-scripts/mount-usb.sh
+          - /vx/code/app-scripts/unmount-usb.sh
+          - /bin/efibootmgr
+          - /usr/sbin/sfdisk
+          - /usr/sbin/mkfs.fat
+          - /usr/sbin/mkfs.exfat
       vx-admin:
         uid: 752
         home: /var/vx/admin
@@ -69,9 +69,11 @@
       community.general.sudoers:
         name: "{{ item.key }}"
         user: "{{ item.key }}"
+        runas: root
+        nopassword: true
         state: present
-        commands: "{{ item.value.sudo_rules }}"
-      when: "{{ item.value.sudo_rules is defined }}"
+        commands: "{{ item.value.sudo_commands }}"
+      when: "{{ item.value.sudo_commands is defined }}"
       with_dict:
         - "{{ users }}"
 
