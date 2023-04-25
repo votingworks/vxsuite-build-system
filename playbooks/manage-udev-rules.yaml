@@ -1,0 +1,21 @@
+---
+- name: Manage udev rules
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    udev_rules:
+      01-sane-missing-scanner:
+        rule: ATTRS{idVendor}=="04c5", MODE="0664", GROUP="scanner", ENV{libsane_matched}="yes"
+      02-custom-scanner:
+        rule: ATTRS{idVendor}=="0dd4", MODE="0664", GROUP="scanner"
+
+  tasks:
+    - name: Create udev rule files
+      ansible.builtin.copy:
+        dest: "/etc/udev/rules.d/{{ item.key }}"
+        content: "{{ item.value.rule }}"
+      with_dict:
+        - "{{ udev_rules }}"
+
