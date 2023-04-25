@@ -28,3 +28,11 @@
       with_dict:
         - "{{ config_files }}"
 
+    - name: Configure /vx/config/app-mode
+      ansible.builtin.copy:
+        dest: /vx/config/app-mode
+        content: "MarkAndPrint"
+
+    - name: Run the speech synthesis script (for now)
+      ansible.builtin.command: bash file/setup-speech-synthesis.sh
+
