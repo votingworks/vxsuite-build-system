@@ -33,6 +33,11 @@
         dest: /vx/config/app-mode
         content: "MarkAndPrint"
 
+    - name: Wipe out the /tmp/vx dir until speech synth script is refactored
+      ansible.builtin.file:
+        path: /tmp/vx
+        state: absent
+
     - name: Run the speech synthesis script (for now). It's so fragile
       ansible.builtin.command: bash ./files/setup-speech-synthesis.sh
       args:
