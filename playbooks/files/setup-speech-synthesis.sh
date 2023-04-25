@@ -30,6 +30,6 @@ rm -rf /tmp/vx
 sudo cp speechd.conf /etc/speech-dispatcher/
 
 # festival auto-start
-sudo cp config/vx-festival.service /etc/systemd/system/
+sudo cp vx-festival.service /etc/systemd/system/
 sudo systemctl enable vx-festival
 sudo systemctl start vx-festival
