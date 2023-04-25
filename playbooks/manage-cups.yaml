@@ -1,0 +1,16 @@
+---
+- name: Manage CUPS config
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - name: Ensure cups is installed
+      ansible.builtin.apt:
+        name: cups
+        state: present
+
+    - name: Create /var/etc
+      ansible.builtin.file:
+        path: /var/etc
+        state: directory
