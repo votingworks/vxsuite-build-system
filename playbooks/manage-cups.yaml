@@ -36,4 +36,4 @@
     - name: Copy the cups service definition
       ansible.builtin.copy:
         src: "files/cups.service"
-        dest: "/usr/lib/systemd/systemd/system/cups.service"
+        dest: "/usr/lib/systemd/systemd/system/"
