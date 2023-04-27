@@ -1,0 +1,45 @@
+---
+- name: Manage VxMark specific configs
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    config_files:
+      01-wacom.conf:
+        dest: /etc/X11/xorg.conf.d/
+        src: files/wacom.conf
+
+  tasks:
+    - name: Copy config file locally
+      ansible.builtin.copy:
+        dest: "{{ item.value.dest }}/{{ item.key }}"
+        src: "{{ item.value.src }}"
+      delegate_to: localhost
+      when: inventory_hostname == "localhost" 
+      with_dict:
+        - "{{ config_files }}"
+
+    - name: Copy config file remotely
+      ansible.builtin.copy:
+        dest: "{{ item.value.dest }}/{{ item.key }}"
+        src: "{{ item.value.src }}"
+      when: inventory_hostname != "localhost" 
+      with_dict:
+        - "{{ config_files }}"
+
+    - name: Configure /vx/config/app-mode
+      ansible.builtin.copy:
+        dest: /vx/config/app-mode
+        content: "MarkAndPrint"
+
+    - name: Wipe out the /tmp/vx dir until speech synth script is refactored
+      ansible.builtin.file:
+        path: /tmp/vx
+        state: absent
+
+    - name: Run the speech synthesis script (for now). It's so fragile
+      ansible.builtin.command: bash ./files/setup-speech-synthesis.sh
+      args:
+        creates: /usr/share/festival/voices/us/cmu_us_slt_arctic_clunits
+

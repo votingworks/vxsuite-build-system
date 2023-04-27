@@ -1,0 +1,37 @@
+---
+- name: Manage CUPS config
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    cups_configs:
+      - cupsd.conf
+      - cups-files.conf
+
+  tasks:
+    - name: Ensure cups is installed
+      ansible.builtin.apt:
+        name: cups
+        state: present
+
+    - name: Create /var/etc
+      ansible.builtin.file:
+        path: /var/etc
+        state: directory
+
+    - name: Recursively copy /etc/cups to /var/etc
+      ansible.builtin.command: "cp -rp /etc/cups /var/etc/"
+
+    - name: TODO remove /etc/cups
+      debug:
+        msg: "Eventually remove the original /etc/cups"
+
+    - name: Copy our custom cups config files
+      ansible.builtin.copy:
+        src: "files/{{ item }}"
+        dest: "/var/etc/cups/{{ item }}"
+      loop: "{{ cups_configs }}"
+
+    - name: Copy the cups service definition
+      ansible.builtin.command: "cp files/cups.service /usr/lib/systemd/system/" 
