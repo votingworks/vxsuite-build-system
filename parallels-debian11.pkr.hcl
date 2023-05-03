@@ -87,7 +87,7 @@ variable "memory" {
 
 variable "mirror" {
   type = string
-  default = "http://cdimage.debian.org/cdimage/release"
+  default = "http://cdimage.debian.org/cdimage/archive"
 }
 
 variable "mirror_directory" {
