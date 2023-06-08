@@ -166,7 +166,7 @@ source "parallels-iso" "debian11-intel" {
     "console-setup/ask_detect=false <wait>",
     "console-keymaps-at/keymap=us <wait>",
     "grub-installer/bootdev=/dev/sda <wait>",
-    "<f10><wait>"
+    "<f10><wait>e"
   ]
 
   boot_wait = "5s"
