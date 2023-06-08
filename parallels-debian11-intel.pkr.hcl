@@ -152,11 +152,7 @@ variable "vm_memory" {
 
 source "parallels-iso" "debian11-intel" {
   boot_command = [
-    "e<wait>",
-    "<down><down><down><right><right><right><right><right><right><right><right><right><right>",
-    "<right><right><right><right><right><right><right><right><right><right><right><right><right>",
-    "<right><right><right><right><right><right><right><right><right><right><right><wait>",
-    "install <wait>",
+    "<esc><wait>install <wait>",
     " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/${var.preseed_path} <wait>",
     "debian-installer=en_US.UTF-8 <wait>",
     "auto <wait>",
