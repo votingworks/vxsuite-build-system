@@ -96,6 +96,6 @@
       set_fact:
         all_packages: "{{ all_packages | unique | select | list }}"
 
-    - name: Download the packages without installing
+    - name: Import the apt role which supports online and offline builds
       ansible.builtin.import_role:
         name: apt
