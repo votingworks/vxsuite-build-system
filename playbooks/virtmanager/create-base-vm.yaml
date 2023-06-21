@@ -1,0 +1,48 @@
+- name: Create base VM from ISO
+  hosts: localhost
+  become: yes
+
+  tasks:
+
+    - name: Download Debian ISO
+      get_url: 
+        url: "{{ iso_url }}/{{ iso_name }}"
+        dest: "{{ virt_image_path }}/{{ iso_name }}"
+
+    - name: See if virt networking is active
+      shell: 
+        cmd: virsh net-info default | grep Active | grep yes
+      register: is_virt_networking_running
+      changed_when: no
+      ignore_errors: true
+
+    - name: Make sure virt networking is active
+      command: virsh net-start default
+      when: is_virt_networking_running.rc != 0
+
+    - name: See if the {{ vm_name }} VM already exists
+      shell:
+        cmd: virsh dominfo {{ vm_name }}
+      register: does_vm_exist
+      changed_when: no
+      ignore_errors: true
+
+    - name: Create VM
+      command: >
+        virt-install
+        --name={{ vm_name }}
+        --ram={{ vm_ram }}
+        --vcpus={{ vm_cpus }}
+        --os-type=linux
+        --os-type=debian10
+        --location={{ virt_image_path }}/{{ iso_name }}
+        --network bridge=virbr0,model=virtio
+        {{ '--boot uefi,loader_secure=yes' if ( secure_boot ) else ' ' }}
+        --console pty,target_type=serial
+        --check disk_size=off
+        --disk path={{ virt_image_path }}/{{ vm_name }}.img,size={{ vm_disk_size_gb }},format=raw
+        --initrd-inject={{ vm_preseed_path }}
+        --extra-args="auto=true priority=critical preseed/file=/vxdev-preseed.cfg hostname=vx domain=local console=ttyS0,115200n8 serial"
+      register: output
+      when: does_vm_exist.rc != 0
+
