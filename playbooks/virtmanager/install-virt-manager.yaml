@@ -1,0 +1,14 @@
+- name: Install virt-manager 
+  hosts: localhost
+  become: yes
+
+  tasks:
+
+    - name: Install virt-manager
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - virt-manager
+        - libguestfs-tools
+
