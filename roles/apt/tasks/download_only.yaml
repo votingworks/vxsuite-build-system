@@ -1,0 +1,13 @@
+---
+
+#-- Note: We may want to remove this so packages from the preseed 
+#--       Debian install are available. Need more info from SLI
+- name: Clean out any existing packages
+  ansible.builtin.apt:
+    clean: yes
+
+- name: Download the packages and dependencies
+  ansible.builtin.command:
+    cmd: "apt-get install --reinstall --download-only {{ item }}"
+  with_items:
+    - "{{ all_packages }}"

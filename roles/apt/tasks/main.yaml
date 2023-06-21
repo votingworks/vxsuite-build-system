@@ -1,0 +1,15 @@
+---
+
+- import_tasks: download_only.yaml
+  tags:
+    - online
+
+- name: Install the packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "{{ all_packages }}"
+  tags:
+    - offline
+
