@@ -1,0 +1,77 @@
+---
+- name: Manage Node Install
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  #-- TODO: move downloads_directory to defaults/inventory
+  vars:
+    downloads_directory: "/tmp"
+    node_version: "16.19.1"
+    npm_packages:
+      - yarn@1.22.15
+      - pnpm@8.1.0
+
+  tasks:
+
+    - name: Determine system architecture
+      set_fact:
+        architecture: "{{ 'arm64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+
+    - name: Remove pre-packaged Node (if present)
+      ansible.builtin.package:
+        name: nodejs
+        state: absent
+
+    - name: Install/Upgrade Node on supported architectures
+      block:
+
+        - name: Set Node release URL
+          set_fact:
+            release_url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
+
+        - name: Download Node tarball
+          ansible.builtin.get_url:
+            url: "{{ release_url }}"
+            dest: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
+          tags:
+            - online
+
+        - name: Extract Node
+          ansible.builtin.unarchive:
+            src: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
+            dest: /usr/local
+            remote_src: yes
+            extra_opts:
+              - --strip-components=1
+          tags:
+            - offline
+
+        - name: See if corepack is present
+          command: "which corepack"
+          register: corepack_installed
+          ignore_errors: yes
+          tags:
+            - offline
+
+        - name: Disable corepack if installed
+          command: corepack disable
+          when: corepack_installed.rc == 0
+          tags:
+            - offline
+
+        - name: Download package managers
+          command: "npm pack --pack-destination {{ downloads_directory }} {{ item }}"
+          loop: "{{ npm_packages }}"
+          tags:
+            - online
+
+        - name: Install package managers
+          command: "npm install -g {{ downloads_directory }}/{{ item | replace('@', '-') }}.tgz"
+          loop: "{{ npm_packages }}"
+          tags:
+            - offline
+
+      when: architecture != 'unsupported'
+
+
