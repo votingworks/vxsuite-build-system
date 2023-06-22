@@ -33,13 +33,13 @@
         - name: Download Node tarball
           ansible.builtin.get_url:
             url: "{{ release_url }}"
-            dest: "{{ downloads_directory }}/node.tar.gz"
+            dest: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
           tags:
             - online
 
         - name: Extract Node
           ansible.builtin.unarchive:
-            src: "{{ downloads_directory }}/node.tar.gz"
+            src: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
             dest: /usr/local
             remote_src: yes
             extra_opts:
