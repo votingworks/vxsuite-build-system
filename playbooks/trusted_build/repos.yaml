@@ -1,0 +1,45 @@
+---
+- name: Clone votingworks repos
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+  vars:
+    downloads_directory: "/tmp"
+    repos:
+      - kiosk-browser
+      - vxsuite
+      - vxsuite-build-system
+      - vxsuite-complete-system
+
+  tasks:
+
+    - name: Create the code subdir
+      ansible.builtin.file:
+        path: "{{ downloads_directory }}/code"
+        state: directory
+        mode: '0755'
+      tags:
+        - online
+
+    - name: Create the repo subdirs in the code dir
+      ansible.builtin.file:
+        path: "{{ downloads_directory }}/code/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ repos }}"
+      tags:
+        - online
+  
+    #-- Need to handle submodules more dynamically
+    #-- The default behavior below automatically pulls them from main
+    #-- Probably use an inventory to define this but initial tests
+    #-- had strange permissions issues
+    - name: Clone the votingworks repos
+      ansible.builtin.git:
+        repo: "https://github.com/votingworks/{{ item }}.git"
+        dest: "{{ downloads_directory }}/code/{{ item }}"
+      loop: "{{ repos }}"
+      tags:
+        - online
+
