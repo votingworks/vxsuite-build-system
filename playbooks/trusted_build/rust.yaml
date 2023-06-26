@@ -18,8 +18,10 @@
     - name: Set the URL to download the appropriate Rust tarball
       set_fact:
         rust_tarball_url: "https://static.rust-lang.org/dist/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
-    - name: Override user if local_user is defined
+      tags:
+        - online
 
+    - name: Override user if local_user is defined
       set_fact:
         user_to_configure: "{{ local_user }}"
       when: (local_user is defined) and (local_user|length > 0)
@@ -52,10 +54,9 @@
       tags:
         - offline
 
-    - name: Make sure Rust is added to the path
-      copy:
-        dest: /etc/profile.d/rust-path.sh
-        content: 'PATH=$HOME/.cargo/bin:$PATH'
-        mode: 0644
+    - name: Ensure Rust is in {{ user_to_configure }} path
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: 'PATH=$HOME/.cargo/bin:$PATH'
       tags:
         - offline
