@@ -1,0 +1,101 @@
+---
+
+- name: Install system level dependencies used by various apps and services
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    base_packages:
+      - build-essential
+      - curl
+      - make
+      - gzip
+      - zip
+      - tar
+      - libsane 
+      - libpng-dev 
+      - libjpeg-dev 
+      - libx11-dev 
+      - libpixman-1-dev 
+      - libcairo2-dev 
+      - libpango1.0-dev 
+      - libgif-dev 
+
+    libs_auth_packages:
+      - default-jdk
+      - wget
+
+    svc_converter_ms_sems_packages:
+      - python3.9 
+      - python3.9-dev 
+      - python3-distutils 
+      - python3-pip
+
+    svc_smartcards_packages:
+      - python3.9 
+      - python3.9-dev 
+      - python3.9-distutils 
+      - python3-pip 
+      - libusb-1.0-0-dev 
+      - libpcsclite-dev 
+      - pcscd 
+      - pcsc-tools 
+      - swig 
+
+    app_admin_packages:
+      - fdisk 
+      - dosfstools 
+      - exfat-utils
+      - libpcsclite1
+      - libpcsclite-dev
+
+    app_central_scan_packages:
+      - libsane 
+      - libpng-dev 
+      - libjpeg-dev 
+      - libx11-dev 
+      - libpixman-1-dev 
+      - libcairo2-dev 
+      - libpango1.0-dev 
+      - libgif-dev
+      - libpcsclite1
+      - libpcsclite-dev
+
+    app_mark_packages:
+      - libpcsclite1
+      - libpcsclite-dev
+
+    app_scan_packages:
+      - libsane 
+      - libpng-dev 
+      - libjpeg-dev 
+      - libx11-dev 
+      - libpixman-1-dev 
+      - libcairo2-dev 
+      - libpango1.0-dev 
+      - libgif-dev
+      - libpcsclite1
+      - libpcsclite-dev
+
+  tasks:
+    - name: Create a list of all the packages we need
+      set_fact:
+        all_packages: "{{ all_packages | default([]) + [ item ] }}"
+      with_items:
+        - "{{ base_packages | default([]) }}"
+        - "{{ libs_auth_packages | default([]) }}"
+        - "{{ svc_converter_ms_sems_packages | default([]) }}"
+        - "{{ svc_smartcards_packages | default([]) }}"
+        - "{{ app_admin_packages | default([]) }}"
+        - "{{ app_central_scan_packages | default([]) }}"
+        - "{{ app_mark_packages | default([]) }}"
+        - "{{ app_scan_packages | default([]) }}"
+
+    - name: De-dupe the list for efficiency
+      set_fact:
+        all_packages: "{{ all_packages | unique | select | list }}"
+
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
