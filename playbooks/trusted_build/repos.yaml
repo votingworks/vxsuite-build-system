@@ -6,40 +6,78 @@
 
   vars:
     downloads_directory: "/tmp"
+    user_to_configure: "amcmanus"
     repos:
-      - kiosk-browser
-      - vxsuite
-      - vxsuite-build-system
-      - vxsuite-complete-system
+      kiosk-browser:
+      vxsuite:
+      vxsuite-build-system:
+      vxsuite-complete-system:
+        version: "m16-rc3"
 
   tasks:
 
-    - name: Create the code subdir
-      ansible.builtin.file:
-        path: "{{ downloads_directory }}/code"
-        state: directory
-        mode: '0755'
-      tags:
-        - online
+    - name: Online tasks for git repos
+      block:
 
-    - name: Create the repo subdirs in the code dir
-      ansible.builtin.file:
-        path: "{{ downloads_directory }}/code/{{ item }}"
-        state: directory
-        mode: '0755'
-      loop: "{{ repos }}"
-      tags:
-        - online
+      - name: Make sure the {{ downloads_directory }}/code directory does not exist from a previous build
+        ansible.builtin.file:
+          path: "{{ downloads_directory }}/code"
+          state: absent
+
+      - name: Create the code subdir
+        ansible.builtin.file:
+          path: "{{ downloads_directory }}/code"
+          state: directory
+          mode: '0755'
   
-    #-- Need to handle submodules more dynamically
-    #-- The default behavior below automatically pulls them from main
-    #-- Probably use an inventory to define this but initial tests
-    #-- had strange permissions issues
-    - name: Clone the votingworks repos
-      ansible.builtin.git:
-        repo: "https://github.com/votingworks/{{ item }}.git"
-        dest: "{{ downloads_directory }}/code/{{ item }}"
-      loop: "{{ repos }}"
+      - name: Create the repo subdirs in the code dir
+        ansible.builtin.file:
+          path: "{{ downloads_directory }}/code/{{ item.key }}"
+          state: directory
+          mode: '0755'
+        with_dict: "{{ repos }}"
+    
+      #-- Note: this defaults to main AND automatically updates submodules
+      #-- You need to specify the branch/tag/commit in the repos dictionary
+      #-- if you want anything other than main
+      - name: Clone the votingworks repos
+        ansible.builtin.git:
+          repo: "https://github.com/votingworks/{{ item.key }}.git"
+          dest: "{{ downloads_directory }}/code/{{ item.key }}"
+          version: "{{ item.value.version | default('main') }}"
+        with_dict: "{{ repos }}"
+
       tags:
         - online
 
+    - name: Offline tasks for git repos
+      block:
+        - name: Check that the expected {{ downloads_directory }}/code directory exists
+          ansible.builtin.stat:
+            path: "{{ downloads_directory }}/code"
+          register: code_dir_info
+
+        - block:
+            - name: Error if {{ downloads_directory }}/code does not exist
+              ansible.builtin.debug:
+                msg: "Error: The expected {{ downloads_directory }}/code directory does not exist."
+
+            - meta: end_play
+          when: not code_dir_info.stat.exists or not code_dir_info.stat.isdir
+
+        - name: Create the ~{{ user_to_configure }}/code2 directory
+          ansible.builtin.file:
+            path: "~{{ user_to_configure }}/code2"
+            owner: "{{ user_to_configure }}"
+            group: "{{ user_to_configure }}"
+            mode: '0755'
+            state: directory
+
+        - name: Copy {{ downloads_directory }}/code to ~{{ user_to_configure }}/code2 directory
+          ansible.builtin.copy:
+            src: "{{ downloads_directory }}/code/"
+            dest: "~{{ user_to_configure }}/code2/"
+            remote_src: yes
+
+      tags:
+        - offline
