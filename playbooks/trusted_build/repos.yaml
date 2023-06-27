@@ -5,33 +5,39 @@
   become: yes
 
   vars:
-    downloads_directory: "/tmp"
+    downloads_directory: "/tmp/code"
     user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
-    repos:
-      kiosk-browser:
-      vxsuite:
-      vxsuite-complete-system:
-        version: "m16-rc3"
+    code_directory: "~{{ user_to_configure }}/code"
 
   tasks:
 
+    #-- Default to main branch in all repos unless defined elsewhere
+    - name: Configure the repos dictionary if not already defined
+      set_fact:
+        repos:
+          kiosk-browser:
+          vxsuite:
+          vxsuite-complete-system:
+      when: repos is not defined
+      
     - name: Online tasks for git repos
       block:
 
-      - name: Make sure the {{ downloads_directory }}/code directory does not exist from a previous build
+      - name: Make sure the {{ downloads_directory }} directory does not exist from a previous build
         ansible.builtin.file:
-          path: "{{ downloads_directory }}/code"
+          path: "{{ downloads_directory }}"
           state: absent
+        when: (downloads_directory is defined) and (downloads_directory|length > 0)
 
       - name: Create the code subdir
         ansible.builtin.file:
-          path: "{{ downloads_directory }}/code"
+          path: "{{ downloads_directory }}"
           state: directory
           mode: '0755'
   
       - name: Create the repo subdirs in the code dir
         ansible.builtin.file:
-          path: "{{ downloads_directory }}/code/{{ item.key }}"
+          path: "{{ downloads_directory }}/{{ item.key }}"
           state: directory
           mode: '0755'
         with_dict: "{{ repos }}"
@@ -42,7 +48,7 @@
       - name: Clone the votingworks repos
         ansible.builtin.git:
           repo: "https://github.com/votingworks/{{ item.key }}.git"
-          dest: "{{ downloads_directory }}/code/{{ item.key }}"
+          dest: "{{ downloads_directory }}/{{ item.key }}"
           version: "{{ item.value.version | default('main') }}"
         with_dict: "{{ repos }}"
 
@@ -52,19 +58,19 @@
     #-- TODO: Should this just be part of an initial script copy instead?
     - name: Offline tasks for git repos
       block:
-        - name: Check that the expected {{ downloads_directory }}/code directory exists
+        - name: Check that the expected {{ downloads_directory }} directory exists
           ansible.builtin.stat:
-            path: "{{ downloads_directory }}/code"
+            path: "{{ downloads_directory }}"
           register: code_dir_info
 
-        - name: Error if {{ downloads_directory }}/code does not exist
+        - name: Error if {{ downloads_directory }} does not exist
           ansible.builtin.fail:
-            msg: "Error: The expected {{ downloads_directory }}/code directory does not exist."
+            msg: "Error: The expected {{ downloads_directory }} directory does not exist."
           when: not code_dir_info.stat.exists or not code_dir_info.stat.isdir
 
-        - name: Create the ~{{ user_to_configure }}/code2 directory
+        - name: Create the {{ code_directory }} directory
           ansible.builtin.file:
-            path: "~{{ user_to_configure }}/code2"
+            path: "{{ code_directory }}"
             owner: "{{ user_to_configure }}"
             group: "{{ user_to_configure }}"
             mode: '0755'
@@ -72,7 +78,7 @@
 
         - name: Check for any existing repos
           ansible.builtin.stat:
-            path: "~{{ user_to_configure }}/code2/{{ item }}"
+            path: "{{ code_directory }}/{{ item }}"
           with_items: "{{ repos | list }}"
           register: repos_info
 
@@ -82,10 +88,10 @@
           when: item.stat.exists
           with_items: "{{ repos_info.results }}"
 
-        - name: Copy {{ downloads_directory }}/code to ~{{ user_to_configure }}/code2 directory
+        - name: Copy {{ downloads_directory }} to {{ code_directory }}
           ansible.builtin.copy:
-            src: "{{ downloads_directory }}/code/"
-            dest: "~{{ user_to_configure }}/code2/"
+            src: "{{ downloads_directory }}/"
+            dest: "{{ code_directory }}"
             remote_src: yes
             owner: "{{ user_to_configure }}"
             group: "{{ user_to_configure }}"
