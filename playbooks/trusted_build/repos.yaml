@@ -6,11 +6,10 @@
 
   vars:
     downloads_directory: "/tmp"
-    user_to_configure: "amcmanus"
+    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
     repos:
       kiosk-browser:
       vxsuite:
-      vxsuite-build-system:
       vxsuite-complete-system:
         version: "m16-rc3"
 
@@ -50,6 +49,7 @@
       tags:
         - online
 
+    #-- TODO: Should this just be part of an initial script copy instead?
     - name: Offline tasks for git repos
       block:
         - name: Check that the expected {{ downloads_directory }}/code directory exists
@@ -73,11 +73,25 @@
             mode: '0755'
             state: directory
 
+        - name: Check for any existing repos
+          ansible.builtin.stat:
+            path: "~{{ user_to_configure }}/code2/{{ item }}"
+          with_items: "{{ repos | list }}"
+          register: repos_info
+
+        - name: If any repos already exist, exit the playbook so we don't overwrite pre-existsing work in localdev
+          ansible.builtin.fail:
+            msg: "{{ item.item }} exists already."
+          when: item.stat.exists
+          with_items: "{{ repos_info.results }}"
+
         - name: Copy {{ downloads_directory }}/code to ~{{ user_to_configure }}/code2 directory
           ansible.builtin.copy:
             src: "{{ downloads_directory }}/code/"
             dest: "~{{ user_to_configure }}/code2/"
             remote_src: yes
+            owner: "{{ user_to_configure }}"
+            group: "{{ user_to_configure }}"
 
       tags:
         - offline
