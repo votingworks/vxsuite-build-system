@@ -37,6 +37,9 @@
           tags:
             - online
 
+        #-- We always extract node since npm is needed to download/install, 
+        #-- depending on which phase we are in. This extracted binary will 
+        #-- not be copied to the offline VM, only the above tarball
         - name: Extract Node
           ansible.builtin.unarchive:
             src: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
@@ -45,7 +48,13 @@
             extra_opts:
               - --strip-components=1
           tags:
-            - offline
+            - always
+
+        - name: Download package managers
+          command: "npm pack --pack-destination {{ downloads_directory }} {{ item }}"
+          loop: "{{ npm_packages }}"
+          tags:
+            - online
 
         - name: See if corepack is present
           command: "which corepack"
@@ -59,12 +68,6 @@
           when: corepack_installed.rc == 0
           tags:
             - offline
-
-        - name: Download package managers
-          command: "npm pack --pack-destination {{ downloads_directory }} {{ item }}"
-          loop: "{{ npm_packages }}"
-          tags:
-            - online
 
         - name: Install package managers
           command: "npm install -g {{ downloads_directory }}/{{ item | replace('@', '-') }}.tgz"
