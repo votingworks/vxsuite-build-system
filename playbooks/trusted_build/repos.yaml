@@ -57,12 +57,9 @@
             path: "{{ downloads_directory }}/code"
           register: code_dir_info
 
-        - block:
-            - name: Error if {{ downloads_directory }}/code does not exist
-              ansible.builtin.debug:
-                msg: "Error: The expected {{ downloads_directory }}/code directory does not exist."
-
-            - meta: end_play
+        - name: Error if {{ downloads_directory }}/code does not exist
+          ansible.builtin.fail:
+            msg: "Error: The expected {{ downloads_directory }}/code directory does not exist."
           when: not code_dir_info.stat.exists or not code_dir_info.stat.isdir
 
         - name: Create the ~{{ user_to_configure }}/code2 directory
