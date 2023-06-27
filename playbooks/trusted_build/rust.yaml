@@ -1,0 +1,62 @@
+---
+- name: Trusted Build Install of Rust
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    downloads_directory: "/tmp"
+    rust_version: '1.68.0'
+    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
+
+  tasks:
+
+    - name: Determine system architecture for appropriate Rust install
+      set_fact: 
+        architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x64_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+
+    - name: Set the URL to download the appropriate Rust tarball
+      set_fact:
+        rust_tarball_url: "https://static.rust-lang.org/dist/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+      tags:
+        - online
+
+    - name: Override user if local_user is defined
+      set_fact:
+        user_to_configure: "{{ local_user }}"
+      when: (local_user is defined) and (local_user|length > 0)
+
+    - name: Download Rust
+      ansible.builtin.get_url:
+        url: "{{ rust_tarball_url }}"
+        dest: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+      become: true
+      become_user: "{{ user_to_configure }}"
+      tags:
+        - online
+
+    - name: Extract Rust to tmp
+      ansible.builtin.unarchive:
+        src: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+        dest: /tmp
+        remote_src: yes
+      become: true
+      become_user: "{{ user_to_configure }}"
+      tags:
+        - offline
+
+    - name: Install Rust {{ rust_version }} as {{ user_to_configure }}
+      ansible.builtin.shell:
+        cmd: "./install.sh --prefix=~{{ user_to_configure }}/.cargo "
+        chdir: "/tmp/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu"
+      become: true
+      become_user: "{{ user_to_configure }}"
+      tags:
+        - offline
+
+    - name: Ensure Rust is in {{ user_to_configure }} path
+      ansible.builtin.lineinfile:
+        path: "~{{ user_to_configure }}/.bashrc"
+        line: 'PATH=$HOME/.cargo/bin:$PATH'
+      tags:
+        - offline
