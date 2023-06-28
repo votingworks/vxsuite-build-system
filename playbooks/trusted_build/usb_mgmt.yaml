@@ -1,5 +1,9 @@
 ---
 
+- name: Set a flag to control whether the USB is unmounted or not
+  set_fact:
+    unmount_usb: "{{ unmount_usb | default(true) }}"
+
 - name: Create the removable device lookup dictionary
   set_fact:
     removable_devices: "{{ removable_devices | default({}) | combine({item : ansible_devices[item].model}) }}"
@@ -52,4 +56,5 @@
     state: unmounted
   with_items:
     - "{{ lsblk_result.stdout_lines }}"
+  when: unmount_usb
  
