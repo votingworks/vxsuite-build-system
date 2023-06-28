@@ -16,8 +16,11 @@
       set_fact:
         repos:
           kiosk-browser:
+            version: main
           vxsuite:
+            version: main
           vxsuite-complete-system:
+            version: main
       when: repos is not defined
       
     - name: Online tasks for git repos
