@@ -8,7 +8,7 @@
     #-- Not sure this needs an explicit online tag block but including for now
     - name: Block
       block: 
-        - import_tasks: usb_mgmt.yaml
+        - import_tasks: shared_tasks/usb_mgmt.yaml
           when: usb_disk_info is not defined
         
         #-- We need to be sure there aren't existing partitions/data 
@@ -48,7 +48,7 @@
           become: true
           command: e2label "/dev/{{ device }}1" VxTrustedBuild
         
-        - import_tasks: remount_usb.yaml
+        - import_tasks: shared_tasks/remount_usb.yaml
         
       tags:
         - online

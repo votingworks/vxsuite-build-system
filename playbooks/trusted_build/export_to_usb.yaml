@@ -7,24 +7,11 @@
   connection: local
   become: true  
 
-  vars:
-    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
-
   tasks:
     
-    - name: Define well-known paths
-      set_fact: 
-        well_known_paths:
-          apt_packages:
-            system_path: "/var/cache/apt/archives"
-            usb_path: "apt_packages"
-          tools:
-            system_path: "/tmp/downloads"
-            usb_path: "downloads"
-          vxsuite-complete-system:
-            system_path: "~{{ user_to_configure }}/code/vxsuite-complete-system"
-            usb_path: "vxsuite-complete-system"
-    
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
     - name: Get the USB mountpoint
       ansible.builtin.command: lsblk -no mountpoint "/dev/{{ device }}1"
       register: usb_mnt

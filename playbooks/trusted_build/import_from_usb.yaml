@@ -5,31 +5,18 @@
   connection: local
   become: true  
 
-  vars:
-    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
-
   tasks:
     
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
     - name: Ensure the USB is not unmounted before we use it
       set_fact:
         unmount_usb: false
 
-    - import_tasks: usb_mgmt.yaml
+    - import_tasks: shared_tasks/usb_mgmt.yaml
       when: usb_disk_info is not defined
 
-    - name: Define well-known paths
-      set_fact: 
-        well_known_paths:
-          apt_packages:
-            system_path: "/var/cache/apt/archives"
-            usb_path: "apt_packages"
-          tools:
-            system_path: "/tmp/downloads"
-            usb_path: "downloads"
-          vxsuite-complete-system:
-            system_path: "~{{ user_to_configure }}/code/vxsuite-complete-system"
-            usb_path: "vxsuite-complete-system"
-    
     - name: Get the USB mountpoint
       ansible.builtin.command: lsblk -no mountpoint "/dev/{{ device }}1"
       register: usb_mnt
