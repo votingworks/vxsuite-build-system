@@ -12,11 +12,11 @@
     users:
       vx-services:
         uid: 750
-        home: /var/vx/services
+        home: /vx/services
         secondary_groups: 'adm,scanner,vx-group'
       vx-ui:
         uid: 751
-        home: /var/vx/ui
+        home: /vx/ui
         secondary_groups: 'adm,lpadmin,plugdev,vx-group'
         sudo_commands:
           - /vx/code/config/admin-functions/timedatectl
@@ -31,7 +31,7 @@
           - /usr/sbin/mkfs.exfat
       vx-admin:
         uid: 752
-        home: /var/vx/admin
+        home: /vx/admin
         secondary_groups: 'adm,plugdev,vx-group'
         sudo_commands:
           - /vx/admin/admin-functions/set-clock.sh
@@ -50,10 +50,10 @@
       - /var/vx/data/module-scan
       - /var/vx/data/module-sems-converter
       - /var/vx/data/admin-service
-      - /var/vx/ui
-      - /var/vx/admin
+      - /vx/ui
+      - /vx/admin
+      - /vx/services
       - /var/vx/config
-      - /var/vx/services
 
     links:
       /var/vx/config:
