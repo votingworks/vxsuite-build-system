@@ -7,9 +7,10 @@
   vars:
     downloads_directory: "/tmp"
     rust_version: '1.68.0'
-    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
 
   tasks:
+
+    - import_tasks: shared_tasks/user_to_configure.yaml
 
     - name: Determine system architecture for appropriate Rust install
       set_fact: 

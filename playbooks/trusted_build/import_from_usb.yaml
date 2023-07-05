@@ -1,0 +1,32 @@
+---
+
+- name: Import from USB
+  hosts: 127.0.0.1
+  connection: local
+  become: true  
+
+  tasks:
+    
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Ensure the USB is not unmounted before we use it
+      set_fact:
+        unmount_usb: false
+
+    - import_tasks: shared_tasks/usb_mgmt.yaml
+      when: usb_disk_info is not defined
+
+    - name: Get the USB mountpoint
+      ansible.builtin.command: lsblk -no mountpoint "/dev/{{ device }}1"
+      register: usb_mnt
+    
+    - name: Copy the files from the USB
+      ansible.builtin.copy:
+        src: "{{ usb_mnt.stdout }}/{{ item.value.usb_path }}/"
+        dest: "{{ item.value.system_path }}/"
+        remote_src: true
+      with_dict:
+        - "{{ well_known_paths }}"
+    
+

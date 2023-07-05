@@ -1,0 +1,18 @@
+---
+
+- name: Define well-known paths
+  set_fact: 
+    well_known_paths:
+      apt_packages:
+        system_path: "/var/cache/apt/archives"
+        usb_path: "apt_packages"
+      tools:
+        system_path: "/tmp/downloads"
+        usb_path: "downloads"
+      vxsuite-complete-system:
+        system_path: "~{{ user_to_configure }}/code/vxsuite-complete-system"
+        usb_path: "vxsuite-complete-system"
+      vxsuite-build-system:
+        system_path: "~{{ user_to_configure }}/code/vxsuite-build-system"
+        usb_path: "vxsuite-build-system"
+    
