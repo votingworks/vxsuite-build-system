@@ -1,0 +1,103 @@
+---
+- name: Clone votingworks repos
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+  vars:
+    downloads_directory: "/tmp/code"
+    user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
+    code_directory: "~{{ user_to_configure }}/code"
+
+  tasks:
+
+    #-- Default to main branch in all repos unless defined elsewhere
+    - name: Configure the repos dictionary if not already defined
+      set_fact:
+        repos:
+          kiosk-browser:
+            version: main
+          vxsuite:
+            version: main
+          vxsuite-complete-system:
+            version: main
+      when: repos is not defined
+      
+    - name: Online tasks for git repos
+      block:
+
+      - name: Make sure the {{ downloads_directory }} directory does not exist from a previous build
+        ansible.builtin.file:
+          path: "{{ downloads_directory }}"
+          state: absent
+        when: (downloads_directory is defined) and (downloads_directory|length > 0)
+
+      - name: Create the code subdir
+        ansible.builtin.file:
+          path: "{{ downloads_directory }}"
+          state: directory
+          mode: '0755'
+  
+      - name: Create the repo subdirs in the code dir
+        ansible.builtin.file:
+          path: "{{ downloads_directory }}/{{ item.key }}"
+          state: directory
+          mode: '0755'
+        with_dict: "{{ repos }}"
+    
+      #-- Note: this defaults to main AND automatically updates submodules
+      #-- You need to specify the branch/tag/commit in the repos dictionary
+      #-- if you want anything other than main
+      - name: Clone the votingworks repos
+        ansible.builtin.git:
+          repo: "https://github.com/votingworks/{{ item.key }}.git"
+          dest: "{{ downloads_directory }}/{{ item.key }}"
+          version: "{{ item.value.version | default('main') }}"
+        with_dict: "{{ repos }}"
+
+      tags:
+        - online
+
+    #-- TODO: Should this just be part of an initial script copy instead?
+    - name: Offline tasks for git repos
+      block:
+        - name: Check that the expected {{ downloads_directory }} directory exists
+          ansible.builtin.stat:
+            path: "{{ downloads_directory }}"
+          register: code_dir_info
+
+        - name: Error if {{ downloads_directory }} does not exist
+          ansible.builtin.fail:
+            msg: "Error: The expected {{ downloads_directory }} directory does not exist."
+          when: not code_dir_info.stat.exists or not code_dir_info.stat.isdir
+
+        - name: Create the {{ code_directory }} directory
+          ansible.builtin.file:
+            path: "{{ code_directory }}"
+            owner: "{{ user_to_configure }}"
+            group: "{{ user_to_configure }}"
+            mode: '0755'
+            state: directory
+
+        - name: Check for any existing repos
+          ansible.builtin.stat:
+            path: "{{ code_directory }}/{{ item }}"
+          with_items: "{{ repos | list }}"
+          register: repos_info
+
+        - name: If any repos already exist, exit the playbook so we don't overwrite pre-existsing work in localdev
+          ansible.builtin.fail:
+            msg: "{{ item.item }} exists already."
+          when: item.stat.exists
+          with_items: "{{ repos_info.results }}"
+
+        - name: Copy {{ downloads_directory }} to {{ code_directory }}
+          ansible.builtin.copy:
+            src: "{{ downloads_directory }}/"
+            dest: "{{ code_directory }}"
+            remote_src: yes
+            owner: "{{ user_to_configure }}"
+            group: "{{ user_to_configure }}"
+
+      tags:
+        - offline
