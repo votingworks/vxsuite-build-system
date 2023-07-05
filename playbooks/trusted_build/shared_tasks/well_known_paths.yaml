@@ -12,4 +12,7 @@
       vxsuite-complete-system:
         system_path: "~{{ user_to_configure }}/code/vxsuite-complete-system"
         usb_path: "vxsuite-complete-system"
+      vxsuite-build-system:
+        system_path: "~{{ user_to_configure }}/code/vxsuite-build-system"
+        usb_path: "vxsuite-build-system"
     
