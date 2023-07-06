@@ -5,12 +5,13 @@
   become: true
 
   vars:
-    downloads_directory: "/tmp"
+    downloads_directory: "/tmp/downloads"
     rust_version: '1.68.0'
 
   tasks:
 
     - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
 
     - name: Determine system architecture for appropriate Rust install
       set_fact: 
@@ -31,8 +32,6 @@
       ansible.builtin.get_url:
         url: "{{ rust_tarball_url }}"
         dest: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
-      become: true
-      become_user: "{{ user_to_configure }}"
       tags:
         - online
 
