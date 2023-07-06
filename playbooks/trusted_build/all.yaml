@@ -1,0 +1,9 @@
+---
+- name: All the trusted build steps
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+- import_playbook: packages.yaml
+- import_playbook: node.yaml
+- import_playbook: rust.yaml
