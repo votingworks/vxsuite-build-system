@@ -16,3 +16,8 @@
         system_path: "~{{ user_to_configure }}/code/vxsuite-build-system"
         usb_path: "vxsuite-build-system"
     
+- name: Be sure to create /tmp/downloads
+  ansible.builtin.file:
+    path: "/tmp/downloads"
+    state: directory
+    mode: 0755  

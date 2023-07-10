@@ -1,15 +1,5 @@
 ---
 
-#-- Note: We may want to remove this so packages from the preseed 
-#--       Debian install are available. Need more info from SLI
-- name: Clean out any existing packages
-  ansible.builtin.apt:
-    clean: yes
-
-- name: Update the cache after cleaning
-  ansible.builtin.apt:
-    update_cache: yes
-
 #-- This is expected to run on a clean system
 #-- Dependencies are then pulled in correctly
 #-- If on an existing system, this can break if 

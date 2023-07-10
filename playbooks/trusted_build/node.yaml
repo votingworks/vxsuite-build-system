@@ -6,13 +6,16 @@
 
   #-- TODO: move downloads_directory to defaults/inventory
   vars:
-    downloads_directory: "/tmp"
+    downloads_directory: "/tmp/downloads"
     node_version: "16.19.1"
     npm_packages:
       - yarn@1.22.15
       - pnpm@8.1.0
 
   tasks:
+
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
 
     - name: Determine system architecture
       set_fact:
