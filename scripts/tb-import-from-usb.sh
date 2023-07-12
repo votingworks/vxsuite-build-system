@@ -30,6 +30,7 @@ chown -R ${local_user}.${local_user} ${local_user_home_dir}/code/vxsuite-build-s
 #-- Copy cargo packages
 if [ ! -d $cargo_dir ]; then
   mkdir -p $cargo_dir
+  chown -R ${local_user}.${local_user} ${local_user_home_dir}/.cargo
 fi
 cp -r ${usb_root}/cargo_packages/* $cargo_dir
 chown -R ${local_user}.${local_user} $cargo_dir
