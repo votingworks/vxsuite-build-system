@@ -32,11 +32,13 @@ if [ ! -d $cargo_dir ]; then
   mkdir -p $cargo_dir
 fi
 cp -r ${usb_root}/cargo_packages/* $cargo_dir
+chown -R ${local_user}.${local_user} $cargo_dir
 
 #-- Copy pnpm packages
 if [ ! -d $pnpm_dir ]; then
   mkdir -p $pnpm_dir
 fi
 cp -r ${usb_root}/pnpm_packages/* $pnpm_dir
+chown -R ${local_user}.${local_user} $pnpm_dir
 
 exit 0;
