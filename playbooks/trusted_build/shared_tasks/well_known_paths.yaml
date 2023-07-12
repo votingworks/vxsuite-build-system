@@ -6,6 +6,12 @@
       apt_packages:
         system_path: "/var/cache/apt/archives"
         usb_path: "apt_packages"
+      pnpm_packages:
+        system_path: "~{{ user_to_configure }}/.local/share/pnpm"
+        usb_path: "pnpm_packages"
+      cargo_packages:
+        system_path: "~{{ user_to_configure }}/.cargo/registry"
+        usb_path: "cargo_packages"
       tools:
         system_path: "/tmp/downloads"
         usb_path: "downloads"
