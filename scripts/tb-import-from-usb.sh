@@ -4,6 +4,7 @@
 local_user=`logname`
 usb_root="/media/${local_user}/VxTrustedBuild"
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
+code_dir="${local_user_home_dir}/code"
 cargo_dir="${local_user_home_dir}/.cargo/registry/"
 pnpm_dir="${local_user_home_dir}/.local/share/pnpm/"
 
@@ -19,13 +20,18 @@ cp -r ${usb_root}/downloads /tmp/
 #-- Copy all the apt packages to the local cache
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/
 
+if [ ! -d $code_dir ]; then
+  mkdir -p $code_dir
+  chown ${local_user}.${local_user} $code_dir
+fi
+
 #-- Copy vxsuite-complete-system
-cp -r ${usb_root}/vxsuite-complete-system ${local_user_home_dir}/code
-chown -R ${local_user}.${local_user} ${local_user_home_dir}/code/vxsuite-complete-system
+cp -r ${usb_root}/vxsuite-complete-system $code_dir
+chown -R ${local_user}.${local_user} ${code_dir}/vxsuite-complete-system
 
 #-- Copy vxsuite-build-system
-cp -r ${usb_root}/vxsuite-build-system ${local_user_home_dir}/code
-chown -R ${local_user}.${local_user} ${local_user_home_dir}/code/vxsuite-build-system
+cp -r ${usb_root}/vxsuite-build-system $code_dir
+chown -R ${local_user}.${local_user} ${code_dir}/vxsuite-build-system
 
 #-- Copy cargo packages
 if [ ! -d $cargo_dir ]; then
