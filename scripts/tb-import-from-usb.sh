@@ -20,11 +20,11 @@ cp -r ${usb_root}/downloads /tmp/
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/
 
 #-- Copy vxsuite-complete-system
-cp -r ${usb_root}/vxsuite-complete-system ${local_user_home_dir}/code/
+cp -r ${usb_root}/vxsuite-complete-system ${local_user_home_dir}/code
 chown -R ${local_user}.${local_user} ${local_user_home_dir}/code/vxsuite-complete-system
 
 #-- Copy vxsuite-build-system
-cp -r ${usb_root}/vxsuite-build-system ${local_user_home_dir}/code/
+cp -r ${usb_root}/vxsuite-build-system ${local_user_home_dir}/code
 chown -R ${local_user}.${local_user} ${local_user_home_dir}/code/vxsuite-build-system
 
 #-- Copy cargo packages
