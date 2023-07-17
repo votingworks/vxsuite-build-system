@@ -8,7 +8,11 @@
   vars:
     base_packages:
       - build-essential
+      - rsync
+      - cups
+      - cryptsetup
       - curl
+      - efitools
       - make
       - gzip
       - zip
