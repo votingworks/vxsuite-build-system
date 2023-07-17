@@ -23,4 +23,5 @@
 
     - name: Install gems
       command: "gem install --force --local *.gem"
-      chdir: "{{ downloads_directory }}/gems"
+      args:
+        chdir: "{{ downloads_directory }}/gems"
