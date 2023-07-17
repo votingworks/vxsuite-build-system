@@ -1,0 +1,26 @@
+---
+- name: Manage rubygems
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  #-- TODO: move downloads_directory to defaults/inventory
+  vars:
+    downloads_directory: "/tmp/downloads"
+    gems:
+      - fpm
+
+  tasks:
+
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Download gems
+      command: "gem install -i {{ downloads_directory }}/gems --no-rdoc --no-ri"
+      loop: "{{ gems }}"
+      tags:
+        - online
+
+    - name: Install gems
+      command: "gem install --force --local *.gem"
+      chdir: "{{ downloads_directory }}/gems"
