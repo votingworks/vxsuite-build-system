@@ -22,6 +22,6 @@
         - online
 
     - name: Install gems
-      command: "gem install --force --local *.gem"
-      args:
+      ansible.builtin.shell: 
+        cmd: "gem install --force --local *.gem"
         chdir: "{{ downloads_directory }}/gems/cache"
