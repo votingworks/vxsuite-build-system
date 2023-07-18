@@ -15,6 +15,11 @@
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+    - name: Create gems directory
+      ansible.builtin.file:
+        path: "{{ downloads_directory }}/gems"
+        state: directory
+
     - name: Download gems
       command: "gem install {{ item }} -i {{ downloads_directory }}/gems --no-document"
       loop: "{{ gems }}"
