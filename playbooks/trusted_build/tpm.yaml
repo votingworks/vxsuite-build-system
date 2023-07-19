@@ -26,6 +26,8 @@
       - libengine-tpm2-tss-openssl
 
   tasks:
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
 
     - name: Add bullseye-backports as an apt source
       ansible.builtin.lineinfile:
@@ -68,7 +70,7 @@
 
     - name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
       ansible.builtin.shell:
-        cmd: "setup-scripts/setup-tpm2-totp.sh"
+        cmd: "bash setup-scripts/setup-tpm2-totp.sh"
         chdir: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}"
       tags:
         - offline
