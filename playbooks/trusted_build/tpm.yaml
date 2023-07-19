@@ -1,0 +1,61 @@
+---
+
+- name: Install tpm tools
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  vars:
+    tpm_packages:
+      - build-essential
+      - autoconf
+      - autoconf-archive
+      - automake
+      - m4
+      - libtool
+      - gcc
+      - pkg-config
+      - libqrencode-dev
+      - libssl-dev
+      - libjson-c-dev
+      - libcurl4-openssl-dev
+      - tpm2-tools
+      - qrencode
+
+    bullseye_backports_packages:
+      - libengine-tpm2-tss-openssl
+
+  tasks:
+
+    - name: Add bullseye-backports as an apt source
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        line: 'deb http://http.us.debian.org/debian bullseye-backports main'
+      tags:
+        - online
+
+    - name: Assign the lowest possible priority for bullseye-backports
+      ansible.builtin.blockinfile:
+        create: true
+        path: /etc/apt/preferences.d/bullseye-backports
+        block: |
+          Package: *
+          Pin: release a=bullseye-backports
+          Pin-Priority: 1
+      tags:
+        - online
+
+    - name: Create a list of all the packages we need
+      set_fact:
+        all_packages: "{{ all_packages | default([]) + [ item ] }}"
+      with_items:
+        - "{{ tpm_packages | default([]) }}"
+        - "{{ bullseye_backports_packages | default([]) }}"
+
+    - name: De-dupe the list for efficiency
+      set_fact:
+        all_packages: "{{ all_packages | unique | select | list }}"
+
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
