@@ -8,6 +8,7 @@ code_dir="${local_user_home_dir}/code"
 cargo_dir="${local_user_home_dir}/.cargo/registry/"
 pnpm_dir="${local_user_home_dir}/.local/share/pnpm/"
 electron_dir="${local_user_home_dir}/.cache/electron/"
+electron_gyp_dir="${local_user_home_dir}/.electron-gyp/"
 yarn_dir="${local_user_home_dir}/.cache/yarn/"
 
 #-- Make sure the USB is mounted where we expect
@@ -57,6 +58,14 @@ if [ ! -d $electron_dir ]; then
 fi
 cp -r ${usb_root}/electron_cache/* $electron_dir
 chown -R ${local_user}.${local_user} $electron_dir
+
+#-- Copy electron-gyp cache
+if [ ! -d $electron_gyp_dir ]; then
+  mkdir -p $electron_gyp_dir
+  chown -R ${local_user}.${local_user} $electron_gyp_dir
+fi
+cp -r ${usb_root}/electron_gyp_cache/* $electron_gyp_dir
+chown -R ${local_user}.${local_user} $electron_gyp_dir
 
 #-- Copy yarn cache
 if [ ! -d $yarn_dir ]; then
