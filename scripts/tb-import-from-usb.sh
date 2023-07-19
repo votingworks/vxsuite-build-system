@@ -7,7 +7,8 @@ local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 code_dir="${local_user_home_dir}/code"
 cargo_dir="${local_user_home_dir}/.cargo/registry/"
 pnpm_dir="${local_user_home_dir}/.local/share/pnpm/"
-electron_dir=${local_user_home_dir}/.cache/electron/
+electron_dir="${local_user_home_dir}/.cache/electron/"
+yarn_dir="${local_user_home_dir}/.cache/yarn/"
 
 #-- Make sure the USB is mounted where we expect
 if [ ! -d $usb_root ]; then
@@ -56,5 +57,13 @@ if [ ! -d $electron_dir ]; then
 fi
 cp -r ${usb_root}/electron_cache/* $electron_dir
 chown -R ${local_user}.${local_user} $electron_dir
+
+#-- Copy yarn cache
+if [ ! -d $yarn_dir ]; then
+  mkdir -p $yarn_dir
+  chown -R ${local_user}.${local_user} $yarn_dir
+fi
+cp -r ${usb_root}/yarn_cache/* $yarn_dir
+chown -R ${local_user}.${local_user} $yarn_dir
 
 exit 0;

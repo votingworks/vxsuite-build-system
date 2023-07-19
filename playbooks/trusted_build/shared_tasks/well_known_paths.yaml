@@ -15,6 +15,9 @@
       electron_cache:
         system_path: "~{{ user_to_configure }}/.cache/electron"
         usb_path: "electron_cache"
+      yarn_cache:
+        system_path: "~{{ user_to_configure }}/.cache/yarn"
+        usb_path: "yarn_cache"
       tools:
         system_path: "/tmp/downloads"
         usb_path: "downloads"
