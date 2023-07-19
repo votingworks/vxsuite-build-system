@@ -45,6 +45,12 @@
       tags:
         - online
 
+    - name: Update apt sources to include bullseye-backports
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - online
+
     - name: Create a list of all the packages we need
       set_fact:
         all_packages: "{{ all_packages | default([]) + [ item ] }}"
@@ -59,3 +65,10 @@
     - name: Import the apt role which supports online and offline builds
       ansible.builtin.import_role:
         name: apt
+
+    - name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
+      ansible.builtin.shell:
+        cmd: "setup-scripts/setup-tpm2-totp.sh"
+        chdir: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}"
+      tags:
+        - offline
