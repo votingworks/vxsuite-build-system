@@ -26,6 +26,26 @@
       - libpango1.0-dev 
       - libgif-dev 
 
+    setup_machine_packages:
+      - unclutter
+      - mingetty
+      - brightnessctl
+      - alsa-utils
+      - pulseaudio
+      - pulseaudio-utils
+      - openbox
+      - xorg 
+      - xserver-xorg-core
+      - xserver-xorg-video-all
+      - xserver-xorg-input-all
+      - xinput
+      - x11-common
+      - xinit
+      - rsync
+      - cups
+      - cryptsetup
+      - sbsigntool
+
     kiosk_browser_packages:
       - build-essential
       - libudev-dev
@@ -110,6 +130,7 @@
       with_items:
         - "{{ base_packages | default([]) }}"
         - "{{ kiosk_browser_packages | default([]) }}"
+        - "{{ setup_machine_packages | default([]) }}"
         - "{{ libs_auth_packages | default([]) }}"
         - "{{ svc_converter_ms_sems_packages | default([]) }}"
         - "{{ svc_smartcards_packages | default([]) }}"
