@@ -13,7 +13,7 @@
         system_path: "~{{ user_to_configure }}/.cargo/registry"
         usb_path: "cargo_packages"
       electron_cache:
-        system_path: "~{{ user_to_configure }}/.electron"
+        system_path: "~{{ user_to_configure }}/.cache/electron"
         usb_path: "electron_cache"
       tools:
         system_path: "/tmp/downloads"
