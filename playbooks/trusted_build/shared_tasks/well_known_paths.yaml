@@ -6,6 +6,21 @@
       apt_packages:
         system_path: "/var/cache/apt/archives"
         usb_path: "apt_packages"
+      pnpm_packages:
+        system_path: "~{{ user_to_configure }}/.local/share/pnpm"
+        usb_path: "pnpm_packages"
+      cargo_packages:
+        system_path: "~{{ user_to_configure }}/.cargo/registry"
+        usb_path: "cargo_packages"
+      electron_cache:
+        system_path: "~{{ user_to_configure }}/.cache/electron"
+        usb_path: "electron_cache"
+      electron_gyp_cache:
+        system_path: "~{{ user_to_configure }}/.electron-gyp"
+        usb_path: "electron_gyp_cache"
+      yarn_cache:
+        system_path: "~{{ user_to_configure }}/.cache/yarn"
+        usb_path: "yarn_cache"
       tools:
         system_path: "/tmp/downloads"
         usb_path: "downloads"

@@ -8,7 +8,11 @@
   vars:
     base_packages:
       - build-essential
+      - rsync
+      - cups
+      - cryptsetup
       - curl
+      - efitools
       - make
       - gzip
       - zip
@@ -21,6 +25,27 @@
       - libcairo2-dev 
       - libpango1.0-dev 
       - libgif-dev 
+
+    kiosk_browser_packages:
+      - build-essential
+      - libudev-dev
+      - unzip
+      - git
+      - python3.9
+      - cups-client
+      - ruby
+      - libgtk-3-0
+      - libnotify4
+      - libxss1
+      - libxtst6
+      - xdg-utils
+      - libatspi2.0-0
+      - kde-cli-tools
+      - trash-cli
+      - libglib2.0-bin
+      - gvfs-bin
+      - cups
+      - cups-bsd
 
     libs_auth_packages:
       - default-jdk
@@ -84,6 +109,7 @@
         all_packages: "{{ all_packages | default([]) + [ item ] }}"
       with_items:
         - "{{ base_packages | default([]) }}"
+        - "{{ kiosk_browser_packages | default([]) }}"
         - "{{ libs_auth_packages | default([]) }}"
         - "{{ svc_converter_ms_sems_packages | default([]) }}"
         - "{{ svc_smartcards_packages | default([]) }}"

@@ -16,11 +16,13 @@
       ansible.builtin.command: lsblk -no mountpoint "/dev/{{ device }}1"
       register: usb_mnt
     
-    - name: Copy the files to the USB
-      ansible.builtin.copy:
+    #-- Ansible copy does not scale to recursive copies involving
+    #-- hundreds/thousands of files, so we use rsync instead
+    - name: Synchronize the files to the USB
+      ansible.posix.synchronize:
         src: "{{ item.value.system_path }}/"
         dest: "{{ usb_mnt.stdout }}/{{ item.value.usb_path }}/"
-        remote_src: true
+      delegate_to: localhost
       with_dict:
         - "{{ well_known_paths }}"
     
