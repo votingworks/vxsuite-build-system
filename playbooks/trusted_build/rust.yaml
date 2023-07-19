@@ -5,7 +5,7 @@
   become: true
 
   vars:
-    downloads_directory: "/tmp/downloads"
+    downloads_directory: "/var/tmp/downloads"
     rust_version: '1.68.0'
 
   tasks:
@@ -38,7 +38,7 @@
     - name: Extract Rust to tmp
       ansible.builtin.unarchive:
         src: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
-        dest: /tmp
+        dest: /var/tmp
         remote_src: yes
       become: true
       become_user: "{{ user_to_configure }}"
@@ -48,7 +48,7 @@
     - name: Install Rust {{ rust_version }} as {{ user_to_configure }}
       ansible.builtin.shell:
         cmd: "./install.sh --prefix=~{{ user_to_configure }}/.cargo "
-        chdir: "/tmp/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu"
+        chdir: "/var/tmp/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu"
       become: true
       become_user: "{{ user_to_configure }}"
       tags:

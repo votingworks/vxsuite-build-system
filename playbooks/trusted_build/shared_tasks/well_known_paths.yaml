@@ -22,7 +22,7 @@
         system_path: "~{{ user_to_configure }}/.cache/yarn"
         usb_path: "yarn_cache"
       tools:
-        system_path: "/tmp/downloads"
+        system_path: "/var/tmp/downloads"
         usb_path: "downloads"
       vxsuite-complete-system:
         system_path: "~{{ user_to_configure }}/code/vxsuite-complete-system"
@@ -31,8 +31,8 @@
         system_path: "~{{ user_to_configure }}/code/vxsuite-build-system"
         usb_path: "vxsuite-build-system"
     
-- name: Be sure to create /tmp/downloads
+- name: Be sure to create /var/tmp/downloads
   ansible.builtin.file:
-    path: "/tmp/downloads"
+    path: "/var/tmp/downloads"
     state: directory
     mode: 0755  

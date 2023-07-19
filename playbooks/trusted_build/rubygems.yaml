@@ -6,7 +6,7 @@
 
   #-- TODO: move downloads_directory to defaults/inventory
   vars:
-    downloads_directory: "/tmp/downloads"
+    downloads_directory: "/var/tmp/downloads"
     gems:
       - fpm
 
