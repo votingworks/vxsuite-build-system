@@ -7,6 +7,7 @@ local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 code_dir="${local_user_home_dir}/code"
 cargo_dir="${local_user_home_dir}/.cargo/registry/"
 pnpm_dir="${local_user_home_dir}/.local/share/pnpm/"
+electron_dir=${local_user_home_dir}/.electron/
 
 #-- Make sure the USB is mounted where we expect
 if [ ! -d $usb_root ]; then
@@ -47,5 +48,12 @@ if [ ! -d $pnpm_dir ]; then
 fi
 cp -r ${usb_root}/pnpm_packages/* $pnpm_dir
 chown -R ${local_user}.${local_user} $pnpm_dir
+
+#-- Copy electron cache
+if [ ! -d $electron_dir ]; then
+  mkdir -p $electron_dir
+fi
+cp -r ${usb_root}/electron_cache/* $electron_dir
+chown -R ${local_user}.${local_user} $electron_dir
 
 exit 0;
