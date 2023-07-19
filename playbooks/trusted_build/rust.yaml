@@ -15,7 +15,7 @@
 
     - name: Determine system architecture for appropriate Rust install
       set_fact: 
-        architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x64_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+        architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
 
     - name: Set the URL to download the appropriate Rust tarball
       set_fact:
