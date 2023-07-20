@@ -69,8 +69,8 @@
         name: apt
 
     - name: Directly install backports packages when offline
-      ansible.builtin.apt:
-        deb: "/var/cache/apt/archives/{{ item }}*.deb"
+      ansible.builtin.shell:
+        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*.deb"
       with_items:
         - "{{ bullseye_backports_packages | default([]) }}"
       tags:
