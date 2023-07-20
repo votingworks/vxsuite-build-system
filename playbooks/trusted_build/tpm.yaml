@@ -29,6 +29,24 @@
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+    - name: Create a list of all the packages we need
+      set_fact:
+        all_packages: "{{ all_packages | default([]) + [ item ] }}"
+      with_items:
+        - "{{ tpm_packages | default([]) }}"
+
+    - name: De-dupe the list for efficiency
+      set_fact:
+        all_packages: "{{ all_packages | unique | select | list }}"
+
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
+
+    #-- TODO: This is a workaround since our offline machine can't apt update
+    #-- If we do this before the above apt import, it pulls package
+    #-- dependencies that won't match on the offline machine
+    #-- So, adding this source afterward solves this but it's not ideal 
     - name: Add bullseye-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
@@ -52,20 +70,6 @@
         update_cache: true
       tags:
         - online
-
-    - name: Create a list of all the packages we need
-      set_fact:
-        all_packages: "{{ all_packages | default([]) + [ item ] }}"
-      with_items:
-        - "{{ tpm_packages | default([]) }}"
-
-    - name: De-dupe the list for efficiency
-      set_fact:
-        all_packages: "{{ all_packages | unique | select | list }}"
-
-    - name: Import the apt role which supports online and offline builds
-      ansible.builtin.import_role:
-        name: apt
 
     - name: Handle backported packages explicitly
       ansible.builtin.command:
