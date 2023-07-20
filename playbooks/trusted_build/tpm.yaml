@@ -68,6 +68,14 @@
       ansible.builtin.import_role:
         name: apt
 
+    - name: Directly install backports packages when offline
+      ansible.builtin.apt:
+        deb: "/var/cache/apt/archives/{{ item }}"
+      with_items:
+        - "{{ bullseye_backports_packages | default([]) }}"
+      tags:
+        - offline
+
     - name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
       ansible.builtin.shell:
         cmd: "bash setup-scripts/setup-tpm2-totp.sh"
