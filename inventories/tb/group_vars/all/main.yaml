@@ -2,7 +2,7 @@ repos:
   vxsuite-complete-system:
     version: adam/trusted-build
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian-11.6-no-sb"
+vm_name: "tb-debian-11.6-no-sb"
 vm_disk_size_gb: 110
 vm_ram: 8192
 vm_cpus: 6
