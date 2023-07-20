@@ -26,12 +26,6 @@
       with_dict:
         - "{{ well_known_paths }}"
     
-    - name: Copy the backports apt lists needed for tpm install
-      ansible.posix.synchronize:
-        src: "{{ /var/lib/apt/lists/*bullseye-backports* }}"
-        dest: "{{ usb_mnt.stdout }}/apt_lists/"
-      delegate_to: localhost
-
     - name: Sync the USB to ensure all data has been written (May take a few minutes)
       ansible.builtin.command: /usr/bin/sync
 

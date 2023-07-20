@@ -58,7 +58,6 @@
         all_packages: "{{ all_packages | default([]) + [ item ] }}"
       with_items:
         - "{{ tpm_packages | default([]) }}"
-        - "{{ bullseye_backports_packages | default([]) }}"
 
     - name: De-dupe the list for efficiency
       set_fact:
@@ -67,6 +66,22 @@
     - name: Import the apt role which supports online and offline builds
       ansible.builtin.import_role:
         name: apt
+
+    - name: Handle backported packages explicitly
+      ansible.builtin.command:
+        cmd: "apt-get install --reinstall --download-only -y {{ item }}"
+      with_items:
+        - "{{ bullseye_backports_packages }}"
+      tags:
+        - online
+
+    - name: Install backported packages directly
+      ansible.builtin.shell:
+        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*.deb"
+      with_items:
+        - "{{ bullseye_backports_packages }}"
+      tags:
+        - offline
 
     - name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
       ansible.builtin.shell:
