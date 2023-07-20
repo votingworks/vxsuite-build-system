@@ -17,8 +17,8 @@ if [ ! -d $usb_root ]; then
   exit 1;
 fi
 
-#-- Set up the various downloads at /tmp/downloads/
-cp -r ${usb_root}/downloads /tmp/
+#-- Set up the various downloads at /var/tmp/downloads/
+cp -r ${usb_root}/downloads /var/tmp/
 
 #-- Copy all the apt packages to the local cache
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/

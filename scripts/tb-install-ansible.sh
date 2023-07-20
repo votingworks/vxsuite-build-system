@@ -33,13 +33,13 @@ function pip_install ()
   local phase=$1
   if [ "$phase" == "online" ] || [ "$phase" == "both" ]; then
     echo "online/both"
-    pip3 download -d /tmp/downloads ansible passlib pipenv 
-    pip3 install --no-index --find-links /tmp/downloads ansible passlib pipenv
+    pip3 download -d /var/tmp/downloads ansible passlib pipenv 
+    pip3 install --no-index --find-links /var/tmp/downloads ansible passlib pipenv
   fi
 
   if [ "$phase" == "offline" ] || [ "$phase" == "both" ]; then
     echo "offline/both"
-    pip3 install --no-index --find-links /tmp/downloads ansible passlib pipenv
+    pip3 install --no-index --find-links /var/tmp/downloads ansible passlib pipenv
   fi
 }
 

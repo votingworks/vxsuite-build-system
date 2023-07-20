@@ -1,3 +1,14 @@
 repos:
   vxsuite-complete-system:
     version: adam/trusted-build
+virt_image_path: "/var/lib/libvirt/images"
+vm_name: "tb-debian-11.6-no-sb"
+vm_disk_size_gb: 110
+vm_ram: 8192
+vm_cpus: 6
+iso_name: "debian-11.6.0-amd64-netinst.iso"
+iso_url: "https://cdimage.debian.org/cdimage/archive/11.6.0/amd64/iso-cd"
+vm_preseed_path: "/home/{{ ansible_env.SUDO_USER }}/code/vxsuite-build-system/preseeds"
+vm_preseed_file: "production-preseed.cfg"
+secure_boot: false
+vm_clone_name: "trusted_build"
