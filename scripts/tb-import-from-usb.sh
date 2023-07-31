@@ -2,7 +2,7 @@
 
 #-- Gonna run as sudo, so we need the local user 
 local_user=`logname`
-usb_root="/media/${local_user}/VxTrustedBuild"
+usb_root="/mnt/${local_user}/usb-drive"
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 code_dir="${local_user_home_dir}/code"
 cargo_dir="${local_user_home_dir}/.cargo/registry/"

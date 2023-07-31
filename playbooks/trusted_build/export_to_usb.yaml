@@ -7,13 +7,15 @@
   connection: local
   become: true  
 
-  vars:
-    usb_mount_dir: "/mnt/vx/usb-drive"
 
   tasks:
     
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Define the USB mountpoint
+      set_fact:
+        usb_mount_dir: "/mnt/{{ user_to_configure }}/usb-drive"
 
     - name: Create the USB mountpoint
       ansible.builtin.file:
