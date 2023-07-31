@@ -19,8 +19,8 @@
       ansible.builtin.file:
         path: "{{ usb_mount_dir }}"
         state: directory
-      become: true
-      become_user: "{{ user_to_configure }}"
+        owner: "{{ user_to_configure }}"
+        group: "{{ user_to_configure }}"
 
     - name: Mount the USB
       ansible.posix.mount:
