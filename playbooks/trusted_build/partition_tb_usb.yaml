@@ -48,7 +48,5 @@
           become: true
           command: e2label "/dev/{{ device }}1" VxTrustedBuild
         
-        - import_tasks: shared_tasks/remount_usb.yaml
-        
       tags:
         - online
