@@ -26,7 +26,8 @@
       ansible.posix.mount:
         path: "{{ usb_mount_dir }}"
         src: "/dev/{{ device }}1"
-        state: mounted
+        state: ephemeral
+        fstype: ext4
 
     - name: Get the USB mountpoint
       ansible.builtin.command: lsblk -no mountpoint "/dev/{{ device }}1"
