@@ -16,7 +16,7 @@ function get_usb_device() {
 }
 
 mkdir -p $usb_root
-usb_device=get_usb_device()
+usb_device=$(get_usb_device)
 mount $usb_device $usb_root
 
 #-- Make sure the USB is mounted where we expect
