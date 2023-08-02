@@ -33,12 +33,11 @@
         --name={{ vm_name }}
         --ram={{ vm_ram }}
         --vcpus={{ vm_cpus }}
-        --os-type=linux
-        --os-type=debian10
         --location={{ virt_image_path }}/{{ iso_name }}
         --network bridge=virbr0,model=virtio
-        {{ '--boot uefi,loader_secure=yes' if ( secure_boot ) else ' ' }}
+        {{ '--boot loader=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd,loader.readonly=yes,loader.type=pflash,loader.secure=yes' if ( secure_boot ) else ' ' }}
         --console pty,target_type=serial
+        --features smm=yes
         --check disk_size=off
         --disk path={{ virt_image_path }}/{{ vm_name }}.img,size={{ vm_disk_size_gb }},format=raw
         --initrd-inject={{ vm_preseed_path }}/{{ vm_preseed_file }}

@@ -2,7 +2,7 @@
 
 #-- Gonna run as sudo, so we need the local user 
 local_user=`logname`
-usb_root="/media/${local_user}/VxTrustedBuild"
+usb_root="/mnt/${local_user}/usb-drive"
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 code_dir="${local_user_home_dir}/code"
 cargo_dir="${local_user_home_dir}/.cargo/registry/"
@@ -11,8 +11,16 @@ electron_dir="${local_user_home_dir}/.cache/electron/"
 electron_gyp_dir="${local_user_home_dir}/.electron-gyp/"
 yarn_dir="${local_user_home_dir}/.cache/yarn/"
 
+function get_usb_device() {
+  lsblk /dev/disk/by-id/usb*part* --noheadings --output PATH 2> /dev/null | grep / --max-count 1
+}
+
+mkdir -p $usb_root
+usb_device=$(get_usb_device)
+mount $usb_device $usb_root
+
 #-- Make sure the USB is mounted where we expect
-if [ ! -d $usb_root ]; then
+if [ ! -d ${usb_root}/downloads ]; then
   echo "Error: No USB was found at ${usb_root}"
   exit 1;
 fi
