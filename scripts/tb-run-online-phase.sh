@@ -15,7 +15,8 @@ fi
 if ! which ansible-playbook > /dev/null 2>&1
 then
   echo "Installing Ansible..."
-  sudo ./${vxsuite_build_system_dir}/scripts/tb-install-ansible.sh online
+  cd $vxsuite_build_system_dir
+  sudo ./scripts/tb-install-ansible.sh online
   echo "Ansible installation is complete."
 fi
 
