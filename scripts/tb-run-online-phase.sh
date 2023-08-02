@@ -12,11 +12,6 @@ if [[ ! -d $vxsuite_build_system_dir ]]; then
   exit 1
 fi
 
-if [[ ! -d $vxsuite_complete_system_dir ]]; then
-  echo "ERROR: vxsuite-complete-system could not be found."
-  exit 1
-fi
-
 if ! which ansible-playbook > /dev/null 2>&1
 then
   echo "Installing Ansible..."
@@ -29,6 +24,11 @@ cd $vxsuite_build_system_dir
 echo "Run prepare_for_build playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/tb playbooks/trusted_build/prepare_for_build.yaml
+
+if [[ ! -d $vxsuite_complete_system_dir ]]; then
+  echo "ERROR: vxsuite-complete-system could not be found."
+  exit 1
+fi
 
 echo "Run prepare_build.sh in complete-system. This will take several minutes."
 sleep 5
