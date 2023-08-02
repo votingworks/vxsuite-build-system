@@ -29,6 +29,10 @@
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+    - name: Ensure we don't carry over any packages from other tasks
+      set_fact:
+        all_packages: []
+
     - name: Create a list of all the packages we need
       set_fact:
         all_packages: "{{ all_packages | default([]) + [ item ] }}"
