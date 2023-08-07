@@ -7,6 +7,6 @@
 #-- TODO: Make it work on pre-existing systems???
 - name: Download the packages and dependencies
   ansible.builtin.command:
-    cmd: "apt-get install --reinstall --download-only -y {{ item }}"
+    cmd: "apt-get install --reinstall --no-install-recommends --download-only -y {{ item }}"
   with_items:
     - "{{ all_packages }}"
