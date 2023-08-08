@@ -15,6 +15,7 @@
       - libtool
       - gcc
       - pkg-config
+      - libltdl-dev
       - libqrencode-dev
       - libssl-dev
       - libjson-c-dev
