@@ -26,9 +26,11 @@ if [ ! -d ${usb_root}/downloads ]; then
 fi
 
 #-- Set up the various downloads at /var/tmp/downloads/
+echo "Copying downloaded tools (Node, Rust, etc...)"
 cp -r ${usb_root}/downloads /var/tmp/
 
 #-- Copy all the apt packages to the local cache
+echo "Copying apt packages to local cache"
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/
 
 if [ ! -d $code_dir ]; then
@@ -37,14 +39,17 @@ if [ ! -d $code_dir ]; then
 fi
 
 #-- Copy vxsuite-complete-system
+echo "Copying vxsuite-complete-system code repository"
 cp -r ${usb_root}/vxsuite-complete-system $code_dir
 chown -R ${local_user}.${local_user} ${code_dir}/vxsuite-complete-system
 
 #-- Copy vxsuite-build-system
+echo "Copying vxsuite-build-system code repository"
 cp -r ${usb_root}/vxsuite-build-system $code_dir
 chown -R ${local_user}.${local_user} ${code_dir}/vxsuite-build-system
 
 #-- Copy cargo packages
+echo "Copying cargo crates (Rust)"
 if [ ! -d $cargo_dir ]; then
   mkdir -p $cargo_dir
   chown -R ${local_user}.${local_user} ${local_user_home_dir}/.cargo
@@ -53,6 +58,7 @@ cp -r ${usb_root}/cargo_packages/* $cargo_dir
 chown -R ${local_user}.${local_user} $cargo_dir
 
 #-- Copy pnpm packages
+echo "Copying pnpm modules (Node)"
 if [ ! -d $pnpm_dir ]; then
   mkdir -p $pnpm_dir
 fi
@@ -60,6 +66,7 @@ cp -r ${usb_root}/pnpm_packages/* $pnpm_dir
 chown -R ${local_user}.${local_user} $pnpm_dir
 
 #-- Copy electron cache
+echo "Copying Electron cache and related tools"
 if [ ! -d $electron_dir ]; then
   mkdir -p $electron_dir
   chown -R ${local_user}.${local_user} $electron_dir
@@ -76,11 +83,18 @@ cp -r ${usb_root}/electron_gyp_cache/* $electron_gyp_dir
 chown -R ${local_user}.${local_user} $electron_gyp_dir
 
 #-- Copy yarn cache
+echo "Copying yarn cache"
 if [ ! -d $yarn_dir ]; then
   mkdir -p $yarn_dir
   chown -R ${local_user}.${local_user} $yarn_dir
 fi
 cp -r ${usb_root}/yarn_cache/* $yarn_dir
 chown -R ${local_user}.${local_user} $yarn_dir
+
+echo "All resources required for building have been copied to the correct locations."
+echo "Please run: "
+echo ""
+echo "cd ${code_dir}/vxsuite-build-system && ./scripts/tb-run-offline-phase.sh"
+echo ""
 
 exit 0;
