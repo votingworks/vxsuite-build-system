@@ -37,7 +37,7 @@
         --network bridge=virbr0,model=virtio
         {{ '--boot loader=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd,loader.readonly=yes,loader.type=pflash,loader.secure=yes' if ( secure_boot ) else ' ' }}
         --console pty,target_type=serial
-        --features smm=yes
+        {{ '--features smm=yes' if ( secure_boot ) else ' ' }}
         --check disk_size=off
         --disk path={{ virt_image_path }}/{{ vm_name }}.img,size={{ vm_disk_size_gb }},format=raw
         --initrd-inject={{ vm_preseed_path }}/{{ vm_preseed_file }}
