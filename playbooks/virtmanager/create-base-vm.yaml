@@ -4,6 +4,14 @@
 
   tasks:
 
+    - name: Allocate 60% of system RAM for the VM
+      set_fact:
+        vm_ram: "{{ (ansible_facts['memtotal_mb'] * 0.60)|round(0, 'floor')|int }}"
+
+    - name: Allocate 80% of system CPU for the VM
+      set_fact:
+        vm_cpus: "{{ (ansible_facts['processor_nproc'] * 0.80)|round(0, 'floor')|int }}"
+
     - name: Download Debian ISO
       get_url: 
         url: "{{ iso_url }}/{{ iso_name }}"
