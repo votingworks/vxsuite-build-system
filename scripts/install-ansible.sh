@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 debian_version=$(cat /etc/debian_version | cut -d'.' -f1)
 
 if [[ "$debian_version" == "12" ]]; then
