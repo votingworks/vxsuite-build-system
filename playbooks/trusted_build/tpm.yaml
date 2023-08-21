@@ -63,9 +63,30 @@
       tags:
         - online
 
+    - name: Remove bullseye-backports as an apt source
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        line: 'deb http://http.us.debian.org/debian bullseye-backports main'
+        state: absent
+      tags:
+        - online
+
+    - name: Delete the bullseye-backports preferences file
+      ansible.builtin.file:
+        path: /etc/apt/preferences.d/bullseye-backports
+        state: absent
+      tags:
+        - online
+
+    - name: Update apt sources to remove bullseye-backports
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - online
+
     - name: Install backported packages directly
       ansible.builtin.shell:
-        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*.deb"
+        cmd: "dpkg -i /var/cache/apt/archives/{{ item | replace('=', '_') }}*.deb"
       with_items:
         - "{{ bullseye_backports_packages }}"
       tags:
