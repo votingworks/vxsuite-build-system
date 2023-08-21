@@ -27,10 +27,8 @@
       ansible.builtin.import_role:
         name: apt
 
-    #-- TODO: This is a workaround since our offline machine can't apt update
-    #-- If we do this before the above apt import, it pulls package
-    #-- dependencies that won't match on the offline machine
-    #-- So, adding this source afterward solves this but it's not ideal 
+    #-- Note: This is only used temporarily.
+    #-- We remove it as a source later in this playbook.
     - name: Add bullseye-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
