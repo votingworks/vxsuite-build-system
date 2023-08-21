@@ -5,27 +5,6 @@
   connection: local
   become: true
 
-  vars:
-    tpm_packages:
-      - build-essential
-      - autoconf
-      - autoconf-archive
-      - automake
-      - m4
-      - libtool
-      - gcc
-      - pkg-config
-      - libltdl-dev
-      - libqrencode-dev
-      - libssl-dev
-      - libjson-c-dev
-      - libcurl4-openssl-dev
-      - tpm2-tools
-      - qrencode
-
-    bullseye_backports_packages:
-      - libengine-tpm2-tss-openssl
-
   tasks:
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml

@@ -61,3 +61,36 @@ all_packages:
   - xserver-xorg-input-all=1:7.7+22
   - xserver-xorg-video-all=1:7.7+22
   - zip=3.0-12
+
+tpm_packages:
+  - autoconf=2.69-14
+  - autoconf-archive=20190106-2.1
+  - automake=1:1.16.3-2
+  - autotools-dev=20180224.1+nmu1
+  - build-essential=12.9
+  - gcc=4:10.2.1-1
+  - libcurl4-openssl-dev=7.74.0-1.3+deb11u7
+  - libjson-c-dev=0.15-2
+  - libltdl-dev=2.4.6-15
+  - libqrencode4=4.1.1-1
+  - libqrencode-dev=4.1.1-1
+  - libsigsegv2=2.13-1
+  - libssl-dev=1.1.1n-0+deb11u5
+  - libtool=2.4.6-15
+  - libtss2-esys-3.0.2-0=3.0.3-2
+  - libtss2-mu0=3.0.3-2
+  - libtss2-rc0=3.0.3-2
+  - libtss2-sys1=3.0.3-2
+  - libtss2-tcti-cmd0=3.0.3-2
+  - libtss2-tcti-device0=3.0.3-2
+  - libtss2-tctildr0=3.0.3-2
+  - libtss2-tcti-mssim0=3.0.3-2
+  - libtss2-tcti-swtpm0=3.0.3-2
+  - m4=1.4.18-5
+  - pkg-config=0.29.2-1
+  - qrencode=4.1.1-1
+  - tpm2-tools=5.0-2
+  - tpm-udev=0.5
+
+bullseye_backports_packages:
+  - libengine-tpm2-tss-openssl=1.1.0-2~bpo11+1
