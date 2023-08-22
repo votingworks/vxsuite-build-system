@@ -5,7 +5,7 @@
   become: yes
 
   vars:
-    downloads_directory: "/var/tmp/code"
+    tmp_code_directory: "/var/tmp/code"
     user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
     code_directory: "~{{ user_to_configure }}/code"
 
@@ -26,21 +26,21 @@
     - name: Online tasks for git repos
       block:
 
-      - name: Make sure the {{ downloads_directory }} directory does not exist from a previous build
+      - name: Make sure the {{ tmp_code_directory }} directory does not exist from a previous build
         ansible.builtin.file:
-          path: "{{ downloads_directory }}"
+          path: "{{ tmp_code_directory }}"
           state: absent
-        when: (downloads_directory is defined) and (downloads_directory|length > 0)
+        when: (tmp_code_directory is defined) and (tmp_code_directory|length > 0)
 
       - name: Create the code subdir
         ansible.builtin.file:
-          path: "{{ downloads_directory }}"
+          path: "{{ tmp_code_directory }}"
           state: directory
           mode: '0755'
   
       - name: Create the repo subdirs in the code dir
         ansible.builtin.file:
-          path: "{{ downloads_directory }}/{{ item.key }}"
+          path: "{{ tmp_code_directory }}/{{ item.key }}"
           state: directory
           mode: '0755'
         with_dict: "{{ repos }}"
@@ -51,7 +51,7 @@
       - name: Clone the votingworks repos
         ansible.builtin.git:
           repo: "https://github.com/votingworks/{{ item.key }}.git"
-          dest: "{{ downloads_directory }}/{{ item.key }}"
+          dest: "{{ tmp_code_directory }}/{{ item.key }}"
           version: "{{ item.value.version | default('main') }}"
         with_dict: "{{ repos }}"
 
@@ -61,14 +61,14 @@
     #-- TODO: Should this just be part of an initial script copy instead?
     - name: Offline tasks for git repos
       block:
-        - name: Check that the expected {{ downloads_directory }} directory exists
+        - name: Check that the expected {{ tmp_code_directory }} directory exists
           ansible.builtin.stat:
-            path: "{{ downloads_directory }}"
+            path: "{{ tmp_code_directory }}"
           register: code_dir_info
 
-        - name: Error if {{ downloads_directory }} does not exist
+        - name: Error if {{ tmp_code_directory }} does not exist
           ansible.builtin.fail:
-            msg: "Error: The expected {{ downloads_directory }} directory does not exist."
+            msg: "Error: The expected {{ tmp_code_directory }} directory does not exist."
           when: not code_dir_info.stat.exists or not code_dir_info.stat.isdir
 
         - name: Create the {{ code_directory }} directory
@@ -91,9 +91,9 @@
           when: item.stat.exists
           with_items: "{{ repos_info.results }}"
 
-        - name: Copy {{ downloads_directory }} to {{ code_directory }}
+        - name: Copy {{ tmp_code_directory }} to {{ code_directory }}
           ansible.builtin.copy:
-            src: "{{ downloads_directory }}/"
+            src: "{{ tmp_code_directory }}/"
             dest: "{{ code_directory }}"
             remote_src: yes
             owner: "{{ user_to_configure }}"
