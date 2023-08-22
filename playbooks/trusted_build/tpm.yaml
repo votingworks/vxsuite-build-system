@@ -5,27 +5,6 @@
   connection: local
   become: true
 
-  vars:
-    tpm_packages:
-      - build-essential
-      - autoconf
-      - autoconf-archive
-      - automake
-      - m4
-      - libtool
-      - gcc
-      - pkg-config
-      - libltdl-dev
-      - libqrencode-dev
-      - libssl-dev
-      - libjson-c-dev
-      - libcurl4-openssl-dev
-      - tpm2-tools
-      - qrencode
-
-    bullseye_backports_packages:
-      - libengine-tpm2-tss-openssl
-
   tasks:
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
@@ -48,10 +27,8 @@
       ansible.builtin.import_role:
         name: apt
 
-    #-- TODO: This is a workaround since our offline machine can't apt update
-    #-- If we do this before the above apt import, it pulls package
-    #-- dependencies that won't match on the offline machine
-    #-- So, adding this source afterward solves this but it's not ideal 
+    #-- Note: This is only used temporarily.
+    #-- We remove it as a source later in this playbook.
     - name: Add bullseye-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
@@ -84,9 +61,30 @@
       tags:
         - online
 
+    - name: Remove bullseye-backports as an apt source
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        line: 'deb http://http.us.debian.org/debian bullseye-backports main'
+        state: absent
+      tags:
+        - online
+
+    - name: Delete the bullseye-backports preferences file
+      ansible.builtin.file:
+        path: /etc/apt/preferences.d/bullseye-backports
+        state: absent
+      tags:
+        - online
+
+    - name: Update apt sources to remove bullseye-backports
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - online
+
     - name: Install backported packages directly
       ansible.builtin.shell:
-        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*.deb"
+        cmd: "dpkg -i /var/cache/apt/archives/{{ item | replace('=', '_') }}*.deb"
       with_items:
         - "{{ bullseye_backports_packages }}"
       tags:
