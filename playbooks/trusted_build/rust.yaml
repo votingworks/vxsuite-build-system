@@ -19,15 +19,23 @@
       set_fact: 
         architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
 
+    - name: Define Rust tarball name
+      set_fact: 
+        rust_tarball: "rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+
+    - name: Define Rust manifest name
+      set_fact: 
+        rust_manifest: "channel-rust-{{ rust_version }}.toml"
+
     - name: Define the URL to download the appropriate Rust tarball
       set_fact:
-        rust_tarball_url: "https://static.rust-lang.org/dist/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+        rust_tarball_url: "https://static.rust-lang.org/dist/{{ rust_tarball }}"
       tags:
         - online
 
     - name: Define URL to Rust channel manifest for this version
       set_fact:
-        rust_manifest_url: "https://static.rust-lang.org/dist/channel-rust-{{ rust_version }}.toml"
+        rust_manifest_url: "https://static.rust-lang.org/dist/{{ rust_manifest }}"
       tags:
         - online
 
@@ -39,26 +47,26 @@
     - name: Download Rust
       ansible.builtin.get_url:
         url: "{{ rust_tarball_url }}"
-        dest: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+        dest: "{{ downloads_directory }}/{{ rust_tarball }}"
       tags:
         - online
 
     - name: Download Rust channel manifest for this version
       ansible.builtin.get_url:
         url: "{{ rust_manifest_url }}"
-        dest: "{{ downloads_directory }}/rust-{{ rust_version }}.toml"
+        dest: "{{ downloads_directory }}/{{ rust_manifest }}"
       tags:
         - online
 
     - name: Find the sha256 hash for our version
       ansible.builtin.shell:
-        cmd: "grep -A1 rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz {{ downloads_directory }}/rust-{{ rust_version }}.toml | grep hash | cut -d'=' -f2 | xargs"
+        cmd: "grep -A1 {{ rust_tarball }} {{ downloads_directory }}/{{ rust_manifest }} | grep hash | cut -d'=' -f2 | xargs"
       register: rust_checksum_from_manifest
 
     - name: Generate checksum of the downloaded Rust installer
       ansible.builtin.stat:
         checksum_algorithm: "sha256"
-        path: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+        path: "{{ downloads_directory }}/{{ rust_tarball }}"
       register: rust_checksum_from_download
 
     - name: Error and exit if checksums are not valid (skipping is good)
@@ -68,7 +76,7 @@
 
     - name: Extract Rust to tmp
       ansible.builtin.unarchive:
-        src: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+        src: "{{ downloads_directory }}/{{ rust_tarball }}"
         dest: /var/tmp
         remote_src: yes
       become: true
