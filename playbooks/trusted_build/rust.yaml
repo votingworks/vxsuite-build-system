@@ -1,25 +1,34 @@
 ---
+#-- NOTE: Rust uses gpg for verification of the downloaded installer
+#-- We'll be using that rather than checksums in this playbook
 - name: Trusted Build Install of Rust
   hosts: 127.0.0.1
   connection: local
   become: true
-
-  vars:
-    downloads_directory: "/var/tmp/downloads"
-    rust_version: '1.68.0'
 
   tasks:
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
+
     - name: Determine system architecture for appropriate Rust install
       set_fact: 
         architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
 
-    - name: Set the URL to download the appropriate Rust tarball
+    - name: Define the URL to download the appropriate Rust tarball
       set_fact:
         rust_tarball_url: "https://static.rust-lang.org/dist/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+      tags:
+        - online
+
+    - name: Define URL to Rust signing key
+      set_fact:
+        rust_signing_key_url: "https://static.rust-lang.org/rust-key.gpg.ascii"
       tags:
         - online
 
@@ -34,6 +43,19 @@
         dest: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
       tags:
         - online
+
+    - name: Download Rust signing key
+      ansible.builtin.get_url:
+        url: "{{ rust_signing_key_url }}"
+        dest: "{{ downloads_directory }}/rust-key.gpg.ascii"
+      tags:
+        - online
+
+    - name: Check for a valid signature and exit if it fails
+      ansible.builtin.shell: 
+        cmd: "/usr/bin/gpg --verify {{ downloads_directory }}/rust-key.gpg.ascii {{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+      register: rust_signature_check
+      failed_when: rust_signature_check.rc != 0
 
     - name: Extract Rust to tmp
       ansible.builtin.unarchive:
