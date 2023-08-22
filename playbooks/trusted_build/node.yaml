@@ -56,10 +56,22 @@
             - always
 
         - name: Download package managers
-          command: "npm pack --pack-destination {{ downloads_directory }} {{ item }}"
-          loop: "{{ npm_packages }}"
+          command: "npm pack --pack-destination {{ downloads_directory }} {{ item.key }}@{{ item.value.version }}"
+          with_dict: "{{ npm_packages }}"
           tags:
             - online
+
+        - name: Generate checksums of downloaded package managers
+          ansible.builtin.stat:
+            path: "{{ downloads_directory }}/{{ item.key }}-{{ item.value.version }}.tgz"
+          with_dict: "{{ npm_packages }}"
+          register: npm_package_checksums
+
+        - name: Verify downloaded packages match expected checksums
+          ansible.builtin.fail:
+            msg: "Error! The checksum for {{ item }} does not match."
+          when: item.stdout != npm_packages[item].checksum
+          loop: "{{ npm_package_checksums.results }}"
 
         - name: See if corepack is present
           command: "which corepack"
