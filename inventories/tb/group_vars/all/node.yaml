@@ -1,0 +1,4 @@
+node_version: "16.19.1"
+npm_packages:
+  - yarn@1.22.15
+  - pnpm@8.1.0

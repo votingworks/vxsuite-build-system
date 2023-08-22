@@ -4,18 +4,14 @@
   connection: local
   become: true
 
-  #-- TODO: move downloads_directory to defaults/inventory
-  vars:
-    downloads_directory: "/var/tmp/downloads"
-    node_version: "16.19.1"
-    npm_packages:
-      - yarn@1.22.15
-      - pnpm@8.1.0
-
   tasks:
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
 
     - name: Determine system architecture
       set_fact:
@@ -33,10 +29,16 @@
           set_fact:
             release_url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
 
+        - name: Find the appropriate checksum for the download
+          ansible.builtin.shell:
+            cmd: "curl --silent https://nodejs.org/dist/v{{ node_version }}/SHASUMS256.txt | grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz | cut -d' ' -f1"
+          register: node_checksum
+
         - name: Download Node tarball
           ansible.builtin.get_url:
             url: "{{ release_url }}"
             dest: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
+            checksum: "sha256:{{ node_checksum.stdout }}"
           tags:
             - online
 
