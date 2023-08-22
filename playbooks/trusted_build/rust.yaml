@@ -1,6 +1,6 @@
 ---
-#-- NOTE: Rust uses gpg for verification of the downloaded installer
-#-- We'll be using that rather than checksums in this playbook
+#-- NOTE: Rust standalone installers do not support gpg validation any more
+#-- sha256 checksums are provided though via a manifest provided for each version
 - name: Trusted Build Install of Rust
   hosts: 127.0.0.1
   connection: local
@@ -10,7 +10,6 @@
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
-
 
     - name: Define downloads_directory from well_known_paths
       set_fact:
@@ -26,9 +25,9 @@
       tags:
         - online
 
-    - name: Define URL to Rust signing key
+    - name: Define URL to Rust channel manifest for this version
       set_fact:
-        rust_signing_key_url: "https://static.rust-lang.org/rust-key.gpg.ascii"
+        rust_manifest_url: "https://static.rust-lang.org/dist/channel-rust-{{ rust_version }}.toml"
       tags:
         - online
 
@@ -44,18 +43,27 @@
       tags:
         - online
 
-    - name: Download Rust signing key
+    - name: Download Rust channel manifest for this version
       ansible.builtin.get_url:
-        url: "{{ rust_signing_key_url }}"
-        dest: "{{ downloads_directory }}/rust-key.gpg.ascii"
+        url: "{{ rust_manifest_url }}"
+        dest: "{{ downloads_directory }}/rust-{{ rust_version }}.toml"
       tags:
         - online
 
-    - name: Check for a valid signature and exit if it fails
-      ansible.builtin.shell: 
-        cmd: "/usr/bin/gpg --verify {{ downloads_directory }}/rust-key.gpg.ascii {{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
-      register: rust_signature_check
-      failed_when: rust_signature_check.rc != 0
+    - name: Find the sha256 hash for our version
+      ansible.builtin.shell:
+        cmd: "grep -A1 rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz {{ downloads_directory }}/rust-{{ rust_version }}.toml | grep hash | cut -d'=' -f2 | xargs"
+      register: rust_checksum_from_manifest
+
+    - name: Generate checksum of the downloaded Rust installer
+      ansible.builtin.stat:
+        path: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+      register: rust_checksum_from_download
+
+    - name: Error and exit if checksums are not valid (skipping is good)
+      ansible.builtin.fail:
+        msg: "Error! The checksum for the Rust installer does not match."
+      when: rust_checksum_from_manifest.stdout != rust_checksum_from_download.stat.checksum
 
     - name: Extract Rust to tmp
       ansible.builtin.unarchive:
