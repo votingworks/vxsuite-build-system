@@ -87,8 +87,8 @@
             - offline
 
         - name: Install package managers
-          command: "npm install -g {{ downloads_directory }}/{{ item | replace('@', '-') }}.tgz"
-          loop: "{{ npm_packages }}"
+          command: "npm install -g {{ downloads_directory }}/{{ item.key }}-{{ item.value.version }}.tgz"
+          with_dict: "{{ npm_packages }}"
           tags:
             - offline
 
