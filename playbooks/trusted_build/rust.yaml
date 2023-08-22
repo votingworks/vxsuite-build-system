@@ -57,6 +57,7 @@
 
     - name: Generate checksum of the downloaded Rust installer
       ansible.builtin.stat:
+        checksum_algorithm: "sha256"
         path: "{{ downloads_directory }}/rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
       register: rust_checksum_from_download
 
