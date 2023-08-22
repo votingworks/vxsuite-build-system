@@ -1,4 +1,13 @@
 ---
+#-- NOTE: We verify checksums in two ways in this playbook
+#-- For Node: the checksum is checked against the value provided
+#-- by the official NodeJS distribution
+#-- 
+#-- For NPM packages, we retrieve the checksum manually and define
+#-- it in Ansible inventories, as appropriate
+#-- To retrieve a checksum from the official NPM Registry, use:
+#-- npm pack --dry-run <package>@<version>
+#-- You will see the shasum value near the end of the output
 - name: Manage Node Install
   hosts: 127.0.0.1
   connection: local
@@ -67,7 +76,7 @@
           with_dict: "{{ npm_packages }}"
           register: npm_package_checksums
 
-        - name: Verify downloaded packages match expected checksums
+        - name: Error and exit if checksums are not valid (skipping is good)
           ansible.builtin.fail:
             msg: "Error! The checksum for {{ item }} does not match."
           when: item.stat.checksum != npm_packages[item.item.key].checksum
