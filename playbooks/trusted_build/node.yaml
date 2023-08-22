@@ -70,7 +70,7 @@
         - name: Verify downloaded packages match expected checksums
           ansible.builtin.fail:
             msg: "Error! The checksum for {{ item }} does not match."
-          when: item.stdout != npm_packages[item].checksum
+          when: item.stat.checksum != npm_packages[item.item.key].checksum
           loop: "{{ npm_package_checksums.results }}"
 
         - name: See if corepack is present
