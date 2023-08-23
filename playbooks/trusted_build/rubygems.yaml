@@ -19,7 +19,7 @@
         state: directory
 
     - name: Download gems
-      command: "gem install {{ item.key }} -v {{ fpm_version }} -i {{ downloads_directory }}/gems --no-document"
+      command: "gem install {{ item.key }} -v {{ item.value.version }} -i {{ downloads_directory }}/gems --no-document"
       with_dict: "{{ gems }}"
       tags:
         - online
