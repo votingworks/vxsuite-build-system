@@ -4,16 +4,14 @@
   connection: local
   become: true
 
-  #-- TODO: move downloads_directory to defaults/inventory
-  vars:
-    downloads_directory: "/var/tmp/downloads"
-    gems:
-      - fpm
-
   tasks:
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
 
     - name: Create gems directory
       ansible.builtin.file:
@@ -21,10 +19,23 @@
         state: directory
 
     - name: Download gems
-      command: "gem install {{ item }} -i {{ downloads_directory }}/gems --no-document"
-      loop: "{{ gems }}"
+      command: "gem install {{ item.key }} -v {{ item.value.version }} -i {{ downloads_directory }}/gems --no-document"
+      with_dict: "{{ gems }}"
       tags:
         - online
+
+    - name: Generate checksum
+      ansible.builtin.stat:
+        checksum_algorithm: "sha256"
+        path: "{{ downloads_directory }}/gems/cache/{{ item.key }}-{{ item.value.version }}.gem"
+      with_dict: "{{ gems }}"
+      register: gem_checksums
+
+    - name: Error and exit if checksums are not valid (skipping is good)
+      ansible.builtin.fail:
+        msg: "Error! The checksum for {{ item }} does not match."
+      when: item.stat.checksum != gems[item.item.key].checksum
+      loop: "{{ gem_checksums.results }}"
 
     - name: Install gems
       ansible.builtin.shell: 
