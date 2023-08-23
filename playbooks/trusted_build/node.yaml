@@ -48,6 +48,10 @@
             url: "{{ release_url }}"
             dest: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
             checksum: "sha256:{{ node_checksum.stdout }}"
+          retries: 3
+          delay: 2
+          register: node_download
+          until: node_download is not failed
           tags:
             - online
 

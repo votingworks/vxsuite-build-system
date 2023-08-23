@@ -48,6 +48,10 @@
       ansible.builtin.get_url:
         url: "{{ rust_tarball_url }}"
         dest: "{{ downloads_directory }}/{{ rust_tarball }}"
+      retries: 3
+      delay: 2
+      register: rust_download
+      until: rust_download is not failed
       tags:
         - online
 
