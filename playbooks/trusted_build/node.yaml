@@ -1,21 +1,26 @@
 ---
+#-- NOTE: We verify checksums in two ways in this playbook
+#-- For Node: the checksum is checked against the value provided
+#-- by the official NodeJS distribution
+#-- 
+#-- For NPM packages, we retrieve the checksum manually and define
+#-- it in Ansible inventories, as appropriate
+#-- To retrieve a checksum from the official NPM Registry, use:
+#-- npm pack --dry-run <package>@<version>
+#-- You will see the shasum value near the end of the output
 - name: Manage Node Install
   hosts: 127.0.0.1
   connection: local
   become: true
 
-  #-- TODO: move downloads_directory to defaults/inventory
-  vars:
-    downloads_directory: "/var/tmp/downloads"
-    node_version: "16.19.1"
-    npm_packages:
-      - yarn@1.22.15
-      - pnpm@8.1.0
-
   tasks:
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
 
     - name: Determine system architecture
       set_fact:
@@ -33,10 +38,20 @@
           set_fact:
             release_url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
 
+        - name: Find the appropriate checksum for the download
+          ansible.builtin.shell:
+            cmd: "curl --silent https://nodejs.org/dist/v{{ node_version }}/SHASUMS256.txt | grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz | cut -d' ' -f1"
+          register: node_checksum
+
         - name: Download Node tarball
           ansible.builtin.get_url:
             url: "{{ release_url }}"
             dest: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
+            checksum: "sha256:{{ node_checksum.stdout }}"
+          retries: 3
+          delay: 2
+          register: node_download
+          until: node_download is not failed
           tags:
             - online
 
@@ -54,10 +69,22 @@
             - always
 
         - name: Download package managers
-          command: "npm pack --pack-destination {{ downloads_directory }} {{ item }}"
-          loop: "{{ npm_packages }}"
+          command: "npm pack --pack-destination {{ downloads_directory }} {{ item.key }}@{{ item.value.version }}"
+          with_dict: "{{ npm_packages }}"
           tags:
             - online
+
+        - name: Generate checksums of downloaded package managers
+          ansible.builtin.stat:
+            path: "{{ downloads_directory }}/{{ item.key }}-{{ item.value.version }}.tgz"
+          with_dict: "{{ npm_packages }}"
+          register: npm_package_checksums
+
+        - name: Error and exit if checksums are not valid (skipping is good)
+          ansible.builtin.fail:
+            msg: "Error! The checksum for {{ item }} does not match."
+          when: item.stat.checksum != npm_packages[item.item.key].checksum
+          loop: "{{ npm_package_checksums.results }}"
 
         - name: See if corepack is present
           command: "which corepack"
@@ -73,8 +100,8 @@
             - offline
 
         - name: Install package managers
-          command: "npm install -g {{ downloads_directory }}/{{ item | replace('@', '-') }}.tgz"
-          loop: "{{ npm_packages }}"
+          command: "npm install -g {{ downloads_directory }}/{{ item.key }}-{{ item.value.version }}.tgz"
+          with_dict: "{{ npm_packages }}"
           tags:
             - offline
 
