@@ -20,15 +20,16 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 function apt_install ()
 {
   local phase=$1
+  local python_packages="python3.9=3.9.2-1 python3-pip=20.3.4-4+deb11u1"
   if [ "$phase" == "online" ] || [ "$phase" == "both" ]; then
     echo "online/both"
-    apt-get install --reinstall --download-only -y python3.9 python3-pip
-    apt-get install -y python3.9 python3-pip
+    apt-get install --reinstall --download-only -y ${python_packages}
+    apt-get install -y ${python_packages}
   fi
 
   if [ "$phase" == "offline" ] || [ "$phase" == "both" ]; then
     echo "offline/both"
-    apt-get install -y python3.9 python3-pip
+    apt-get install -y ${python_packages}
   fi
 }
 
