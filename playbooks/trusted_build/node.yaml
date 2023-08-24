@@ -38,12 +38,25 @@
           set_fact:
             release_url: "https://nodejs.org/dist/v{{ node_version }}/node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
 
-        - name: Find the appropriate checksum for the download
-          ansible.builtin.shell:
-            cmd: "curl --silent https://nodejs.org/dist/v{{ node_version }}/SHASUMS256.txt | grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz | cut -d' ' -f1"
-          register: node_checksum
+        - name: Define the Node {{ node_version }} checksum file path
+          set_fact:
+            node_checksums_file: "{{ downloads_directory }}/node-{{ node_version }}.checksums"
 
-        - name: Download Node tarball
+        - name: Download the Node {{ node_version }} SHA256 reference
+          ansible.builtin.get_url:
+            url: "https://nodejs.org/dist/v{{ node_version }}/SHASUMS256.txt"
+            dest: "{{ node_checksums_file }}"
+          tags:
+            - online
+
+        - name: Find the appropriate checksum for Node {{ node_version }}
+          ansible.builtin.shell:
+            cmd: "grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz {{ node_checksums_file }} | cut -d' ' -f1"
+          register: node_checksum
+          tags:
+            - online
+
+        - name: Download Node tarball and verify checksum
           ansible.builtin.get_url:
             url: "{{ release_url }}"
             dest: "{{ downloads_directory }}/node-{{ node_version }}.tar.gz"
