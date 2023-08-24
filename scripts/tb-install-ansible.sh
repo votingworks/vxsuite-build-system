@@ -35,13 +35,13 @@ function pip_install ()
   local phase=$1
   if [ "$phase" == "online" ] || [ "$phase" == "both" ]; then
     echo "online/both"
-    pip3 download -d /var/tmp/downloads --require-hashes -r ${DIR}/scripts/pip_requirements.txt
-    pip3 install --no-index --find-links /var/tmp/downloads --require-hashes -r ${DIR}/scripts/pip_requirements.txt
+    pip3 download -d /var/tmp/downloads --require-hashes -r ${DIR}/pip_requirements.txt
+    pip3 install --no-index --find-links /var/tmp/downloads --require-hashes -r ${DIR}/pip_requirements.txt
   fi
 
   if [ "$phase" == "offline" ] || [ "$phase" == "both" ]; then
     echo "offline/both"
-    pip3 install --no-index --find-links /var/tmp/downloads --require-hashes -r ${DIR}/scripts/pip_requirements.txt
+    pip3 install --no-index --find-links /var/tmp/downloads --require-hashes -r ${DIR}/pip_requirements.txt
   fi
 }
 
