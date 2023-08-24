@@ -51,7 +51,7 @@
 
         - name: Find the appropriate checksum for Node {{ node_version }}
           ansible.builtin.shell:
-            cmd: "grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz {{ node_checksum_file }} | cut -d' ' -f1"
+            cmd: "grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz {{ node_checksums_file }} | cut -d' ' -f1"
           register: node_checksum
           tags:
             - online
