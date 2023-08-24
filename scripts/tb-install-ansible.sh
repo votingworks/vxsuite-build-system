@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 phase=$1
 
 if [ "$phase" != "online" ] && [ "$phase" != "offline" ] && [ "$phase" != "" ]; then
