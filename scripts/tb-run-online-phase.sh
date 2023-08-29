@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
 local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
@@ -21,6 +22,10 @@ then
 fi
 
 cd $vxsuite_build_system_dir
+
+if [[ "$debian_major_version" == "12" ]]; then
+  source .virtualenv/ansible/bin/activate
+fi
 
 echo "Run prepare_for_build playbook. This will take several minutes."
 sleep 5
