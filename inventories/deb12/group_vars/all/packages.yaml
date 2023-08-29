@@ -11,7 +11,7 @@ all_packages:
   - default-jdk
   - dosfstools
   - efitools
-  - exfat-progs
+  - exfatprogs
   - fdisk
   - git
   - gvfs
