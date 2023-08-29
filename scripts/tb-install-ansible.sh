@@ -45,10 +45,8 @@ function pip_install ()
   fi
 
   if [ "$phase" == "online" ]; then
-
     pip3 download -d /var/tmp/downloads --require-hashes -r $pip_requirements
     pip3 install --no-index --find-links /var/tmp/downloads --require-hashes -r $pip_requirements
-    fi
   fi
 
   if [ "$phase" == "offline" ]; then
