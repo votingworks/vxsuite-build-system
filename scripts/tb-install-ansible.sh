@@ -38,7 +38,7 @@ function pip_install ()
   local pip_requirements="${DIR}/pip_deb${debian_major_version}_requirements.txt"
 
   if [[ "$debian_major_version" == "12" ]]; then
-    mkdir .virtualenv
+    mkdir -p .virtualenv
     cd .virtualenv && virtualenv ansible
     cd ..
     source .virtualenv/ansible/bin/activate
