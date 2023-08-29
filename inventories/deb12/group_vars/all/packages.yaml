@@ -65,7 +65,7 @@ all_packages:
 tpm_packages:
   - autoconf=2.71-3
   - autoconf-archive=20220903-3
-  - automake=1%3a1.16.5-1.3
+  - automake=1:1.16.5-1.3
   - autotools-dev=20220109.1
   - libcurl4-openssl-dev=7.88.1-10+deb12u1
   - libjson-c-dev=0.16-2
