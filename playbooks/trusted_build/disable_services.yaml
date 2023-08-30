@@ -4,6 +4,9 @@
   connection: local
   become: true
 
+  vars:
+    services_to_disable: []
+
   tasks:
 
     - name: Disable system services 
@@ -11,5 +14,4 @@
         name: "{{ item }}"
         state: stopped
         enabled: no
-      loop:
-        - cron
+      loop: "{{ services_to_disable | default([]) }}"
