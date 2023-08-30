@@ -1,0 +1,15 @@
+---
+- name: Disable unneeded system services 
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Disable system services 
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - cron
