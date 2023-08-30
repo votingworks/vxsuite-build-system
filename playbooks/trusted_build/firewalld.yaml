@@ -1,0 +1,28 @@
+---
+- name: Manage firewalld rules for offline systems
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Ensure firewalld starts on boot and is running
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Allow localhost/loopback traffic
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o lo -j ACCEPT"
+
+    - name: Deny all other outgoing traffic
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 9 -j DROP"
+
+    - name: Block incoming services enabled by default
+      ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
+      with_items:
+        - ssh
+        - dhcpv6-client
+
+    - name: Reload to save and apply changes
+      ansible.builtin.command: "firewall-cmd --reload"
