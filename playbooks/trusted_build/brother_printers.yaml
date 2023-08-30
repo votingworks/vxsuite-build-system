@@ -45,17 +45,6 @@
       ansible.builtin.import_role:
         name: apt
 
-    - name: Remove 32-bit binary from apt sources
-      ansible.builtin.command: "dpkg --remove-architecture i386"
-      tags:
-        - online
-
-    - name: Update apt sources to remove bullseye-backports
-      ansible.builtin.apt:
-        update_cache: true
-      tags:
-        - online
-
     #-- We have the i386 packages installed at this point
     #-- Now we handle the drivers directly
 
@@ -75,7 +64,7 @@
       tags:
         - offline
 
-    - name: Remove printers
+    - name: Remove printer configs that interfere with our config
       ansible.builtin.command: "lpadmin -x {{ item }}"
       loop:
         - "PJ-822"
