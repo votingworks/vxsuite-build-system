@@ -41,6 +41,11 @@ sleep 5
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/tb playbooks/trusted_build/tpm.yaml --skip-tags offline
 
+echo "Download Brother printer drivers."
+sleep 5
+cd $vxsuite_build_system_dir
+ansible-playbook -i inventories/tb playbooks/trusted_build/brother_printers.yaml --skip-tags offline
+
 echo "The online phase is complete. Please insert a USB drive and run: "
 echo "ansible-playbook -i inventories/tb playbooks/trusted_build/export_to_usb.yaml"
 
