@@ -18,6 +18,13 @@ if [[ ! -d $vxsuite_complete_system_dir ]]; then
   exit 1
 fi
 
+ansible_inventory=$1
+
+if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
+  echo "ERROR: The $ansible_inventory inventory could not be found."
+  echo "You can find a list of inventories in: ${vxsuite_build_system_dir}/inventories"
+  exit 1
+fi
 
 if ! which ansible-playbook > /dev/null 2>&1
 then
@@ -35,7 +42,7 @@ if [[ "$debian_major_version" == "12" ]]; then
   source .virtualenv/ansible/bin/activate
 fi
 
-ansible-playbook -i inventories/tb playbooks/trusted_build/offline_build.yaml --skip-tags online
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/offline_build.yaml --skip-tags online
 
 echo "Build kiosk-browser. This may take several minutes."
 sleep 5
