@@ -9,7 +9,7 @@ packer {
 
 variable "version" {
   type = string
-  default = "2.0.3"
+  default = "2.0.4"
 }
 
 source "docker" "debian11" {
