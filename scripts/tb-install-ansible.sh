@@ -10,6 +10,7 @@ if [ "$phase" != "online" ] && [ "$phase" != "offline" ]; then
 fi
 
 debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
+system_architecture=$(uname -m)
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -35,7 +36,7 @@ function apt_install ()
 function pip_install ()
 {
   local phase=$1
-  local pip_requirements="${DIR}/pip_deb${debian_major_version}_requirements.txt"
+  local pip_requirements="${DIR}/pip_deb${debian_major_version}_${system_architecture}_requirements.txt"
 
   if [[ "$debian_major_version" == "12" ]]; then
     mkdir -p .virtualenv
