@@ -1,6 +1,6 @@
 repos:
   vxsuite:
-    version: adam/tb-no-makefile-apt
+    version: adam/trusted-build
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-12.1"
 vm_disk_size_gb: 110
