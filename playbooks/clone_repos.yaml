@@ -34,10 +34,12 @@
         mode: '0755'
       loop: "{{ repos }}"
   
+    #-- Don't pull in submodules by default
     - name: Clone the votingworks repos
       ansible.builtin.git:
         repo: "https://github.com/votingworks/{{ item }}.git"
         dest: "/home/{{ local_user }}/code/{{ item }}"
+        recursive: false
       loop: "{{ repos }}"
       become: yes
       become_user: "{{ local_user }}"
