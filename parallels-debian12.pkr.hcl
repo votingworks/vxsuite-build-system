@@ -219,17 +219,15 @@ build {
     ]
   }
 
-  #provisioner "ansible-local" {
-    #playbook_dir = "./playbooks"
-    #playbook_files  = [
-      #"playbooks/create_local_user.yaml",
-      #"playbooks/clone_repos.yaml",
-      #"playbooks/install-vxsuite-packages.yaml",
-      #"playbooks/install-node.yaml",
-      #"playbooks/install-rust.yaml"
-    #]
-    #extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
-  #}
+  provisioner "ansible-local" {
+    command = "source /home/packer/.virtualenv/ansible/bin/activate && ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 /home/packer/.virtualenv/ansible/bin/ansible-playbook"
+    playbook_dir = "./playbooks"
+    playbook_files  = [
+      "playbooks/create_local_user.yaml",
+      "playbooks/clone_repos.yaml",
+    ]
+    extra_arguments = ["--extra-vars", "local_user=${var.local_user}"]
+  }
 
   provisioner "shell" {
     inline = [

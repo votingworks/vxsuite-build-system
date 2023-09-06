@@ -7,6 +7,9 @@ if [[ "$debian_version" == "12" ]]; then
   mkdir .virtualenv
   cd .virtualenv && virtualenv ansible
   cd ..
+  echo "---------------------------------------------------------"
+  echo `pwd`
+  echo "---------------------------------------------------------"
   source .virtualenv/ansible/bin/activate
   python3 -m pip install ansible passlib 
 
