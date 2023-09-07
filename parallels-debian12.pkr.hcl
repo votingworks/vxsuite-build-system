@@ -66,13 +66,14 @@ variable "https_proxy" {
 
 variable "iso_checksum" {
   type = string
-  default = "b58e02fe14a52c1dfdacc0ccd6bc9b4edf385c7e8cea1871a3b0fccb6438700b"
+  default = "28b0be42fe0584e2099a1e26576656e09d99819a808104a7e7dfd1ca1b9eed63"
+  # netinst - default = "b58e02fe14a52c1dfdacc0ccd6bc9b4edf385c7e8cea1871a3b0fccb6438700b"
 }
 
 variable "iso_url" {
   type = string
   default = "https://cdimage.debian.org/cdimage/release/12.1.0/arm64/iso-dvd/debian-12.1.0-arm64-DVD-1.iso"
-  #default = "https://cdimage.debian.org/cdimage/release/12.1.0/arm64/iso-cd/debian-12.1.0-arm64-netinst.iso"
+  # netinst - default = "https://cdimage.debian.org/cdimage/release/12.1.0/arm64/iso-cd/debian-12.1.0-arm64-netinst.iso"
 }
 
 variable "local_user" {
