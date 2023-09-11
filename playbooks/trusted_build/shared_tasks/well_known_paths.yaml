@@ -6,9 +6,6 @@
       apt_packages:
         system_path: "/var/cache/apt/archives"
         usb_path: "apt_packages"
-      apt_lists:
-        system_path: "/var/lib/apt/lists"
-        usb_path: "apt_lists"
       pnpm_packages:
         system_path: "~{{ user_to_configure }}/.local/share/pnpm"
         usb_path: "pnpm_packages"

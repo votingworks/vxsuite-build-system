@@ -39,7 +39,7 @@
       tags:
         - online
 
-    #-- We have the i386 packages installed at this point
+    #-- We have the i386 packages downloaded at this point
     #-- Now we handle the drivers directly
 
     - name: Download the Brother printer drivers

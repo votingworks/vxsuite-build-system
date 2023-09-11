@@ -33,10 +33,6 @@ cp -r ${usb_root}/downloads /var/tmp/
 echo "Copying apt packages to local cache"
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/
 
-#-- Copy apt lists since we can't run apt update offline
-echo "Copying apt lists"
-cp -r ${usb_root}/apt_lists/* /var/lib/apt/lists/
-
 if [ ! -d $code_dir ]; then
   mkdir -p $code_dir
   chown ${local_user}.${local_user} $code_dir
