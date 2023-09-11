@@ -90,9 +90,6 @@
       tags:
         - offline
 
-    - debug:
-        var: lpstat_info.results
-
     - name: Remove printer configs that interfere with our config
       ansible.builtin.command: "lpadmin -x {{ item.item.key }}"
       when: item.rc == 0
