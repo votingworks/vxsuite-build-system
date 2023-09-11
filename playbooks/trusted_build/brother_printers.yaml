@@ -66,6 +66,13 @@
       tags:
         - online
 
+    - name: Install the 386 pkgs directly
+      ansible.builtin.shell:
+        cmd: "dpkg -i {{ brother_32bit_packages | join(' ') }}"
+        chdir: "/var/cache/apt/archives"
+      tags:
+        - offline
+
     - name: Install Brother printer drivers directly
       ansible.builtin.shell:
         cmd: "dpkg -i /var/cache/apt/archives/{{ item.value.url | split('/') | last }}"
