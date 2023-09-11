@@ -1,0 +1,11 @@
+---
+- name: Set up a localdev environment with dependencies
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+- import_playbook: packages.yaml
+- import_playbook: node.yaml
+- import_playbook: rust.yaml
+- import_playbook: rubygems.yaml
+
