@@ -94,9 +94,9 @@
         var: lpstat_info.results
 
     - name: Remove printer configs that interfere with our config
-      ansible.builtin.command: "lpadmin -x {{ item.key }}"
-      when: lpstat_info.results[item.key].rc == 0
-      with_dict:
-        - "{{ brother_drivers }}"
+      ansible.builtin.command: "lpadmin -x {{ item.item.key }}"
+      when: item.rc == 0
+      loop:
+        - "{{ lpstat_info.results }}"
       tags:
         - offline
