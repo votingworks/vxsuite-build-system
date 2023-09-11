@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
 local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
@@ -17,6 +18,13 @@ if [[ ! -d $vxsuite_complete_system_dir ]]; then
   exit 1
 fi
 
+ansible_inventory=$1
+
+if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
+  echo "ERROR: The $ansible_inventory inventory could not be found."
+  echo "You can find a list of inventories in: ${vxsuite_build_system_dir}/inventories"
+  exit 1
+fi
 
 if ! which ansible-playbook > /dev/null 2>&1
 then
@@ -29,7 +37,12 @@ fi
 echo "Run offline_build playbook. This will take several minutes."
 sleep 5
 cd $vxsuite_build_system_dir
-ansible-playbook -i inventories/tb playbooks/trusted_build/offline_build.yaml --skip-tags online
+
+if [[ "$debian_major_version" == "12" ]]; then
+  source .virtualenv/ansible/bin/activate
+fi
+
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/offline_build.yaml --skip-tags online
 
 echo "Build kiosk-browser. This may take several minutes."
 sleep 5

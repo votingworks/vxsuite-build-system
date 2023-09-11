@@ -27,68 +27,72 @@
       ansible.builtin.import_role:
         name: apt
 
-    #-- Note: This is only used temporarily.
-    #-- We remove it as a source later in this playbook.
-    - name: Add bullseye-backports as an apt source
-      ansible.builtin.lineinfile:
-        path: /etc/apt/sources.list
-        line: 'deb http://http.us.debian.org/debian bullseye-backports main'
-      tags:
-        - online
+    #-- Debian 11 only section
+    - block:
+      #-- Note: This is only used temporarily.
+      #-- We remove it as a source later in this playbook.
+      - name: Add bullseye-backports as an apt source
+        ansible.builtin.lineinfile:
+          path: /etc/apt/sources.list
+          line: 'deb http://http.us.debian.org/debian bullseye-backports main'
+        tags:
+          - online
 
-    - name: Assign the lowest possible priority for bullseye-backports
-      ansible.builtin.blockinfile:
-        create: true
-        path: /etc/apt/preferences.d/bullseye-backports
-        block: |
-          Package: *
-          Pin: release a=bullseye-backports
-          Pin-Priority: 1
-      tags:
-        - online
+      - name: Assign the lowest possible priority for bullseye-backports
+        ansible.builtin.blockinfile:
+          create: true
+          path: /etc/apt/preferences.d/bullseye-backports
+          block: |
+            Package: *
+            Pin: release a=bullseye-backports
+            Pin-Priority: 1
+        tags:
+          - online
 
-    - name: Update apt sources to include bullseye-backports
-      ansible.builtin.apt:
-        update_cache: true
-      tags:
-        - online
+      - name: Update apt sources to include bullseye-backports
+        ansible.builtin.apt:
+          update_cache: true
+        tags:
+          - online
 
-    - name: Handle backported packages explicitly
-      ansible.builtin.command:
-        cmd: "apt-get install --reinstall --download-only -y {{ item }}"
-      with_items:
-        - "{{ bullseye_backports_packages }}"
-      tags:
-        - online
+      - name: Handle backported packages explicitly
+        ansible.builtin.command:
+          cmd: "apt-get install --reinstall --download-only -y {{ item }}"
+        with_items:
+          - "{{ bullseye_backports_packages }}"
+        tags:
+          - online
 
-    - name: Remove bullseye-backports as an apt source
-      ansible.builtin.lineinfile:
-        path: /etc/apt/sources.list
-        line: 'deb http://http.us.debian.org/debian bullseye-backports main'
-        state: absent
-      tags:
-        - online
+      - name: Remove bullseye-backports as an apt source
+        ansible.builtin.lineinfile:
+          path: /etc/apt/sources.list
+          line: 'deb http://http.us.debian.org/debian bullseye-backports main'
+          state: absent
+        tags:
+          - online
 
-    - name: Delete the bullseye-backports preferences file
-      ansible.builtin.file:
-        path: /etc/apt/preferences.d/bullseye-backports
-        state: absent
-      tags:
-        - online
+      - name: Delete the bullseye-backports preferences file
+        ansible.builtin.file:
+          path: /etc/apt/preferences.d/bullseye-backports
+          state: absent
+        tags:
+          - online
 
-    - name: Update apt sources to remove bullseye-backports
-      ansible.builtin.apt:
-        update_cache: true
-      tags:
-        - online
+      - name: Update apt sources to remove bullseye-backports
+        ansible.builtin.apt:
+          update_cache: true
+        tags:
+          - online
 
-    - name: Install backported packages directly
-      ansible.builtin.shell:
-        cmd: "dpkg -i /var/cache/apt/archives/{{ item | replace('=', '_') }}*.deb"
-      with_items:
-        - "{{ bullseye_backports_packages }}"
-      tags:
-        - offline
+      - name: Install backported packages directly
+        ansible.builtin.shell:
+          cmd: "dpkg -i /var/cache/apt/archives/{{ item | replace('=', '_') }}*.deb"
+        with_items:
+          - "{{ bullseye_backports_packages }}"
+        tags:
+          - offline
+
+      when: ansible_distribution_major_version == "11"
 
     - name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
       ansible.builtin.shell:
