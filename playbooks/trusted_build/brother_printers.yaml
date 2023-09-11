@@ -33,11 +33,11 @@
       with_items:
         - "{{ brother_32bit_packages | default([]) }}"
 
-    #-- Does this need to run offline too?
+    #-- This needs to be run during both online and offline phases
+    #-- During the online phase, it modifies apt sources
+    #-- During the offline phase, we install directly from 32-bit packages
     - name: Add 32-bit binary support
       ansible.builtin.command: "dpkg --add-architecture i386"
-      tags:
-        - online
 
     - name: Update apt sources for 32-bit binary support
       ansible.builtin.apt:
@@ -45,9 +45,13 @@
       tags:
         - online
 
+    #-- Only use apt during the online phase
+    #-- We can't use it during the offline build b/c of 32-bit issues
     - name: Import the apt role which supports online and offline builds
       ansible.builtin.import_role:
         name: apt
+      tags:
+        - online
 
     #-- We have the i386 packages installed at this point
     #-- Now we handle the drivers directly
