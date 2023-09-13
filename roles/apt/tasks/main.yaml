@@ -11,7 +11,7 @@
     state: present
   with_items:
     - "{{ all_packages }}"
-  when: (batch_package_install is defined) and (batch_package_install is true)
+  when: (batch_package_install is not defined) or (batch_package_install is false)
   tags:
     - offline
 
