@@ -92,4 +92,3 @@ tpm_packages:
   - qrencode=4.1.1-1
   - tpm2-openssl=1.1.1-1
   - tpm2-tools=5.4-1
-  - tpm-udev=0.6
