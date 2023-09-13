@@ -11,6 +11,13 @@
     state: present
   with_items:
     - "{{ all_packages }}"
+  when: (batch_package_install is defined) and (batch_package_install is true)
   tags:
     - offline
 
+- name: Install the packages (fast)
+  ansible.builtin.command:
+    cmd: "apt-get -y --no-install-recommends install {{ all_packages | join(' ') }}"
+  when: (batch_package_install is defined) and (batch_package_install is true)
+  tags:
+    - offline
