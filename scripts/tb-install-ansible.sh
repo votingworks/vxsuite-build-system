@@ -12,6 +12,7 @@ fi
 
 debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
 system_architecture=$(uname -m)
+local_user=`logname`
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
