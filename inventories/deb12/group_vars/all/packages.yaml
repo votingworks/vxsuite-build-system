@@ -17,6 +17,7 @@ all_packages:
   - git=1:2.39.2-1.1
   - gvfs=1.50.3-1
   - gzip=1.12-1
+  - iptables=1.8.9-2
   - kde-cli-tools=4:5.27.5.1-2
   - libatspi2.0-0=2.46.0-5
   - libcairo2-dev=1.16.0-7
