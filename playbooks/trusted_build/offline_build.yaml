@@ -4,13 +4,10 @@
   connection: local
   become: yes
 
-#-- Note: firewalld comes first because it will prevent all external
-#-- network requests, regardless of whether the VM has networking
-#-- enabled or not
-- import_playbook: firewalld.yaml
 - import_playbook: packages.yaml
 - import_playbook: node.yaml
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: tpm.yaml
+- import_playbook: firewalld.yaml
 - import_playbook: disable_services.yaml
