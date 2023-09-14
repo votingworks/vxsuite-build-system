@@ -4,39 +4,22 @@
 
   tasks:
 
-    - name: See if the {{ vm_clone_name }} VM already exists
+    - name: See if the {{ item }} VM already exists
       shell:
-        cmd: virsh dominfo {{ vm_clone_name }}
+        cmd: virsh dominfo {{ item }}
       register: does_vm_exist
       changed_when: no
       ignore_errors: true
+      loop: "{{ cloned_images }}"
 
     - name: Clone VM
       command: >
         virt-clone 
         -o {{ vm_name }} 
-        -n {{ vm_clone_name }} 
+        -n {{ item.item }} 
         --auto-clone 
         --check disk_size=off
       register: clone_status
-      when: does_vm_exist.rc != 0
-
-   #- name: Generate keypair
-     #community.crypto.openssh_keypair:
-       #path: /tmp/id_rsa
-       #size: 2048
-       #become: true
-       #become_user: "vx"
-
-   #- debug:
-      #var: clone_status
-
-   #- name: Inject the ssh key for future access
-     #command: >
-       #virt-sysprep
-       #-a {{ image_path }}/{{ vm_clone_name }}.qcow2
-       #--ssh-inject vx:file:/tmp/id_rsa.pub
-       #--run-command 'cd /etc/ssh; ssh-keygen -A'
-     #when: does_vm_exist.rc == 0 or clone_status.rc == 0
-
+      when: item.rc != 0
+      loop: "{{ does_vm_exist.results }}"
 
