@@ -94,7 +94,7 @@ chown -R ${local_user}:${local_user} $yarn_dir
 echo "All resources required for building have been copied to the correct locations."
 echo "Please run: "
 echo ""
-echo "cd ${code_dir}/vxsuite-build-system && ./scripts/tb-run-offline-phase.sh"
+echo "cd ${code_dir}/vxsuite-build-system && ./scripts/tb-run-offline-phase.sh <inventory name>"
 echo ""
 
 exit 0;
