@@ -23,3 +23,16 @@
       when: item.rc != 0
       loop: "{{ does_vm_exist.results }}"
 
+    - name: Disable networking in offline VM if it exists
+      ansible.builtin.replace:
+        path: "/etc/libvirt/qemu/offline.xml"
+        regexp: '\s+<link state=.*'
+        replace: "<link state='down'/>"
+      when: (item.rc == 0) and (item.item == "offline")
+      loop: "{{ does_vm_exist.results }}"
+
+    - name: Update the offline VM from new XML definition
+      ansible.builtin.command:
+        cmd: "virsh define /etc/libvirt/qemu/offline.xml"
+      when: (item.rc == 0) and (item.item == "offline")
+      loop: "{{ does_vm_exist.results }}"
