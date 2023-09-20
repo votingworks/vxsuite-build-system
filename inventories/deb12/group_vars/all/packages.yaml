@@ -1,4 +1,6 @@
 ---
+batch_package_install: true
+
 all_packages:
   - alsa-utils=1.2.8-1
   - brightnessctl=0.5.1-3
@@ -46,6 +48,7 @@ all_packages:
   - pulseaudio=16.1+dfsg1-2+b1
   - pulseaudio-utils=16.1+dfsg1-2+b1
   - rsync=3.2.7-1
+  - rsyslog=8.2302.0-1
   - ruby=1:3.1
   - sbsigntool=0.9.4-3.1
   - swig=4.1.0-0.2
@@ -90,4 +93,3 @@ tpm_packages:
   - qrencode=4.1.1-1
   - tpm2-openssl=1.1.1-1
   - tpm2-tools=5.4-1
-  - tpm-udev=0.6

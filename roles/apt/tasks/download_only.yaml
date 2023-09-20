@@ -4,9 +4,17 @@
 #-- Dependencies are then pulled in correctly
 #-- If on an existing system, this can break if 
 #-- a dependency is already installed
-#-- TODO: Make it work on pre-existing systems???
-- name: Download the packages and dependencies
+
+#-- This is the slow but more verbase package install
+#-- Probably what we want to use for Trusted Build for clarity
+- name: Download the packages and dependencies (single)
   ansible.builtin.command:
     cmd: "apt-get install --reinstall --no-install-recommends --download-only -y {{ item }}"
   with_items:
     - "{{ all_packages }}"
+  when: (batch_package_install is not defined) or (batch_package_install is false)
+
+- name: Download the packages and dependencies (batch)
+  ansible.builtin.command:
+    cmd: "apt-get install --reinstall --no-install-recommends --download-only -y {{ all_packages | join(' ') }}"
+  when: (batch_package_install is defined) and (batch_package_install is true)

@@ -97,8 +97,5 @@
         all_packages: "{{ all_packages | unique | select | list }}"
 
     - name: Install all necessary system packages
-      package:
-        name: "{{ item }}"
-        state: latest
-      with_items: 
-        - "{{ all_packages }}"
+      ansible.builtin.command:
+        cmd: "apt-get -y --no-install-recommends install {{ all_packages | join(' ') }}"

@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-phase=$1
+default_phase="online"
+phase=${1:-$default_phase}
 
 if [ "$phase" != "online" ] && [ "$phase" != "offline" ]; then
   echo "Error: Invalid phase. Please specify either 'online' or 'offline'."
@@ -11,6 +12,7 @@ fi
 
 debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
 system_architecture=$(uname -m)
+local_user=`logname`
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -39,6 +41,7 @@ function pip_install ()
   local pip_requirements="${DIR}/pip_deb${debian_major_version}_${system_architecture}_requirements.txt"
 
   if [[ "$debian_major_version" == "12" ]]; then
+    cd ${DIR}/..
     mkdir -p .virtualenv
     cd .virtualenv && virtualenv ansible
     cd ..
@@ -52,6 +55,13 @@ function pip_install ()
 
   if [ "$phase" == "offline" ]; then
     pip3 install --no-index --find-links /var/tmp/downloads --require-hashes -r $pip_requirements
+  fi
+
+  # We need to make sure the local user's virtualenv isn't owned by root
+  # so that complete-system setup-machine can delete it
+  if [[ "$debian_major_version" == "12" ]]; then
+    cd ${DIR}/..
+    chown -R ${local_user}:${local_user} .virtualenv   
   fi
 }
 

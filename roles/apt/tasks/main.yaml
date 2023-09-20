@@ -4,13 +4,20 @@
   tags:
     - online
 
-- name: Install the packages
+- name: Install the packages (single)
   ansible.builtin.apt:
     name: "{{ item }}"
     install_recommends: false
     state: present
   with_items:
     - "{{ all_packages }}"
+  when: (batch_package_install is not defined) or (batch_package_install is false)
   tags:
     - offline
 
+- name: Install the packages (batch)
+  ansible.builtin.command:
+    cmd: "apt-get -y --no-install-recommends install {{ all_packages | join(' ') }}"
+  when: (batch_package_install is defined) and (batch_package_install is true)
+  tags:
+    - offline
