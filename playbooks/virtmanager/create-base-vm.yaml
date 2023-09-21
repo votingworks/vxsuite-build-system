@@ -33,10 +33,10 @@
         cmd: virsh dominfo {{ vm_name }}
       register: does_vm_exist
       changed_when: no
-      failed_when: does_vm_exist.rc == 0
+      failed_when: false
       ignore_errors: true
 
-    - name: Create VM
+    - name: Create the {{ vm_name }} VM (This will take several minutes)
       command: >
         virt-install
         --name={{ vm_name }}
