@@ -28,14 +28,15 @@
       command: virsh net-start default
       when: is_virt_networking_running.rc != 0
 
-    - name: See if the {{ vm_name }} VM already exists
+    - name: Check if the {{ vm_name }} VM already exists
       shell:
         cmd: virsh dominfo {{ vm_name }}
       register: does_vm_exist
       changed_when: no
+      failed_when: false
       ignore_errors: true
 
-    - name: Create VM
+    - name: Create the {{ vm_name }} VM (This will take several minutes)
       command: >
         virt-install
         --name={{ vm_name }}
@@ -43,6 +44,8 @@
         --vcpus={{ vm_cpus }}
         --osinfo linux2022
         --noreboot
+        --noautoconsole
+        --wait
         --location={{ virt_image_path }}/{{ iso_name }}
         --network bridge=virbr0,model=virtio
         {{ '--boot loader=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd,loader.readonly=yes,loader.type=pflash,loader.secure=yes' if ( secure_boot ) else ' ' }}
