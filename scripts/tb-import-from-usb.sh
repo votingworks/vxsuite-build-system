@@ -15,9 +15,14 @@ function get_usb_device() {
   lsblk /dev/disk/by-id/usb*part* --noheadings --output PATH 2> /dev/null | grep / --max-count 1
 }
 
-mkdir -p $usb_root
-usb_device=$(get_usb_device)
-mount $usb_device $usb_root
+if [ ! -d $usb_root ]; then
+  mkdir -p $usb_root
+fi
+
+if ! mountpoint -q $usb_root; then
+  usb_device=$(get_usb_device)
+  mount $usb_device $usb_root
+fi
 
 #-- Make sure the USB is mounted where we expect
 if [ ! -d ${usb_root}/downloads ]; then
