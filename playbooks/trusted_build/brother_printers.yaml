@@ -1,0 +1,84 @@
+---
+
+- name: Install Brother printer drivers
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Ensure we don't carry over any packages from other tasks
+      set_fact:
+        all_packages: []
+
+    - name: Create a list of all the packages we need
+      set_fact:
+        all_packages: "{{ all_packages | default([]) + [ item ] }}"
+      with_items:
+        - "{{ brother_32bit_packages | default([]) }}"
+
+    #-- This needs to be run during both online and offline phases
+    #-- During the online phase, it modifies apt sources
+    #-- During the offline phase, we install directly from 32-bit packages
+    - name: Add 32-bit binary support
+      ansible.builtin.command: "dpkg --add-architecture i386"
+
+    - name: Update apt sources for 32-bit binary support
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - online
+
+    #-- Only use apt during the online phase
+    #-- We can't use it during the offline build b/c of 32-bit issues
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
+      tags:
+        - online
+
+    #-- We have the i386 packages downloaded at this point
+    #-- Now we handle the drivers directly
+
+    - name: Download the Brother printer drivers
+      ansible.builtin.get_url:
+        url: "{{ item.value.url }}"
+        dest: "/var/cache/apt/archives/"
+        checksum: "sha256:{{ item.value.checksum }}"
+      with_dict: 
+        - "{{ brother_drivers }}"
+      tags:
+        - online
+
+    - name: Install the 386 pkgs directly
+      ansible.builtin.shell:
+        cmd: "dpkg -i /var/cache/apt/archives/*_i386.deb"
+      tags:
+        - offline
+
+    - name: Install the brother drivers directly
+      ansible.builtin.shell:
+        cmd: "dpkg -i /var/cache/apt/archives/{{ item.value.url | split('/') | last }}"
+      with_dict:
+        - "{{ brother_drivers }}"
+      tags:
+        - offline
+
+    - name: Get lpstat info for brother printers
+      ansible.builtin.shell:
+        cmd: "lpstat -p {{ item.key }}"
+      with_dict:
+        - "{{ brother_drivers }}"
+      register: lpstat_info
+      ignore_errors: yes
+      tags:
+        - offline
+
+    - name: Remove printer configs that interfere with our config
+      ansible.builtin.command: "lpadmin -x {{ item.item.key }}"
+      when: item.rc == 0
+      loop: "{{ lpstat_info.results }}"
+      tags:
+        - offline
