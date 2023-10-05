@@ -1,6 +1,6 @@
 ---
 brother_32bit_packages:
-  - libc6:i386=2.36-9+deb12u1
+  - libc6:i386=2.36-9+deb12u3
   - libncurses5:i386=6.4-4
   - libstdc++6:i386=12.2.0-14
 
