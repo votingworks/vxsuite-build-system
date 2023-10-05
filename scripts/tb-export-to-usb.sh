@@ -20,8 +20,7 @@ if [[ ! -d $vxsuite_build_system_dir ]]; then
   exit 1
 fi
 
-if ! which ansible-playbook > /dev/null 2>&1
-then
+if [[ ! -f .virtualenv/ansible/bin/activate ]]; then
   echo "Installing Ansible..."
   cd $vxsuite_build_system_dir
   sudo ./scripts/tb-install-ansible.sh online

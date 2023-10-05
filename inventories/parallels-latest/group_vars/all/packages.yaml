@@ -1,4 +1,6 @@
 ---
+batch_package_install: true
+
 all_packages:
   - alsa-utils=1.2.8-1
   - brightnessctl=0.5.1-3
