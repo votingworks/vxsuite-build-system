@@ -7,7 +7,12 @@ local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 
-ansible_inventory="parallels-deb${debian_major_version}"
+if hostnamectl status | grep 'Virtualization: parallels'; then
+  ansible_inventory="parallels-latest"
+else
+  ansible_inventory="latest"
+fi
+
 
 if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
   echo "ERROR: The $ansible_inventory inventory could not be found."
