@@ -21,7 +21,6 @@ if [[ ! -d $vxsuite_build_system_dir ]]; then
 fi
 
 if [[ ! -f .virtualenv/ansible/bin/activate ]]; then
-then
   echo "Installing Ansible..."
   cd $vxsuite_build_system_dir
   sudo ./scripts/tb-install-ansible.sh online
