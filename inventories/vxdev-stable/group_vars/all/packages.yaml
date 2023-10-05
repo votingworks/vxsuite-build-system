@@ -36,7 +36,7 @@ all_packages:
   - libsane=1.2.1-2
   - libudev-dev=252.12-1~deb12u1
   - libusb-1.0-0-dev=2:1.0.26-1
-  - libx11-dev=2:1.8.4-2+deb12u1
+  - libx11-dev=2:1.8.4-2+deb12u2
   - libxss1=1:1.2.3-1
   - libxtst6=2:1.2.3-1.1
   - make=4.3-4.1
