@@ -199,7 +199,7 @@ build {
   provisioner "shell" {
     inline = [
       "echo 'packer' | TERM=xterm sudo -S mv /tmp/packer-sudo /etc/sudoers.d/packer",
-      "echo 'packer' | TERM=xterm sudo -S chown root.root /etc/sudoers.d/packer",
+      "echo 'packer' | TERM=xterm sudo -S chown root:root /etc/sudoers.d/packer",
     ]
   }
 
