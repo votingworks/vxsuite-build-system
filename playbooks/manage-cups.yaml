@@ -46,6 +46,10 @@
         path: /etc/cups
         state: absent
 
+    - name: Reload systemd service configs
+      ansible.builtin.systemd:
+        daemon_reload: true
+
     - name: Restart apparmor and cups services
       ansible.builtin.service:
         state: restarted
