@@ -10,9 +10,10 @@
       - cups-files.conf
 
   tasks:
-    - name: Ensure cups is installed
+    # Temporary fix
+    - name: Ensure hplip driver package is installed
       ansible.builtin.apt:
-        name: cups
+        name: hplip
         state: present
 
     - name: Create /var/etc
