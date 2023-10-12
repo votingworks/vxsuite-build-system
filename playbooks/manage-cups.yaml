@@ -23,9 +23,6 @@
     - name: Recursively copy /etc/cups to /var/etc
       ansible.builtin.command: "cp -rp /etc/cups /var/etc/"
 
-    - name: TODO remove /etc/cups
-      debug:
-        msg: "Eventually remove the original /etc/cups"
 
     - name: Copy our custom cups config files
       ansible.builtin.copy:
@@ -43,3 +40,16 @@
       loop:
         - usr.sbin.cupsd
         - usr.sbin.cups-browsed
+
+    - name: Remove /etc/cups
+      ansible.builtin.file:
+        path: /etc/cups
+        state: absent
+
+    - name: Restart apparmor and cups services
+      ansible.builtin.service:
+        state: restarted
+        name: "{{ item }}"
+      loop:
+        - apparmor
+        - cups
