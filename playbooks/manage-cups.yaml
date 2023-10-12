@@ -35,3 +35,11 @@
 
     - name: Copy the cups service definition
       ansible.builtin.command: "cp files/cups.service /usr/lib/systemd/system/" 
+
+    - name: Copy apparmor profiles to allow cups to access config in /var
+      ansible.builtin.copy:
+        src: "files/{{ item }}"
+        dest: "/etc/apparmor.d/{{ item }}"
+      loop:
+        - usr.sbin.cupsd
+        - usr.sbin.cups-browsed

@@ -9,6 +9,7 @@
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: ../manage-udev-rules.yaml
+- import_playbook: ../manage-cups.yaml
 - import_playbook: brother_printers.yaml
 - import_playbook: repos.yaml
 - import_playbook: tpm.yaml
