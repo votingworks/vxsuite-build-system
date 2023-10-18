@@ -10,7 +10,6 @@ all_packages:
   - cups-bsd=2.4.2-3+deb12u4
   - cups-client=2.4.2-3+deb12u4
   - curl=7.88.1-10+deb12u4
-  - curl=7.88.1-10+deb12u3
   - default-jdk=2:1.17-74
   - dosfstools=4.2-1
   - efitools=1.9.2-3
@@ -38,7 +37,6 @@ all_packages:
   - libudev-dev=252.17-1~deb12u1
   - libusb-1.0-0-dev=2:1.0.26-1
   - libx11-dev=2:1.8.4-2+deb12u2
-  - libx11-dev=2:1.8.4-2+deb12u1
   - libxss1=1:1.2.3-1
   - libxtst6=2:1.2.3-1.1
   - libzbar-dev=0.23.92-7
