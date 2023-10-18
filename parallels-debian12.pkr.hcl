@@ -66,14 +66,12 @@ variable "https_proxy" {
 
 variable "iso_checksum" {
   type = string
-  default = "28b0be42fe0584e2099a1e26576656e09d99819a808104a7e7dfd1ca1b9eed63"
-  # netinst - default = "b58e02fe14a52c1dfdacc0ccd6bc9b4edf385c7e8cea1871a3b0fccb6438700b"
+  default = "88aed587dbfba90d689394b99951509e3160d9cbd659f75bf4a6079c9ac0e717"
 }
 
 variable "iso_url" {
   type = string
-  default = "https://cdimage.debian.org/cdimage/release/12.1.0/arm64/iso-dvd/debian-12.1.0-arm64-DVD-1.iso"
-  # netinst - default = "https://cdimage.debian.org/cdimage/release/12.1.0/arm64/iso-cd/debian-12.1.0-arm64-netinst.iso"
+  default = "https://cdimage.debian.org/cdimage/release/12.2.0/arm64/iso-dvd/debian-12.2.0-arm64-DVD-1.iso"
 }
 
 variable "local_user" {
@@ -88,7 +86,7 @@ variable "memory" {
 
 variable "name" {
   type = string
-  default = "debian-12.1-arm64"
+  default = "debian-12.2-arm64"
 }
 
 variable "no_proxy" {
@@ -128,7 +126,7 @@ variable "version" {
 
 variable "vm_name" {
   type = string
-  default = "debian-12.1-arm64"
+  default = "debian-12.2-arm64"
 }
 
 variable "vm_cpus" {
