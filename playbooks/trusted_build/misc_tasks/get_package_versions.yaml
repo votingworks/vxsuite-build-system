@@ -14,12 +14,29 @@
       ansible.builtin.shell:
         cmd: >
           apt-cache madison {{ item | split('=') | first }} | grep "Packages" |
-          awk '{print $1"="$3}'
+          head -1 | awk '{print $1"="$3}'
       loop: "{{ all_packages }}"
       register: versions
 
     - name: Print to tmp file
       ansible.builtin.shell:
-        cmd: "echo {{ item.stdout | quote }} >> /tmp/versions"
+        cmd: 'echo "  - {{ item.stdout | quote }}" >> /tmp/all_packages'
       loop: "{{ versions.results }}"
+
+    - name: De-dupe the TPM list for efficiency
+      set_fact:
+        tpm_packages: "{{ tpm_packages | unique | select | list }}"
+
+    - name: Get the latest available version of each package
+      ansible.builtin.shell:
+        cmd: >
+          apt-cache madison {{ item | split('=') | first }} | grep "Packages" |
+          head -1 | awk '{print $1"="$3}'
+      loop: "{{ tpm_packages }}"
+      register: tpm_versions
+
+    - name: Print to tmp file
+      ansible.builtin.shell:
+        cmd: 'echo "  - {{ item.stdout | quote }}" >> /tmp/tpm_packages'
+      loop: "{{ tpm_versions.results }}"
 
