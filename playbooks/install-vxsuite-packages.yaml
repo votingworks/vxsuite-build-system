@@ -61,6 +61,7 @@
       - libgif-dev
       - libpcsclite1
       - libpcsclite-dev
+      - libzbar-dev
 
     app_mark_packages:
       - libpcsclite1
