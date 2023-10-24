@@ -10,9 +10,10 @@
       - cups-files.conf
 
   tasks:
-    - name: Ensure cups is installed
+    # Temporary fix
+    - name: Ensure hplip driver package is installed
       ansible.builtin.apt:
-        name: cups
+        name: hplip
         state: present
 
     - name: Create /var/etc
@@ -23,9 +24,6 @@
     - name: Recursively copy /etc/cups to /var/etc
       ansible.builtin.command: "cp -rp /etc/cups /var/etc/"
 
-    - name: TODO remove /etc/cups
-      debug:
-        msg: "Eventually remove the original /etc/cups"
 
     - name: Copy our custom cups config files
       ansible.builtin.copy:
@@ -35,3 +33,28 @@
 
     - name: Copy the cups service definition
       ansible.builtin.command: "cp files/cups.service /usr/lib/systemd/system/" 
+
+    - name: Copy apparmor profiles to allow cups to access config in /var
+      ansible.builtin.copy:
+        src: "files/{{ item }}"
+        dest: "/etc/apparmor.d/{{ item }}"
+      loop:
+        - usr.sbin.cupsd
+        - usr.sbin.cups-browsed
+
+    - name: Remove /etc/cups
+      ansible.builtin.file:
+        path: /etc/cups
+        state: absent
+
+    - name: Reload systemd service configs
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart apparmor and cups services
+      ansible.builtin.service:
+        state: restarted
+        name: "{{ item }}"
+      loop:
+        - apparmor
+        - cups
