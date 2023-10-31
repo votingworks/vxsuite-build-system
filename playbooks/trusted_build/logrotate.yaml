@@ -1,0 +1,12 @@
+---
+- name: Manage log rotation
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Update logrotate config
+      ansible.builtin.copy:
+        src: "files/rsyslog.logrotate"
+        dest: "/etc/logrotate.d/rsyslog"
