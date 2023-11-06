@@ -1,0 +1,10 @@
+/var/log/vx-logs.log
+{
+	rotate 365
+	daily
+	dateext
+	missingok
+	notifempty
+	compress
+	copytruncate
+}

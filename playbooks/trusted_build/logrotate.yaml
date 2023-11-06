@@ -6,7 +6,13 @@
 
   tasks:
 
-    - name: Update logrotate config
+    - name: Update rsyslog logrotate config
       ansible.builtin.copy:
         src: "files/rsyslog.logrotate"
         dest: "/etc/logrotate.d/rsyslog"
+
+    - name: Add vx-logs.log logrotate config
+      ansible.builtin.copy:
+        src: "files/vx-logs.logrotate"
+        dest: "/etc/vx-logs.logrotate"
+        mode: 0644
