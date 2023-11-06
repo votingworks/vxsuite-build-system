@@ -1,5 +1,6 @@
-/var/log/vx-logs.log
+/var/log/votingworks/vx-logs.log
 {
+	su syslog adm
 	rotate 365
 	daily
 	dateext

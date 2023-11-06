@@ -6,6 +6,14 @@
 
   tasks:
 
+    - name: Create votingworks log directory
+      ansible.builtin.file:
+        path: '/var/log/votingworks'
+        state: directory
+        owner: syslog
+        group: adm
+        mode: 0755
+
     - name: Update rsyslog logrotate config
       ansible.builtin.copy:
         src: "files/rsyslog.logrotate"
