@@ -16,3 +16,9 @@
         src: "files/vx-logs.logrotate"
         dest: "/etc/vx-logs.logrotate"
         mode: 0644
+
+    - name: Ensure /var/log permissions are correct on reboot
+      ansible.builtin.copy:
+        src: "files/var.conf"
+        dest: "/etc/tmpfiles.d/var.conf"
+        mode: 0644
