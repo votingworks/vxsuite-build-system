@@ -1,0 +1,40 @@
+---
+- name: Manage log rotation
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Create syslog user
+      ansible.builtin.user:
+        name: syslog
+        groups: adm,tty
+        append: yes
+
+    - name: Chown /var/spool/rsyslog
+      ansible.builtin.file:
+        path: '/var/spool/rsyslog'
+        state: directory
+        owner: syslog
+        group: adm
+
+    - name: Create votingworks log directory
+      ansible.builtin.file:
+        path: '/var/log/votingworks'
+        state: directory
+        owner: syslog
+        group: adm
+        mode: 0755
+
+    - name: Update rsyslog logrotate config
+      ansible.builtin.copy:
+        src: "files/rsyslog.logrotate"
+        dest: "/etc/logrotate.d/rsyslog"
+
+    - name: Add vx-logs.log logrotate config
+      ansible.builtin.copy:
+        src: "files/vx-logs.logrotate"
+        dest: "/etc/vx-logs.logrotate"
+        mode: 0644
+

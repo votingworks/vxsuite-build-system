@@ -1,0 +1,20 @@
+/var/log/votingworks/syslog
+/var/log/votingworks/mail.log
+/var/log/votingworks/kern.log
+/var/log/votingworks/auth.log
+/var/log/votingworks/user.log
+/var/log/votingworks/cron.log
+{
+	su syslog adm
+	rotate 365
+	daily
+	dateext
+	missingok
+	notifempty
+	compress
+	delaycompress
+	sharedscripts
+	postrotate
+		/usr/lib/rsyslog/rsyslog-rotate
+	endscript
+}

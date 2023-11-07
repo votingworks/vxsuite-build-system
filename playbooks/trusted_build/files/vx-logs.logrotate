@@ -1,0 +1,11 @@
+/var/log/votingworks/vx-logs.log
+{
+	su syslog adm
+	rotate 365
+	daily
+	dateext
+	missingok
+	notifempty
+	compress
+	copytruncate
+}
