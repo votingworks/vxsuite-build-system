@@ -1,6 +1,9 @@
 ---
 batch_package_install: true
 
+apt_snapshot_date: "20231107"
+release_name: "bookworm"
+
 all_packages:
   - alsa-utils=1.2.8-1
   - brightnessctl=0.5.1-3
