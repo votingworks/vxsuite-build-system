@@ -1,6 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: adam/log-updates
+    version: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "snapshot-base"
 vm_disk_size_gb: 110
