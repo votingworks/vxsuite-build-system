@@ -8,6 +8,7 @@
   ansible.builtin.apt:
     name: "{{ item }}"
     install_recommends: false
+    allow_downgrades: true
     state: present
   with_items:
     - "{{ all_packages }}"
@@ -17,7 +18,7 @@
 
 - name: Install the packages (batch)
   ansible.builtin.command:
-    cmd: "apt-get -y --no-install-recommends install {{ all_packages | join(' ') }}"
+    cmd: "apt-get -y --allow-downgrades --no-install-recommends install {{ all_packages | join(' ') }}"
   when: (batch_package_install is defined) and (batch_package_install is true)
   tags:
     - offline
