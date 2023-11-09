@@ -1,5 +1,5 @@
 ---
-batch_package_install: true
+batch_package_install: false
 
 apt_snapshot_date: "20231107"
 release_name: "bookworm"
