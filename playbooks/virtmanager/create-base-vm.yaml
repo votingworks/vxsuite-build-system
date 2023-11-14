@@ -36,6 +36,25 @@
       failed_when: false
       ignore_errors: true
 
+    - name: Copy the preseed file
+      ansible.builtin.copy:
+        src: "{{ vm_preseed_path }}/{{ vm_preseed_file }}"
+        dest: "/tmp/{{ vm_preseed_file }}"
+        remote_src: yes
+
+    - name: Prepare the preseed file
+      ansible.builtin.blockinfile:
+        path: "/tmp/{{ vm_preseed_file }}"
+        block: |
+          d-i preseed/late_command string \
+              sed -i '/^deb cdrom:/s/^/#/' /target/etc/apt/sources.list; \
+              echo "deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/{{ apt_snapshot_date }}/ {{ release_name }} main non-free-firmware" >> /target/etc/apt/sources.list; \
+              echo "deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian/{{ apt_snapshot_date }}/ {{ release_name }} main non-free-firmware" >> /target/etc/apt/sources.list; \
+              echo "deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/{{ apt_snapshot_date }}/ {{ release_name }}-security main non-free-firmware" >> /target/etc/apt/sources.list; \
+              echo "deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/{{ apt_snapshot_date }}/ {{ release_name }}-security main non-free-firmware" >> /target/etc/apt/sources.list; \
+              in-target apt-get -y update;
+      when: (apt_snapshot_date is defined) and (release_name is defined)
+
     - name: Create the {{ vm_name }} VM (This will take several minutes)
       command: >
         virt-install
@@ -53,7 +72,7 @@
         {{ '--features smm=yes' if ( secure_boot ) else ' ' }}
         --check disk_size=off
         --disk path={{ virt_image_path }}/{{ vm_name }}.img,size={{ vm_disk_size_gb }},format=raw
-        --initrd-inject={{ vm_preseed_path }}/{{ vm_preseed_file }}
+        --initrd-inject=/tmp/{{ vm_preseed_file }}
         --extra-args="auto=true priority=critical preseed/file=/{{ vm_preseed_file }} hostname=vx domain=local console=ttyS0,115200n8 serial"
       register: output
       when: does_vm_exist.rc != 0
