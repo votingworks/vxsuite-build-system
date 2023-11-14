@@ -10,24 +10,6 @@
       set_fact:
         all_packages: "{{ all_packages | unique | select | list }}"
 
-          #- name: Ensure snapshot repos are available
-          #ansible.builtin.blockinfile:
-          #path: /etc/apt/sources.list
-          #block: |
-          #deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/{{ apt_snapshot_date }}/ {{ release_name }} main non-free-firmware
-          #deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian/{{ apt_snapshot_date }}/ {{ release_name }} main non-free-firmware
-          #deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/{{ apt_snapshot_date }}/ {{ release_name }}-security main non-free-firmware
-          #deb-src [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/{{ apt_snapshot_date }}/ {{ release_name }}-security main non-free-firmware
-          #when: (apt_snapshot_date is defined) and (release_name is defined)
-          #tags:
-          #- online
-          #
-          #- name: Refresh apt sources (this may take some time)
-          #ansible.builtin.apt:
-          #update_cache: yes
-          #tags:
-          #- online
-
     - name: Import the apt role which supports online and offline builds
       ansible.builtin.import_role:
         name: apt
