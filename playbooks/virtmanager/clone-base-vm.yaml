@@ -4,7 +4,7 @@
 
   tasks:
 
-    - name: See if the {{ item }} VM already exists
+    - name: See if the VM already exists
       shell:
         cmd: virsh dominfo {{ item }}
       register: does_vm_exist
