@@ -2,7 +2,7 @@ repos:
   vxsuite-complete-system:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "snapshot-base"
+vm_name: "sli-base"
 vm_disk_size_gb: 110
 iso_name: "debian-12.2.0-amd64-netinst.iso"
 iso_url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd"
