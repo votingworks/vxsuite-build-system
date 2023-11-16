@@ -1,6 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: v3.0.1
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "sli-base"
 vm_disk_size_gb: 110
