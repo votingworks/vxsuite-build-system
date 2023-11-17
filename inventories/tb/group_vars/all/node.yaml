@@ -1,4 +1,4 @@
-node_version: "16.19.1"
+node_version: "18.18.2"
 npm_packages:
   yarn:
     version: "1.22.15"
