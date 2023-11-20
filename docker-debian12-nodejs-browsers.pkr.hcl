@@ -13,7 +13,7 @@ variable "version" {
 }
 
 source "docker" "debian12-browsers" {
-  image = "debian:12.2"
+  image = "votingworks/cimg-debian12:12.2.0"
   platform = "linux/amd64"
   commit = true
 }
@@ -22,14 +22,8 @@ build {
   name = "debian12"
   sources = ["source.docker.debian12-browsers"]
 
-  provisioner "shell" {
-    scripts = [
-      "scripts/install-base-packages.sh",
-      "scripts/install-ansible.sh",
-    ]
-  }
-
   provisioner "ansible-local" {
+    command = ". /.virtualenv/ansible/bin/activate && ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 /.virtualenv/ansible/bin/ansible-playbook"
     playbook_dir = "./playbooks"
     playbook_files  = [
       "playbooks/install-vxsuite-packages.yaml",
