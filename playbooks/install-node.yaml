@@ -5,7 +5,7 @@
   become: true
 
   vars:
-    node_version: "16.19.1"
+    node_version: "18.18.2"
     npm_packages:
       - yarn@1.22.15
       - pnpm@8.1.0
