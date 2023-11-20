@@ -6,97 +6,74 @@
   become: true
 
   vars:
-    base_packages:
+    all_packages:
+      - alsa-utils
+      - brightnessctl
       - build-essential
+      - cryptsetup
+      - cups
+      - cups-bsd
+      - cups-client
       - curl
-      - make
-      - gzip
-      - zip
-      - tar
-      - libsane 
-      - libpng-dev 
-      - libjpeg-dev 
-      - libx11-dev 
-      - libpixman-1-dev 
-      - libcairo2-dev 
-      - libpango1.0-dev 
-      - libgif-dev 
-
-    libs_auth_packages:
       - default-jdk
+      - dosfstools
+      - efitools
+      - exfatprogs
+      - fdisk
+      - firewalld
+      - git
+      - gvfs
+      - gzip
+      - iptables
+      - kde-cli-tools
+      - libatspi2.0-0
+      - libcairo2-dev
+      - libgif-dev
+      - libglib2.0-bin
+      - libgtk-3-0
+      - libjpeg-dev
+      - libnotify4
+      - libpango1.0-dev
+      - libpcsclite1
+      - libpcsclite-dev
+      - libpixman-1-dev
+      - libpng-dev
+      - libsane
+      - libudev-dev
+      - libusb-1.0-0-dev
+      - libx11-dev
+      - libxss1
+      - libxtst6
+      - libzbar-dev
+      - make
+      - mingetty
+      - openbox
+      - parted
+      - pcscd
+      - pcsc-tools
+      - pulseaudio
+      - pulseaudio-utils
+      - rsync
+      - rsyslog
+      - ruby
+      - sbsigntool
+      - swig
+      - tar
+      - trash-cli
+      - unclutter
+      - unzip
       - wget
-
-    svc_converter_ms_sems_packages:
-      - python3.9 
-      - python3.9-dev 
-      - python3-distutils 
-      - python3-pip
-
-    svc_smartcards_packages:
-      - python3.9 
-      - python3.9-dev 
-      - python3.9-distutils 
-      - python3-pip 
-      - libusb-1.0-0-dev 
-      - libpcsclite-dev 
-      - pcscd 
-      - pcsc-tools 
-      - swig 
-
-    app_admin_packages:
-      - fdisk 
-      - dosfstools 
-      - exfat-utils
-      - libpcsclite1
-      - libpcsclite-dev
-
-    app_central_scan_packages:
-      - libsane 
-      - libpng-dev 
-      - libjpeg-dev 
-      - libx11-dev 
-      - libpixman-1-dev 
-      - libcairo2-dev 
-      - libpango1.0-dev 
-      - libgif-dev
-      - libpcsclite1
-      - libpcsclite-dev
-      - libzbar-dev
-
-    app_mark_packages:
-      - libpcsclite1
-      - libpcsclite-dev
-
-    app_scan_packages:
-      - libsane 
-      - libpng-dev 
-      - libjpeg-dev 
-      - libx11-dev 
-      - libpixman-1-dev 
-      - libcairo2-dev 
-      - libpango1.0-dev 
-      - libgif-dev
-      - libpcsclite1
-      - libpcsclite-dev
-      - libzbar-dev
+      - x11-common
+      - xdg-utils
+      - xinit
+      - xinput
+      - xorg
+      - xserver-xorg-core
+      - xserver-xorg-input-all
+      - xserver-xorg-video-all
+      - zip
 
   tasks:
-    - name: Create a list of all the packages we need
-      set_fact:
-        all_packages: "{{ all_packages | default([]) + [ item ] }}"
-      with_items:
-        - "{{ base_packages | default([]) }}"
-        - "{{ libs_auth_packages | default([]) }}"
-        - "{{ svc_converter_ms_sems_packages | default([]) }}"
-        - "{{ svc_smartcards_packages | default([]) }}"
-        - "{{ app_admin_packages | default([]) }}"
-        - "{{ app_central_scan_packages | default([]) }}"
-        - "{{ app_mark_packages | default([]) }}"
-        - "{{ app_scan_packages | default([]) }}"
-
-    - name: De-dupe the list for efficiency
-      set_fact:
-        all_packages: "{{ all_packages | unique | select | list }}"
 
     - name: Install all necessary system packages
       ansible.builtin.command:
