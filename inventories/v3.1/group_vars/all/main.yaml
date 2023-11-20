@@ -1,8 +1,8 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: adam/aws-qa
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "v3.1"
+vm_name: "debian12base110"
 vm_disk_size_gb: 110
 iso_name: "debian-12.2.0-amd64-netinst.iso"
 iso_url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd"
@@ -11,5 +11,4 @@ vm_preseed_file: "production-preseed.cfg"
 secure_boot: true
 rust_version: "1.72.0"
 cloned_images:
-  - online
-  - offline
+  - vx
