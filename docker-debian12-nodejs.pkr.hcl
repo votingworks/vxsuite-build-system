@@ -22,13 +22,6 @@ build {
   name = "debian12"
   sources = ["source.docker.debian12"]
 
-  provisioner "shell" {
-    scripts = [
-      "scripts/install-base-packages.sh",
-      "scripts/install-ansible.sh",
-    ]
-  }
-
   provisioner "ansible-local" {
     command = ". /.virtualenv/ansible/bin/activate && ANSIBLE_FORCE_COLOR=1 PYTHONUNBUFFERED=1 /.virtualenv/ansible/bin/ansible-playbook"
     playbook_dir = "./playbooks"
