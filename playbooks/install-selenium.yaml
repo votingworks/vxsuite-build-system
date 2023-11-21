@@ -9,7 +9,7 @@
     selenium_url: "https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar"
     packages:
       - xvfb
-      - openjdk-11-jre
+      - openjdk-17-jre
 
   tasks:
 
