@@ -19,6 +19,7 @@ all_packages:
   - firmware-iwlwifi
   - firmware-linux-free
   - firmware-misc-nonfree
+  - firmware-realtek
   - firmware-sof-signed
   - git
   - gvfs
