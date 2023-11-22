@@ -19,6 +19,7 @@ all_packages:
   - git
   - gvfs
   - gzip
+  - hplip
   - iptables
   - kde-cli-tools
   - libatspi2.0-0

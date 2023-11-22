@@ -16,9 +16,15 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
+  - firmware-iwlwifi
+  - firmware-linux-free
+  - firmware-misc-nonfree
+  - firmware-realtek
+  - firmware-sof-signed
   - git
   - gvfs
   - gzip
+  - hplip
   - iptables
   - kde-cli-tools
   - libatspi2.0-0
@@ -65,6 +71,8 @@ all_packages:
   - xorg
   - xserver-xorg-core
   - xserver-xorg-input-all
+  - xserver-xorg-input-libinput
+  - xserver-xorg-input-wacom
   - xserver-xorg-video-all
   - zip
 
