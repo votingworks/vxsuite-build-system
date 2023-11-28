@@ -16,6 +16,9 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
+  - firmware-linux-free
+  - firmware-misc-nonfree
+  - firmware-sof-signed
   - git
   - gvfs
   - gzip
@@ -35,6 +38,9 @@ all_packages:
   - libpixman-1-dev
   - libpng-dev
   - libsane
+  - libsane1
+  - libsane-common
+  - libsane-hpaio
   - libudev-dev
   - libusb-1.0-0-dev
   - libx11-dev
@@ -52,6 +58,8 @@ all_packages:
   - rsync
   - rsyslog
   - ruby
+  - sane-airscan
+  - sane-utils
   - sbsigntool
   - swig
   - tar
@@ -66,6 +74,8 @@ all_packages:
   - xorg
   - xserver-xorg-core
   - xserver-xorg-input-all
+  - xserver-xorg-input-libinput
+  - xserver-xorg-input-wacom
   - xserver-xorg-video-all
   - zip
 

@@ -38,6 +38,9 @@ all_packages:
   - libpixman-1-dev
   - libpng-dev
   - libsane
+  - libsane1
+  - libsane-common
+  - libsane-hpaio
   - libudev-dev
   - libusb-1.0-0-dev
   - libx11-dev
@@ -55,6 +58,8 @@ all_packages:
   - rsync
   - rsyslog
   - ruby
+  - sane-airscan
+  - sane-utils
   - sbsigntool
   - swig
   - tar
