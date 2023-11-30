@@ -19,7 +19,9 @@ all_packages:
   - git
   - gvfs
   - gzip
+  - hplip
   - iptables
+  - jq
   - kde-cli-tools
   - libatspi2.0-0
   - libcairo2-dev

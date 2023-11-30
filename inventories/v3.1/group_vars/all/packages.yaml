@@ -24,6 +24,7 @@ all_packages:
   - gzip
   - hplip
   - iptables
+  - jq
   - kde-cli-tools
   - libatspi2.0-0
   - libcairo2-dev
