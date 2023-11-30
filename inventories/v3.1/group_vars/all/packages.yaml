@@ -23,6 +23,7 @@ all_packages:
   - gvfs
   - gzip
   - hplip
+  - intel-media-va-driver
   - iptables
   - kde-cli-tools
   - libatspi2.0-0
@@ -77,6 +78,7 @@ all_packages:
   - xserver-xorg-input-libinput
   - xserver-xorg-input-wacom
   - xserver-xorg-video-all
+  - xserver-xorg-video-intel
   - zip
 
 tpm_packages:
