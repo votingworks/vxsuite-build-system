@@ -63,6 +63,7 @@ all_packages:
   - sane-utils
   - sbsigntool
   - swig
+  - systemd-boot-efi
   - tar
   - trash-cli
   - unclutter
