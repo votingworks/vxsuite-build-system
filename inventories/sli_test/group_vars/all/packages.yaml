@@ -43,6 +43,7 @@ all_packages:
   - libxss1=1:1.2.3-1
   - libxtst6=2:1.2.3-1.1
   - libzbar-dev=0.23.92-7
+  - linux-kbuild-6.1=6.1.55-1
   - make=4.3-4.1
   - mingetty=1.08-4
   - openbox=3.6.1-10

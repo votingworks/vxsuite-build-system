@@ -48,6 +48,7 @@ all_packages:
   - libxss1
   - libxtst6
   - libzbar-dev
+  - linux-kbuild-6.1
   - make
   - mingetty
   - openbox
