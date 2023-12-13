@@ -4,8 +4,9 @@ repos:
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian12base110"
 vm_disk_size_gb: 110
-iso_name: "debian-12.2.0-amd64-netinst.iso"
-iso_url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd"
+iso_version: "12.2.0"
+iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
+iso_url: "https://cdimage.debian.org/cdimage/archive/{{ iso_version }}/amd64/iso-cd"
 vm_preseed_path: "/home/{{ ansible_env.SUDO_USER }}/code/vxsuite-build-system/preseeds"
 vm_preseed_file: "production-preseed.cfg"
 secure_boot: true
