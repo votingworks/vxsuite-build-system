@@ -2,6 +2,9 @@
   hosts: localhost
   become: yes
 
+  vars:
+    current_url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd"
+
   tasks:
 
     - name: Allocate 60% of system RAM for the VM
@@ -12,10 +15,18 @@
       set_fact:
         vm_cpus: "{{ (ansible_facts['processor_nproc'] * 0.80)|round(0, 'floor')|int }}"
 
-    - name: Download Debian ISO
+    - name: Download Debian ISO from current url
+      get_url: 
+        url: "{{ current_url }}/{{ iso_name }}"
+        dest: "{{ virt_image_path }}/{{ iso_name }}"
+      register: current_download
+      ignore_errors: true
+
+    - name: Download Debian ISO from archive url if current was not available
       get_url: 
         url: "{{ iso_url }}/{{ iso_name }}"
         dest: "{{ virt_image_path }}/{{ iso_name }}"
+      when: current_download.status_code == 404 
 
     - name: See if virt networking is active
       shell: 
@@ -77,3 +88,21 @@
       register: output
       when: does_vm_exist.rc != 0
 
+    - name: Remove the cdrom definition
+      ansible.builtin.command:
+        cmd: sed -i "/<disk type='file' device='cdrom'>/,/<\/disk>/ d" /etc/libvirt/qemu/{{ vm_name }}.xml 
+
+    - name: Check if scsi device already exists
+      ansible.builtin.command:
+        cmd: grep "<controller type='scsi' index='0' model='virtio-scsi'>" /etc/libvirt/qemu/{{ vm_name }}.xml
+      register: scsi_exists
+      ignore_errors: true
+
+    - name: Add scsi device
+      ansible.builtin.command:
+        cmd: sed -i "/<\/disk>/ a <controller type='scsi' index='0' model='virtio-scsi'>\n  <address type='pci' domain='0x0000' bus='0x07' slot='0x00' function='0x0'\/>\n<\/controller>" /etc/libvirt/qemu/{{ vm_name }}.xml
+      when: scsi_exists.rc != 0
+
+    - name: Update the {{ vm_name }} VM with device changes
+      ansible.builtin.command:
+        cmd: "virsh define /etc/libvirt/qemu/{{ vm_name }}.xml"
