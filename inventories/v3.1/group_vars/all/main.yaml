@@ -2,7 +2,7 @@ repos:
   vxsuite-complete-system:
     version: v3.1.0-rc6.0
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian12base110"
+vm_name: "debian12base110-frozen20231218"
 vm_disk_size_gb: 110
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
