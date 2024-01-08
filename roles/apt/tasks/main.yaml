@@ -1,5 +1,11 @@
 ---
 
+- name: Create apt preference config (if necessary)
+  ansible.builtin.template:
+    src: ./snapshot_preference.j2
+    dest: /etc/apt/preferences.d/snapshot_preference_config
+  when: create_apt_preference_config is defined
+
 - import_tasks: download_only.yaml
   tags:
     - online
