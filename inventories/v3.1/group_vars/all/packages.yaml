@@ -1,7 +1,11 @@
 ---
 batch_package_install: false
-apt_snapshot_date: "20231218"
+apt_snapshot_date: "20231219"
 release_name: "bookworm"
+
+create_apt_preference_config:
+  - curl
+  - libcurl4
 
 all_packages:
   - alsa-utils=1.2.8-1
@@ -30,6 +34,7 @@ all_packages:
   - kde-cli-tools=4:5.27.5.1-2
   - libatspi2.0-0=2.46.0-5
   - libcairo2-dev=1.16.0-7
+  - libcurl4=7.88.1-10+deb12u4
   - libgif-dev=5.2.1-2.5
   - libglib2.0-bin=2.74.6-2
   - libgtk-3-0=3.24.38-2~deb12u1

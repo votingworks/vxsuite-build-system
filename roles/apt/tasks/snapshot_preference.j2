@@ -1,0 +1,6 @@
+{% for package in create_apt_preference_config %}
+Package: {{ package }}
+Pin: origin "snapshot.debian.org"
+Pin-Priority: 1001
+
+{% endfor %}
