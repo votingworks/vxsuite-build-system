@@ -59,8 +59,8 @@ echo "Decompressing ${vm_img_zip_path}. This may take a few minutes."
 lz4 $vm_img_zip_path
 
 # Create the image from the XML configuration
-echo "Creating the $vm_name configuration."
-virsh create $vm_xml_path
+echo "Define the $vm_name configuration."
+virsh define $vm_xml_path
 
 echo ""
 echo "The unsigned download process is now complete."
