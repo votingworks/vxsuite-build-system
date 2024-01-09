@@ -9,6 +9,7 @@ vm_vars_path="/var/lib/libvirt/qemu/nvram/${vm_name}_VARS.fd"
 vm_xml_path="/tmp/${vm_name}-unsigned.xml"
 hash_ref_path="/tmp/${vm_name}-unsigned-hashes.txt"
 s3_path="s3://votingworks-trusted-build/unsigned/"
+s3_accelerate="https://s3-accelerate.amazonaws.com"
 
 # Verify the image exists
 if [[ ! -f $vm_img_path ]]; then
@@ -44,7 +45,7 @@ echo "Uploading unsigned files to ${s3_path}. This will take a few minutes."
 aws s3 cp $hash_ref_path $s3_path
 aws s3 cp $vm_vars_path $s3_path
 aws s3 cp $vm_xml_path $s3_path
-aws s3 cp $vm_img_zip_path $s3_path
+aws s3 cp $vm_img_zip_path $s3_path --endpoint-url $s3_accelerate
 
 echo ""
 echo "The unsigned upload process is now complete."

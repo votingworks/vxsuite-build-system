@@ -14,6 +14,7 @@ s3_hash_ref_path="${s3_path}/${vm_name}-signed-hashes.txt"
 s3_vars_path="${s3_path}/${vm_name}_VARS.fd"
 s3_xml_path="${s3_path}/${vm_name}-signed.xml"
 s3_img_zip_path="${s3_path}/${vm_name}.img.lz4"
+s3_accelerate="https://s3-accelerate.amazonaws.com"
 
 # Download all files from S3
 echo ""
@@ -21,7 +22,7 @@ echo "Downloading signed files from ${s3_path}. This will take a few minutes."
 aws s3 cp $s3_hash_ref_path $hash_ref_path
 aws s3 cp $s3_vars_path $vm_vars_path
 aws s3 cp $s3_xml_path $vm_xml_path
-aws s3 cp $s3_img_zip_path $vm_img_zip_path
+aws s3 cp $s3_img_zip_path $vm_img_zip_path --endpoint-url $s3_accelerate
 
 # Verify the image exists
 if [[ ! -f $vm_img_zip_path ]]; then
