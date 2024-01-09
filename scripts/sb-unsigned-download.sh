@@ -39,9 +39,9 @@ fi
 # Generate sha256 hashes of all files
 echo ""
 echo "Calculating sha256 hashes of all unsigned files to verify against."
-sha256sum $vm_img_zip_path >> $hash_ref_path
-sha256sum $vm_vars_path >> $hash_ref_path
-sha256sum $vm_xml_path >> $hash_ref_path
+sha256sum $vm_img_zip_path >> $verify_hash_ref_path
+sha256sum $vm_vars_path >> $verify_hash_ref_path
+sha256sum $vm_xml_path >> $verify_hash_ref_path
 
 echo ""
 echo "Comparing hashes of all unsigned files."
