@@ -5,6 +5,7 @@ set -euo pipefail
 vm_name=$1
 vm_img_path="/var/lib/libvirt/images/${vm_name}.img"
 vm_img_zip_path="${vm_img_path}.lz4"
+vm_signed_image_file="${vm_name}-signed.img.lz4"
 vm_vars_path="/var/lib/libvirt/qemu/nvram/${vm_name}_VARS.fd"
 vm_xml_path="/tmp/${vm_name}-signed.xml"
 hash_ref_path="/tmp/${vm_name}-signed-hashes.txt"
@@ -53,6 +54,8 @@ then
 else
   echo "Successfully verified all signed files hashes are correct."
 fi
+
+mv $vm_img_zip_path ~/$vm_signed_image_file
 
 echo ""
 echo "The signed download process is now complete."
