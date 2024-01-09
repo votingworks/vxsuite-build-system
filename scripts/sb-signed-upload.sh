@@ -8,7 +8,7 @@ vm_img_zip_path="${vm_img_path}.lz4"
 vm_vars_path="/var/lib/libvirt/qemu/nvram/${vm_name}_VARS.fd"
 vm_xml_path="/tmp/${vm_name}-signed.xml"
 hash_ref_path="/tmp/${vm_name}-signed-hashes.txt"
-s3_path="s3://votingworks-trusted-build/signed"
+s3_path="s3://votingworks-trusted-build/signed/"
 
 # Verify the image exists
 if [[ ! -f $vm_img_path ]]; then
