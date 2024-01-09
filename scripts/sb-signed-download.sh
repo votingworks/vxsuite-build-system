@@ -50,7 +50,7 @@ then
   echo "ERROR: Hashes do not match."
   exit 1
 else
-  echo "Successfully verified all unsigned files hashes are correct."
+  echo "Successfully verified all signed files hashes are correct."
 fi
 
 echo ""
