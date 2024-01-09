@@ -24,8 +24,8 @@ aws s3 cp $s3_xml_path $vm_xml_path
 aws s3 cp $s3_img_zip_path $vm_img_zip_path
 
 # Verify the image exists
-if [[ ! -f $vm_img_path ]]; then
-  echo "ERROR: The $vm_name img ($vm_img_path) could not be found."
+if [[ ! -f $vm_img_zip_path ]]; then
+  echo "ERROR: The compressed $vm_name img ($vm_img_zip_path) could not be found."
   exit 1
 fi
 
@@ -55,10 +55,10 @@ fi
 
 # Decompress the img w/ lz4
 echo ""
-echo "Decompressing ${vm_img_path}. This may take a few minutes."
+echo "Decompressing ${vm_img_zip_path}. This may take a few minutes."
 lz4 $vm_img_zip_path
 
-# Export the image's XML configuration
+# Create the image from the XML configuration
 echo "Creating the $vm_name configuration."
 virsh create $vm_xml_path
 
