@@ -10,6 +10,11 @@
       set_fact:
         cots_csv_file: "/tmp/cots_report.csv"
 
+    - name: Delete the file if it already exists
+      ansible.builtin.file:
+        path: "{{ cots_csv_file }}"
+        state: absent
+
     # Rust version and checksum
     #
     - name: Determine system architecture for appropriate Rust install
