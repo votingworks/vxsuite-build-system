@@ -19,11 +19,19 @@
         cmd: >
           apt-cache show {{ item }} | grep "Filename" | 
           cut -d' ' -f2
-      loop: "{{ all_packages }}"
+      loop: "{{ all_packages | zip(tpm_packages) | list}}"
       register: apt_filenames
 
-    - name: Print to tmp file
+    - name: Get the SHA256 hash
       ansible.builtin.shell:
-        cmd: 'echo "  - {{ item.stdout | quote }}" >> /tmp/apt_filenames'
-      loop: "{{ apt_filenames.results }}"
+        cmd: >
+          apt-cache show {{ item }} | grep "SHA256" | 
+          cut -d' ' -f2
+      loop: "{{ all_packages | zip(tpm_packages) | list}}"
+      register: apt_checksums
+
+    - name: Print files and checksums
+      debug:
+        msg: "{{ item.0 }} = {{ item.1 }}"
+      loop: "{{ apt_filenames | zip(apt_checksums) | list }}"
 
