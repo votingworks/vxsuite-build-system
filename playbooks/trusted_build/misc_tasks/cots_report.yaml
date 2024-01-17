@@ -39,6 +39,6 @@
 
     - name: Print COTS for apt packages
       debug:
-        msg: "{{ apt_url.url }}{{ item.1.stdout }},{{ item.0 }},{{ item.0.stdout | split('=') | last }},DATE,{{ item.2.stdout }}"
+        msg: "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},DATE,{{ item.2.stdout }}"
       loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results) | list }}"
 
