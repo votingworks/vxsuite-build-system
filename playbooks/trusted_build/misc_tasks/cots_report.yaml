@@ -19,7 +19,7 @@
         cmd: >
           apt-cache show {{ item }} | grep "Filename" | 
           cut -d' ' -f2
-      loop: "{{ all_packages | zip(tpm_packages) | list}}"
+      loop: "{{ all_packages + tpm_packages }}"
       register: apt_filenames
 
     - name: Get the SHA256 hash
@@ -27,7 +27,7 @@
         cmd: >
           apt-cache show {{ item }} | grep "SHA256" | 
           cut -d' ' -f2
-      loop: "{{ all_packages | zip(tpm_packages) | list}}"
+      loop: "{{ all_packages + tpm_packages }}"
       register: apt_checksums
 
     - name: Print files and checksums
