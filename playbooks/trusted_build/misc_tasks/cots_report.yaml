@@ -10,6 +10,74 @@
       set_fact:
         cots_csv_file: "/tmp/cots_report.csv"
 
+    # Rust version and checksum
+    #
+    - name: Determine system architecture for appropriate Rust install
+      set_fact: 
+        architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+
+    - name: Define Rust tarball name
+      set_fact: 
+        rust_tarball: "rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+
+    - name: Define the URL to download the appropriate Rust tarball
+      set_fact:
+        rust_tarball_url: "https://static.rust-lang.org/dist/{{ rust_tarball }}"
+
+    - name: Define Rust manifest name
+      set_fact: 
+        rust_manifest: "channel-rust-{{ rust_version }}.toml"
+
+    - name: Define URL to Rust channel manifest for this version
+      set_fact:
+        rust_manifest_url: "https://static.rust-lang.org/dist/{{ rust_manifest }}"
+
+    - name: Download Rust channel manifest for this version
+      ansible.builtin.get_url:
+        url: "{{ rust_manifest_url }}"
+        dest: "/tmp/{{ rust_manifest }}"
+
+    - name: Find the sha256 hash for our version
+      ansible.builtin.shell:
+        cmd: "grep -A1 {{ rust_tarball }} /tmp/{{ rust_manifest }} | grep hash | cut -d'=' -f2 | xargs"
+      register: rust_checksum_from_manifest
+
+    - name: Add Rust to COTS report
+      ansible.builtin.shell:
+        cmd: >
+          echo "{{ rust_tarball_url }},{{ rust_tarball }},{{ rust_version }},DATE,{{ rust_checksum_from_manifest.stdout }}" >> {{ cots_csv_file }}
+
+    # Node version and checksum
+    #
+    - name: Set the Node filename
+      set_fact:
+        node_tarball: "node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
+
+    - name: Set Node release URL
+      set_fact:
+        node_release_url: "https://nodejs.org/dist/v{{ node_version }}/{{ node_tarball }}"
+
+    - name: Define the Node {{ node_version }} checksum file path
+      set_fact:
+        node_checksums_file: "/tmp/node-{{ node_version }}.checksums"
+
+    - name: Download the Node {{ node_version }} SHA256 reference
+      ansible.builtin.get_url:
+        url: "https://nodejs.org/dist/v{{ node_version }}/SHASUMS256.txt"
+        dest: "{{ node_checksums_file }}" 
+
+    - name: Find the appropriate checksum for Node {{ node_version }}
+      ansible.builtin.shell:
+        cmd: "grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz {{ node_checksums_file }} | cut -d' ' -f1"
+      register: node_checksum
+
+    - name: Add Node to COTS report
+      ansible.builtin.shell:
+        cmd: >
+          echo "{{ node_release_url }},{{ node_tarball }},{{ node_version }},DATE,{{ node_checksum.stdout }}" >> {{ cots_csv_file }}
+
+    # Apt packages versions and checksums
+    #
     - name: Set the apt repo URL
       ansible.builtin.uri:
         url: "https://snapshot.debian.org/archive/debian/{{ apt_snapshot_date }}"
@@ -47,37 +115,3 @@
           echo "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},DATE,{{ item.2.stdout }}" >> {{ cots_csv_file }}
       loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results) | list }}"
 
-    - name: Determine system architecture for appropriate Rust install
-      set_fact: 
-        architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
-
-    - name: Define Rust tarball name
-      set_fact: 
-        rust_tarball: "rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
-
-    - name: Define the URL to download the appropriate Rust tarball
-      set_fact:
-        rust_tarball_url: "https://static.rust-lang.org/dist/{{ rust_tarball }}"
-
-    - name: Define Rust manifest name
-      set_fact: 
-        rust_manifest: "channel-rust-{{ rust_version }}.toml"
-
-    - name: Define URL to Rust channel manifest for this version
-      set_fact:
-        rust_manifest_url: "https://static.rust-lang.org/dist/{{ rust_manifest }}"
-
-    - name: Download Rust channel manifest for this version
-      ansible.builtin.get_url:
-        url: "{{ rust_manifest_url }}"
-        dest: "/tmp/{{ rust_manifest }}"
-
-    - name: Find the sha256 hash for our version
-      ansible.builtin.shell:
-        cmd: "grep -A1 {{ rust_tarball }} /tmp/{{ rust_manifest }} | grep hash | cut -d'=' -f2 | xargs"
-      register: rust_checksum_from_manifest
-
-    - name: Add Rust to COTS report
-      ansible.builtin.shell:
-        cmd: >
-          echo "{{ rust_tarball_url }},{{ rust_tarball }},{{ rust_version }},DATE,{{ rust_checksum_from_manifest.stdout }}" >> {{ cots_csv_file }}
