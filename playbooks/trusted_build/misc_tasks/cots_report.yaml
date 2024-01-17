@@ -14,11 +14,11 @@
     #
     - name: Determine system architecture for appropriate Rust install
       set_fact: 
-        architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+        rust_architecture: "{{ 'aarch64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x86_64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
 
     - name: Define Rust tarball name
       set_fact: 
-        rust_tarball: "rust-{{ rust_version }}-{{ architecture }}-unknown-linux-gnu.tar.gz"
+        rust_tarball: "rust-{{ rust_version }}-{{ rust_architecture }}-unknown-linux-gnu.tar.gz"
 
     - name: Define the URL to download the appropriate Rust tarball
       set_fact:
@@ -49,9 +49,13 @@
 
     # Node version and checksum
     #
+    - name: Determine system architecture for Node
+      set_fact:
+        node_architecture: "{{ 'arm64' if (ansible_architecture == 'aarch64' or ansible_architecture == 'arm64') else 'x64' if (ansible_architecture == 'x86_64') else 'unsupported' }}"
+
     - name: Set the Node filename
       set_fact:
-        node_tarball: "node-v{{ node_version }}-linux-{{ architecture }}.tar.gz"
+        node_tarball: "node-v{{ node_version }}-linux-{{ node_architecture }}.tar.gz"
 
     - name: Set Node release URL
       set_fact:
@@ -68,7 +72,7 @@
 
     - name: Find the appropriate checksum for Node {{ node_version }}
       ansible.builtin.shell:
-        cmd: "grep node-v{{ node_version }}-linux-{{ architecture }}.tar.gz {{ node_checksums_file }} | cut -d' ' -f1"
+        cmd: "grep node-v{{ node_version }}-linux-{{ node_architecture }}.tar.gz {{ node_checksums_file }} | cut -d' ' -f1"
       register: node_checksum
 
     - name: Add Node to COTS report
