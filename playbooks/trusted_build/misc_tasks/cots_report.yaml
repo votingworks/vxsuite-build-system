@@ -13,20 +13,16 @@
         follow_redirects: all
       register: apt_url
 
-    - name: De-dupe the list for efficiency
-      set_fact:
-        all_packages: "{{ all_packages | unique | select | list }}"
-
-    - name: De-dupe the TPM list for efficiency
-      set_fact:
-        tpm_packages: "{{ tpm_packages | unique | select | list }}"
+    - name: Create the combined list
+        set_fact:
+          deduped_packages: "{{ all_packages + tpm_packages | unique | select | list }}"
 
     - name: Get the filename in the apt repo
       ansible.builtin.shell:
         cmd: >
           apt-cache show {{ item }} | grep "Filename" | 
           cut -d' ' -f2
-      loop: "{{ all_packages + tpm_packages }}"
+      loop: "{{ deduped_packages }}"
       register: apt_filenames
 
     - name: Get the SHA256 hash
@@ -34,11 +30,11 @@
         cmd: >
           apt-cache show {{ item }} | grep "SHA256" | 
           cut -d' ' -f2
-      loop: "{{ all_packages + tpm_packages }}"
+      loop: "{{ deduped_packages }}"
       register: apt_checksums
 
     - name: Print COTS for apt packages
       debug:
-        msg: "{{ apt_url.url }}{{ item.0.stdout }},{{ item.0.stdout }},{{ item.0.stdout | split('=') | last }},DATE,{{ item.1.stdout }}"
-      loop: "{{ apt_filenames.results | zip(apt_checksums.results) | list }}"
+        msg: "{{ apt_url.url }}{{ item.1.stdout }},{{ item.0 }},{{ item.0.stdout | split('=') | last }},DATE,{{ item.2.stdout }}"
+      loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results) | list }}"
 
