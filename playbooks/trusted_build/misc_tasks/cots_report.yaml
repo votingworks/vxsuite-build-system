@@ -38,7 +38,7 @@
       register: apt_checksums
 
     - name: Print COTS for apt packages
-      debug:
-        msg: "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},DATE,{{ item.2.stdout }}"
+      ansible.builtin.shell:
+        cmd: 'echo "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},DATE,{{ item.2.stdout }}" >> /tmp/cots_report.csv'
       loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results) | list }}"
 
