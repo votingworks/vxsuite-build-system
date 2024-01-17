@@ -15,7 +15,11 @@
 
     - name: Create the combined list
         set_fact:
-          deduped_packages: "{{ all_packages + tpm_packages | unique | select | list }}"
+          combined_packages: "{{ all_packages + tpm_packages }}"
+
+    - name: Dedupe the list
+        set_fact:
+          deduped_packages: "{{ combined_packages | unique | select | list }}"
 
     - name: Get the filename in the apt repo
       ansible.builtin.shell:
