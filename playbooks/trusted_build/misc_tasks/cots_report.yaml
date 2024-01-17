@@ -6,6 +6,13 @@
   become: true
 
   tasks:
+    - name: Set the apt repo URL
+      ansible.builtin.uri:
+        url: "https://snapshot.debian.org/archive/debian/{{ apt_snapshot_date }}"
+        return_content: no
+        follow_redirects: all
+      register: apt_url
+
     - name: De-dupe the list for efficiency
       set_fact:
         all_packages: "{{ all_packages | unique | select | list }}"
@@ -30,8 +37,8 @@
       loop: "{{ all_packages + tpm_packages }}"
       register: apt_checksums
 
-    - name: Print files and checksums
+    - name: Print COTS for apt packages
       debug:
-        msg: "{{ item.0.stdout }} = {{ item.1.stdout }}"
+        msg: "{{ apt_url.url }}{{ item.0.stdout }},{{ item.0.stdout }},{{ item.0.stdout | split('=') | last }},DATE,{{ item.1.stdout }}"
       loop: "{{ apt_filenames.results | zip(apt_checksums.results) | list }}"
 
