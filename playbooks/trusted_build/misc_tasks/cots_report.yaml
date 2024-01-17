@@ -32,6 +32,6 @@
 
     - name: Print files and checksums
       debug:
-        msg: "{{ item.0 }} = {{ item.1 }}"
-      loop: "{{ apt_filenames | zip(apt_checksums) | list }}"
+        msg: "{{ item.0.stdout }} = {{ item.1.stdout }}"
+      loop: "{{ apt_filenames.results | zip(apt_checksums.results) | list }}"
 
