@@ -5,6 +5,7 @@ all_packages:
   - alsa-utils
   - brightnessctl
   - build-essential
+  - chromium
   - cryptsetup
   - cups
   - cups-bsd
