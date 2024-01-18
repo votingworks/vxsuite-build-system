@@ -50,7 +50,7 @@
     - name: Add Rust to COTS report
       ansible.builtin.shell:
         cmd: >
-          echo "{{ rust_tarball_url }},{{ rust_tarball }},{{ rust_version }},DATE,{{ rust_checksum_from_manifest.stdout }}" >> {{ cots_csv_file }}
+          echo "{{ rust_tarball_url }},{{ rust_tarball }},{{ rust_version }},,{{ rust_checksum_from_manifest.stdout }}" >> {{ cots_csv_file }}
 
     # Node version and checksum
     #
@@ -83,7 +83,7 @@
     - name: Add Node to COTS report
       ansible.builtin.shell:
         cmd: >
-          echo "{{ node_release_url }},{{ node_tarball }},{{ node_version }},DATE,{{ node_checksum.stdout }}" >> {{ cots_csv_file }}
+          echo "{{ node_release_url }},{{ node_tarball }},{{ node_version }},,{{ node_checksum.stdout }}" >> {{ cots_csv_file }}
 
     # Apt packages versions and checksums
     #
@@ -121,6 +121,6 @@
     - name: Print COTS for apt packages
       ansible.builtin.shell:
         cmd: >
-          echo "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},DATE,{{ item.2.stdout }}" >> {{ cots_csv_file }}
+          echo "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},,{{ item.2.stdout }}" >> {{ cots_csv_file }}
       loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results) | list }}"
 
