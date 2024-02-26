@@ -18,3 +18,4 @@ all_packages:
   - libssl-dev
   - libx11-dev
   - pcscd
+  - ruby
