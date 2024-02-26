@@ -15,18 +15,27 @@
       set_fact:
         vm_cpus: "{{ (ansible_facts['processor_nproc'] * 0.80)|round(0, 'floor')|int }}"
 
-    - name: Download Debian ISO from current url
-      get_url: 
-        url: "{{ current_url }}/{{ iso_name }}"
-        dest: "{{ virt_image_path }}/{{ iso_name }}"
-      register: current_download
-      ignore_errors: true
+    - name: Check if the Debian ISO is already downloaded
+      ansible.builtin.stat:
+        path: "{{ virt_image_path }}/{{ iso_name }}"
+      register: debian_iso_file
 
-    - name: Download Debian ISO from archive url if current was not available
-      get_url: 
-        url: "{{ iso_url }}/{{ iso_name }}"
-        dest: "{{ virt_image_path }}/{{ iso_name }}"
-      when: current_download.status_code == 404 
+    - name: Download the Debian ISO if not already downloaded
+      block:
+        - name: Download Debian ISO from current url
+          get_url: 
+            url: "{{ current_url }}/{{ iso_name }}"
+            dest: "{{ virt_image_path }}/{{ iso_name }}"
+          register: current_download
+          ignore_errors: true
+
+        - name: Download Debian ISO from archive url if current was not available
+          get_url: 
+            url: "{{ iso_url }}/{{ iso_name }}"
+            dest: "{{ virt_image_path }}/{{ iso_name }}"
+          when: current_download.status_code == 404 
+
+      when: not debian_iso_file.stat.exists or not debian_iso_file.stat.isreg
 
     - name: See if virt networking is active
       shell: 
