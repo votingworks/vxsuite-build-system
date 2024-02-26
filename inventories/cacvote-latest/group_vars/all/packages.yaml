@@ -1,0 +1,20 @@
+---
+batch_package_install: true
+
+all_packages:
+  - build-essential
+  - chromium 
+  - cups-bsd
+  - curl
+  - git
+  - libcairo2-dev
+  - libgif-dev 
+  - libjpeg-dev
+  - libpango1.0-dev
+  - libpcsclite-dev
+  - libpixman-1-dev
+  - libpng-dev
+  - libsane
+  - libssl-dev
+  - libx11-dev
+  - pcscd
