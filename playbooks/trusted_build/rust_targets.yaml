@@ -49,7 +49,7 @@
 
     - name: Copy Rust targets to local user install path
       ansible.builtin.shell:
-        cmd: "mv /var/tmp/rust-{{ rust_version }}-{{ item }}/rust-std-{{ item }}/lib/rustlib/{{ item }} ~{{ user_to_configure }}/.cargo/lib/rustlib/"
+        cmd: "mv /var/tmp/rust-std-{{ rust_version }}-{{ item }}/rust-std-{{ item }}/lib/rustlib/{{ item }} ~{{ user_to_configure }}/.cargo/lib/rustlib/"
       become: true
       become_user: "{{ user_to_configure }}"
       loop: "{{ targets_to_add }}"
