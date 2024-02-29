@@ -7,6 +7,7 @@
 - import_playbook: packages.yaml
 - import_playbook: node.yaml
 - import_playbook: rust.yaml
+- import_playbook: rust_targets.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: repos.yaml
 - import_playbook: brother_printers.yaml
