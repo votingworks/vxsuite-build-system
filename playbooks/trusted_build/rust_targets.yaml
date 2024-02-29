@@ -1,0 +1,57 @@
+---
+- name: Add Rust target(s)
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
+
+    - name: Define the base URL pattern to download targets from
+      set_fact:
+        rust_base_url: "https://static.rust-lang.org/dist/rust-std-{{ rust_version }}"
+      tags:
+        - online
+
+    - name: Override user if local_user is defined
+      set_fact:
+        user_to_configure: "{{ local_user }}"
+      when: (local_user is defined) and (local_user|length > 0)
+
+    - name: Download Rust targets
+      ansible.builtin.get_url:
+        url: "{{ rust_base_url }}-{{ item }}.tar.gz"
+        dest: "{{ downloads_directory }}/{{ item }}.tar.gz"
+      retries: 3
+      delay: 2
+      register: rust_target_download
+      until: rust_target_download is not failed
+      loop: "{{ targets_to_add }}"
+      tags:
+        - online
+
+    - name: Extract Rust targets to tmp location
+      ansible.builtin.unarchive:
+        src: "{{ downloads_directory }}/{{ item }}.tar.gz"
+        dest: /var/tmp
+        remote_src: yes
+      become: true
+      become_user: "{{ user_to_configure }}"
+      loop: "{{ targets_to_add }}"
+      tags:
+        - offline
+
+    - name: Copy Rust targets to local user install path
+      ansible.builtin.shell:
+        cmd: "mv {{ downloads_directory }}/rust-{{ rust_version }}-{{ item }}/rust-std-{{ item }}/lib/rustlib/{{ item }} ~{{ user_to_configure }}/.cargo/lib/rustlib/"
+      become: true
+      become_user: "{{ user_to_configure }}"
+      loop: "{{ targets_to_add }}"
+      tags:
+        - offline
