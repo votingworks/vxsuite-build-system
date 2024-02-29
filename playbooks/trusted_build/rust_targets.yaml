@@ -39,7 +39,7 @@
     - name: Extract Rust targets to tmp location
       ansible.builtin.unarchive:
         src: "{{ downloads_directory }}/{{ item }}.tar.gz"
-        dest: /var/tmp
+        dest: "{{ downloads_directory }}"
         remote_src: yes
       become: true
       become_user: "{{ user_to_configure }}"
