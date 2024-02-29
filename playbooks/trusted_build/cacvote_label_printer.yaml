@@ -9,6 +9,10 @@
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
+
     - name: Download the label printer driver
       ansible.builtin.get_url:
         url: "https://www.idprt.com/prt_v2/files/down_file/id/131/fid/432.html"
