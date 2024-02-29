@@ -1,0 +1,33 @@
+---
+
+- name: Install CACvote Label Printer Driver
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Download the label printer driver
+      ansible.builtin.get_url:
+        url: "https://www.idprt.com/prt_v2/files/down_file/id/131/fid/432.html"
+        dest: "{{ downloads_directory }}/idprt_tspl_printer_linux_driver_v1.4.2.zip"
+      tags:
+        - online
+
+    - name: Extract the driver
+      ansible.builtin.unarchive:
+        src: "{{ downloads_directory }}/idprt_tspl_printer_linux_driver_v1.4.2.zip"
+        dest: "{{ downloads_directory }}"
+        remote_src: yes
+      tags:
+        - offline
+
+    - name: Install the driver
+      ansible.builtin.shell:
+        cmd: "bash install"
+        chdir: "{{ downloads_directory }}/idprt_tspl_printer_linux_driver_v1.4.2"
+      tags:
+        - offline
+
