@@ -1,0 +1,25 @@
+---
+batch_package_install: true
+
+all_packages:
+  - build-essential
+  - chromium 
+  - cups-bsd
+  - cups-filters
+  - curl
+  - git
+  - libcairo2-dev
+  - libcupsimage2
+  - libgif-dev 
+  - libjpeg-dev
+  - libpango1.0-dev
+  - libpcsclite-dev
+  - libpixman-1-dev
+  - libpng-dev
+  - libsane
+  - libssl-dev
+  - libudev-dev
+  - libx11-dev
+  - pcscd
+  - postgresql
+  - ruby

@@ -66,19 +66,27 @@
       tags:
         - offline
 
-    - name: Get lpstat info for brother printers
-      ansible.builtin.shell:
-        cmd: "lpstat -p {{ item.key }}"
-      with_dict:
-        - "{{ brother_drivers }}"
-      register: lpstat_info
-      ignore_errors: yes
-      tags:
-        - offline
+    # By default, we delete cups printer configs
+    # but not in cacvote, so we added a delete_via_lpadmin config var
+    - block:
 
-    - name: Remove printer configs that interfere with our config
-      ansible.builtin.command: "lpadmin -x {{ item.item.key }}"
-      when: item.rc == 0
-      loop: "{{ lpstat_info.results }}"
+      - name: Get lpstat info for brother printers
+        ansible.builtin.shell:
+          cmd: "lpstat -p {{ item.key }}"
+        with_dict:
+          - "{{ brother_drivers }}"
+        register: lpstat_info
+        ignore_errors: yes
+        tags:
+          - offline
+
+      - name: Remove printer configs that interfere with our config
+        ansible.builtin.command: "lpadmin -x {{ item.item.key }}"
+        when: item.rc == 0
+        loop: "{{ lpstat_info.results }}"
+        tags:
+          - offline
+
+      when: delete_via_lpadmin is not defined or delete_via_lpadmin is true
       tags:
         - offline
