@@ -27,7 +27,7 @@ install_cargo_tools() {
   fi
 }
 
-configure-postgresql() {
+configure_postgresql() {
   echo "Configuring Postgres for cacvote-jx"
   sudo systemctl enable postgresql --quiet
   if ! systemctl is-active --quiet postgresql; then
@@ -65,6 +65,8 @@ configure-postgresql() {
   done
 
   echo "Apply database migrations."
+  cd "${cacvote_dir}/services/cacvote-server"
+  cargo sqlx migrate run --source db/migrations --database-url "postgres:cacvote"
   cd "${cacvote_dir}/apps/cacvote-jx-terminal/backend"
   cargo sqlx migrate run --source db/migrations --database-url "postgres:cacvote_jx"
 
@@ -77,7 +79,9 @@ echo "Dir: $DIR"
 echo "Home: $local_user_home_dir"
 echo "Done"
 
-install-cargo-tools
+install_cargo_tools
+configure_postgresql
+
 cd "${cacvote_dir}"
 pnpm install
 cargo build
