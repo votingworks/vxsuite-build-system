@@ -5,13 +5,12 @@
   become: true
 
   vars:
-    rust_version: '1.72.0'
+    rust_version: "1.76.0"
     user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
-    rustup_install_url: 'https://sh.rustup.rs'
-    rustup_install_cmd: '/tmp/rustup.sh'
+    rustup_install_url: "https://sh.rustup.rs"
+    rustup_install_cmd: "/tmp/rustup.sh"
 
   tasks:
-
     - name: Override user if local_user is defined
       set_fact:
         user_to_configure: "{{ local_user }}"
