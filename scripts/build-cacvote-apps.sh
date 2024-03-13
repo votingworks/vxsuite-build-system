@@ -41,6 +41,7 @@ configure_postgresql() {
       -c "select pg_user.usesuper from pg_catalog.pg_user where pg_user.usename = '${local_user}' limit 1;" | tr -d '[:space:]' || true
   )
 
+  cd /tmp
   if [[ "$IS_SUPER" == "t" ]]; then
     echo "User ${local_user} is already a postgres superuser."
   elif [[ "$IS_SUPER" == "f" ]]; then
@@ -85,5 +86,8 @@ configure_postgresql
 cd "${cacvote_dir}"
 pnpm install
 cargo build
+
+make -C apps/cacvote-jx-terminal dist
+make -C apps/cacvote-mark build
 
 exit 0
