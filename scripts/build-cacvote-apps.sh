@@ -19,11 +19,11 @@ install_cargo_tools() {
   echo "Installing cargo tools needed for build and migrations."
 
   if ! which sqlx >/dev/null 2>&1; then
-    cargo install --locked sqlx-cli
+    cargo install sqlx-cli
   fi
 
   if ! which dx >/dev/null 2>&1; then
-    cargo install --locked dioxus-cli
+    cargo install dioxus-cli
   fi
 }
 
