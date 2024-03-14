@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
+# Notes:
+# This is not a complete build script for production
+# It uses a local server that will not be part of real releases but is needed for now
+# It does a lot of one-off copy operations for dependencies like env files, sql schema, and that process will almost certainly work differently for a release
 
 set -euo pipefail
 
 local_user="$( logname )"
 local_user_home_dir="$( getent passwd "${local_user}" | cut -d: -f6 )"
 cacvote_dir="${local_user_home_dir}/code/cacvote"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [[ ! -d "$cacvote_dir" ]]; then
   echo "Error: $cacvote_dir does not exist."
@@ -75,11 +78,6 @@ configure_postgresql() {
 
 }
 
-echo "User: $local_user"
-echo "Dir: $DIR"
-echo "Home: $local_user_home_dir"
-echo "Done"
-
 install_cargo_tools
 configure_postgresql
 
@@ -87,6 +85,8 @@ cd "${cacvote_dir}"
 pnpm install
 cargo build
 
+# Only making server while testing locally. Not needed for production
+make -C services/cacvote-server dist
 make -C apps/cacvote-jx-terminal dist
 make -C apps/cacvote-mark build
 
@@ -95,9 +95,20 @@ if [[ ! -L "${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build" ]]; the
   ln -s ${cacvote_dir}/script/prod-build ${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build
 fi
 
-export BUILD_ROOT="${cacvote_dir}/build/cacvote-mark"
+# cacvote-mark build
+export BUILD_ROOT="${cacvote_dir}/build/cacvote"
 rm -rf "${BUILD_ROOT}"
 cd "${cacvote_dir}/apps/cacvote-mark/frontend"
 ./script/prod-build
+cp "${cacvote_dir}/apps/cacvote-mark/backend/.env" "${BUILD_ROOT}/apps/cacvote-mark/backend/.env"
+cp "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cacvote-mark/backend/schema.sql"
+
+# cacvote-jx-terminal has already been built, move into build directory
+cp -rp "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
+cp "${BUILD_ROOT}/apps/cacvote-jx-terminal/backend/.env" "${BUILD_ROOT}/apps/cacvote-jx-terminal/dist/.env"
+
+# Only for local testing purposes
+mkdir "${BUILD_ROOT}/services/"
+cp -rp "${cacvote_dir}/services/cacvote-server" "${BUILD_ROOT}/services/"
 
 exit 0
