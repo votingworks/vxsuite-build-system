@@ -90,4 +90,14 @@ cargo build
 make -C apps/cacvote-jx-terminal dist
 make -C apps/cacvote-mark build
 
+# Create the prod-build link if not present
+if [[ ! -L "${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build" ]]; then
+  ln -s ${cacvote_dir/script/prod-build ${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build
+fi
+
+export BUILD_ROOT="${cacvote_dir}/build/cacvote-mark"
+rm -rf "${BUILD_ROOT}"
+cd "${cacvote_dir}/apps/cacvote-mark/frontend"
+./script/prod-build
+
 exit 0
