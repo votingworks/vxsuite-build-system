@@ -47,6 +47,16 @@
       tags:
         - offline
 
+    - name: Remove existing targets in the local path to ensure re-runs work
+      ansible.builtin.file:
+        path: "~{{ user_to_configure }}/.cargo/lib/rustlib/{{ item }}"
+        state: absent
+      become: true
+      become_user: "{{ user_to_configure }}"
+      loop: "{{ targets_to_add }}"
+      tags:
+        - offline
+
     - name: Copy Rust targets to local user install path
       ansible.builtin.shell:
         cmd: "mv /var/tmp/rust-std-{{ rust_version }}-{{ item }}/rust-std-{{ item }}/lib/rustlib/{{ item }} ~{{ user_to_configure }}/.cargo/lib/rustlib/"
