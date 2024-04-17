@@ -5,6 +5,7 @@ all_packages:
   - alsa-utils
   - brightnessctl
   - build-essential
+  - chromium
   - cryptsetup
   - cups
   - cups-bsd
@@ -16,16 +17,15 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
-  - firmware-iwlwifi
   - firmware-linux-free
   - firmware-misc-nonfree
-  - firmware-realtek
   - firmware-sof-signed
   - git
   - gvfs
   - gzip
   - hplip
   - iptables
+  - jq
   - kde-cli-tools
   - libatspi2.0-0
   - libcairo2-dev
@@ -40,12 +40,16 @@ all_packages:
   - libpixman-1-dev
   - libpng-dev
   - libsane
+  - libsane1
+  - libsane-common
+  - libsane-hpaio
   - libudev-dev
   - libusb-1.0-0-dev
   - libx11-dev
   - libxss1
   - libxtst6
   - libzbar-dev
+  - linux-kbuild-6.1
   - make
   - mingetty
   - openbox
@@ -57,8 +61,11 @@ all_packages:
   - rsync
   - rsyslog
   - ruby
+  - sane-airscan
+  - sane-utils
   - sbsigntool
   - swig
+  - systemd-boot-efi
   - tar
   - trash-cli
   - unclutter
