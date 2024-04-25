@@ -5,7 +5,7 @@
 encrypted_dev_path='/dev/Vx-vg/var_encrypted'
 decrypted_map_name='var_decrypted'
 decrypted_dev_path="/dev/mapper/${decrypted_map_name}"
-insecure_key='/var/local/insecure.key'
+insecure_key='/home/insecure.key'
 tmp_mnt_path='/mnt/tmp_dir'
 partition_path='/var'
 
