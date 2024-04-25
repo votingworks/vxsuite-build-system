@@ -30,7 +30,7 @@ cryptsetup luksFormat -q --cipher aes-xts-plain64 --key-size 512 --hash sha256 -
 echo "Mapping ${encrypted_dev_path} to ${decrypted_map_name}..."
 cryptsetup open --type luks --key-file ${insecure_key} ${encrypted_dev_path} ${decrypted_map_name}
 
-echo "Putting ext4 filesystem on ${decrypted_dev_path}
+echo "Putting ext4 filesystem on ${decrypted_dev_path}"
 mkfs.ext4 ${decrypted_dev_path}
 
 mkdir -p ${tmp_mnt_path}
