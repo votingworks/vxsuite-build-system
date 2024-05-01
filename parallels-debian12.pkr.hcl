@@ -6,6 +6,10 @@ packer {
       version = ">= 1.0.0"
       source  = "github.com/hashicorp/parallels"
     }
+    ansible = {
+      version = "~> 1"
+      source = "github.com/hashicorp/ansible"
+    }
   }
 }
 
@@ -71,7 +75,7 @@ variable "iso_checksum" {
 
 variable "iso_url" {
   type = string
-  default = "https://cdimage.debian.org/cdimage/release/12.2.0/arm64/iso-dvd/debian-12.2.0-arm64-DVD-1.iso"
+  default = "https://cdimage.debian.org/cdimage/archive/12.2.0/arm64/iso-dvd/debian-12.2.0-arm64-DVD-1.iso"
 }
 
 variable "local_user" {
