@@ -1,6 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: adam/esi-2.5
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "esi-base"
 vm_disk_size_gb: 110
