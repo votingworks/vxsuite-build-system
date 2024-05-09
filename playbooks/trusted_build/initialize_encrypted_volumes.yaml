@@ -1,0 +1,16 @@
+---
+- name: Initialize encrypted volumes
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Copy the encrypted volume script
+      ansible.builtin.copy:
+        src: "files/initialize-encrypted-volumes.sh"
+        dest: "/tmp/initialize-encrypted-volumes.sh"
+
+    - name: Run the encrypted volume script
+      ansible.builtin.command: "bash /tmp/initialize-encrypted-volumes.sh"
+
