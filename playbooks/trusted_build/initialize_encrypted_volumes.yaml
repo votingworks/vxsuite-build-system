@@ -8,9 +8,9 @@
 
     - name: Copy the encrypted volume script
       ansible.builtin.copy:
-        src: "files/initialize_encrypted_volumes.sh"
-        dest: "/tmp/initialize_encrypted_volumes.sh"
+        src: "files/initialize-encrypted-volumes.sh"
+        dest: "/tmp/initialize-encrypted-volumes.sh"
 
     - name: Run the encrypted volume script
-      ansible.builtin.command: "bash /tmp/initialize_encrypted_volumes.sh"
+      ansible.builtin.command: "bash /tmp/initialize-encrypted-volumes.sh"
 

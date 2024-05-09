@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # TODO: add error checking
 # TODO?: support passing multiple partitions
 encrypted_dev_path='/dev/Vx-vg/var_encrypted'
