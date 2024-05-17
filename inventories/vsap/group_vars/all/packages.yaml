@@ -20,6 +20,7 @@ all_packages:
   - firmware-linux-free
   - firmware-misc-nonfree
   - firmware-sof-signed
+  - fonts-wqy-zenhei
   - git
   - gvfs
   - gzip
