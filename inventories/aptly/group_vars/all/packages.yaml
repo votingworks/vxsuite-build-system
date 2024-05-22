@@ -1,5 +1,7 @@
 ---
 batch_package_install: true
+apt_snapshot_date: "20240521"
+release_name: "bookworm"
 
 all_packages:
   - alsa-utils
