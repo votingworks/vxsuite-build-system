@@ -37,4 +37,5 @@ sudo aptly snapshot create "${repo_date}-snapshot" from repo ${repo_date}
 #
 
 sudo aptly -distribution="bookworm" publish snapshot s3:votingworks-apt-snapshots:${repo_date}/
-aws s3 cp /var/tmp/apt-votingworks.pub s3://votingworks-apt-snapshots:${repo_date}/
+
+aws s3 cp /var/tmp/apt-votingworks.pub s3://votingworks-apt-snapshots:${repo_date}/votingworks-apt-${repo_date}.pub
