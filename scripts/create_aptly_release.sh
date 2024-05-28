@@ -41,7 +41,7 @@ sed -i -e 's/.*"S3PublishEndpoints".*/  "S3PublishEndpoints": {\
      "votingworks-apt-snapshots":{\
         "region":"us-west-2",\
         "bucket":"votingworks-apt-snapshots",\
-        "prefix":"${repo_date}",\
+        "prefix":"'${repo_date}'",\
         "acl":"none"\
      }\
    },/' /root/.aptly.conf
