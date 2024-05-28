@@ -14,28 +14,39 @@
 #
 set -euo pipefail
 
-sudo apt install -y aptly awscli
+apt install -y aptly awscli
 
-sudo gpg --batch --passphrase '' --quick-gen-key apt@voting.works
+gpg --batch --passphrase '' --quick-gen-key apt@voting.works
 
-sudo gpg --armor --export apt@voting.works > /var/tmp/apt-votingworks.pub
+gpg --armor --export apt@voting.works > /var/tmp/apt-votingworks.pub
 
-sudo apt list --installed | grep -v Listing | cut -d'/' -f1 > /var/tmp/packages.list
+apt list --installed | grep -v Listing | cut -d'/' -f1 > /var/tmp/packages.list
 
-sudo xargs apt-get install --reinstall --no-install-recommends --download-only -y < /var/tmp/packages.list
+xargs apt-get install --reinstall --no-install-recommends --download-only -y < /var/tmp/packages.list
 
 repo_date=$(date +%Y%m%d)
 
-sudo aptly repo create ${repo_date}
+aptly repo create ${repo_date}
 
-sudo aptly repo add ${repo_date} /var/cache/apt/archives/
+aptly repo add ${repo_date} /var/cache/apt/archives/
 
-sudo aptly snapshot create "${repo_date}-snapshot" from repo ${repo_date}
+aptly snapshot create "${repo_date}-snapshot" from repo ${repo_date}
 
 # source aws credentials
-# edit /root/.aptly.conf to have the S3PublishEndpoints block
-#
+. /root/.aws.sh
 
-sudo aptly -distribution="bookworm" publish snapshot s3:votingworks-apt-snapshots:${repo_date}/
+# edit /root/.aptly.conf to have the S3PublishEndpoints block
+# By default, empty S3 block will exist, so we just insert the required params
+sed -i -e 's/.*"S3PublishEndpoints".*/  "S3PublishEndpoints": {\
+     "votingworks-apt-snapshots":{\
+        "region":"us-west-2",\
+        "bucket":"votingworks-apt-snapshots",\
+        "prefix":"${repo_date}",\
+        "acl":"none"\
+     }\
+   },/' /root/.aptly.conf
+
+
+aptly -distribution="bookworm" publish snapshot s3:votingworks-apt-snapshots:${repo_date}/
 
 aws s3 cp /var/tmp/apt-votingworks.pub s3://votingworks-apt-snapshots:${repo_date}/votingworks-apt-${repo_date}.pub
