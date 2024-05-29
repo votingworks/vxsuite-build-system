@@ -10,5 +10,4 @@
       ansible.builtin.copy:
         src: "files/aws-s3-apt-publisher.sh"
         dest: "/root/.aws.sh"
-        remote_src: yes
 
