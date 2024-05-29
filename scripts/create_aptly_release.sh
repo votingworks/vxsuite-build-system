@@ -49,4 +49,4 @@ sed -i -e 's/.*"S3PublishEndpoints".*/  "S3PublishEndpoints": {\
 
 aptly -distribution="bookworm" publish snapshot "${repo_date}-snapshot" s3:votingworks-apt-snapshots:${repo_date}/
 
-aws s3 cp /var/tmp/apt-votingworks.pub s3://votingworks-apt-snapshots:${repo_date}/votingworks-apt-${repo_date}.pub
+aws s3 cp /var/tmp/apt-votingworks.pub s3://votingworks-apt-snapshots/${repo_date}/votingworks-apt-${repo_date}.pub
