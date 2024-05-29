@@ -1,0 +1,14 @@
+---
+
+- name: Prepare a system for creating an apt repo
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - name: Copy the aws S3 credentials
+      ansible.builtin.copy:
+        src: "files/aws-s3-apt-publisher.sh"
+        dest: "/root/.aws.sh"
+        remote_src: yes
+
