@@ -67,7 +67,8 @@
         path: "/tmp/{{ vm_preseed_file }}"
         block: |
           d-i preseed/late_command string \
-              echo "deb [check-valid-until=no trusted=yes] http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/{{ apt_snapshot_date }}/ {{ release_name }} main" > /target/etc/apt/sources.list; \
+              wget -O "/target/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc" "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/votingworks-apt-{{ apt_snapshot_date }}.pub"; \
+              echo "deb [check-valid-until=no signed-by=/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc] http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/{{ apt_snapshot_date }}/ {{ release_name }} main" > /target/etc/apt/sources.list; \
               in-target apt-get -y update;
       when: (apt_snapshot_date is defined) and (release_name is defined)
 
