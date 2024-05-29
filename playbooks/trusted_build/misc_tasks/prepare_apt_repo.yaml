@@ -8,6 +8,6 @@
   tasks:
     - name: Copy the aws S3 credentials
       ansible.builtin.copy:
-        src: "files/aws-s3-apt-publisher.sh"
+        src: "../files/aws-s3-apt-publisher.sh"
         dest: "/root/.aws.sh"
 
