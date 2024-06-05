@@ -69,7 +69,7 @@ set +e
       i=$(( $i + 1 ))
     fi
   done
-  if [[ $i -eq 3 ]]; then
+  if [[ $i -gt 3 ]]; then
     exit 1;
   fi
 )
