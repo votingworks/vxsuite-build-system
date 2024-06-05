@@ -21,6 +21,7 @@ mount /dev/sda /mnt || mount /dev/sda1 /mnt || (echo "GPG and AWS credentials we
 
 gpg --import /mnt/apt-votingworks.asc
 cp /mnt/.aws.sh /root/.aws.sh
+source .virtualenv/ansible/bin/activate
 ansible-vault decrypt /root/.aws.sh
 
 apt list --installed | grep -v Listing | cut -d'/' -f1 > /var/tmp/packages.list
