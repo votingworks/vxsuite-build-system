@@ -2,7 +2,6 @@
 #
 #-- Creating an aptly release involves several steps:
 #-- Installing and configuring aptly
-#-- Creating a GPG key for signing the repo
 #-- Downloading all packages to the system
 #-- Creating an aptly repo locally
 #-- Taking a snapshot of that local repo
@@ -16,9 +15,13 @@ set -euo pipefail
 
 apt install -y aptly awscli
 
-gpg --batch --passphrase '' --quick-gen-key apt@voting.works
+umount /dev/sda || true
+umount /dev/sda1 || true
+mount /dev/sda /mnt || mount /dev/sda1 /mnt || (echo "GPG and AWS credentials were not found, exiting" && sleep 5 && exit);
 
-gpg --armor --export apt@voting.works > /var/tmp/apt-votingworks.pub
+gpg --import /mnt/apt-votingworks.asc
+cp /mnt/.aws.sh /root/.aws.sh
+ansible-vault decrypt /root/.aws.sh
 
 apt list --installed | grep -v Listing | cut -d'/' -f1 > /var/tmp/packages.list
 
@@ -47,6 +50,24 @@ sed -i -e 's/.*"S3PublishEndpoints".*/  "S3PublishEndpoints": {\
    },/' /root/.aptly.conf
 
 
-aptly -distribution="bookworm" publish snapshot "${repo_date}-snapshot" s3:votingworks-apt-snapshots:${repo_date}/
+# This command can fail intermittently depending on size of the repo
+# and/or the available network connection. As a result, we retry a few times.
+set +e
+(
+  i=1
+  while [ $i -le 3 ]
+  do
+    aptly -distribution="bookworm" publish snapshot "${repo_date}-snapshot" s3:votingworks-apt-snapshots:${repo_date}/
+    if [[ "$?" == "0" ]]; then
+      break
+    else
+      i=$(( $i + 1 ))
+    fi
+  done
+  if [[ $i -eq 3 ]]; then
+    exit 1;
+  fi
+)
+set -e
 
-aws s3 cp /var/tmp/apt-votingworks.pub s3://votingworks-apt-snapshots/${repo_date}/votingworks-apt-${repo_date}.pub
+aws s3 cp /mnt/apt-votingworks.pub s3://votingworks-apt-snapshots/${repo_date}/votingworks-apt-${repo_date}.pub

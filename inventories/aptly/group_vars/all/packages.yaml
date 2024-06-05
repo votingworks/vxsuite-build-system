@@ -1,6 +1,6 @@
 ---
 batch_package_install: true
-apt_snapshot_date: "20240529"
+apt_snapshot_date: "20240530"
 release_name: "bookworm"
 
 all_packages:
