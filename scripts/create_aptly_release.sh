@@ -13,6 +13,10 @@
 #
 set -euo pipefail
 
+if [[ $EUID -ne 0 ]]; then
+  echo "Please run this script as root via: sudo ./scripts/create_aptly_release.sh"
+  exit 1;
+fi
 apt install -y aptly awscli
 
 umount /dev/sda || true
