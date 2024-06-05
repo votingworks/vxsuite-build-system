@@ -76,3 +76,7 @@ set +e
 set -e
 
 aws s3 cp /mnt/apt-votingworks.pub s3://votingworks-apt-snapshots/${repo_date}/votingworks-apt-${repo_date}.pub
+
+umount /mnt
+
+exit 0;
