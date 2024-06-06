@@ -1,22 +1,15 @@
 #!/usr/bin/env bash
 #
-#-- Creating an aptly release involves several steps:
-#-- Installing and configuring aptly
-#-- Downloading all packages to the system
-#-- Creating an aptly repo locally
-#-- Taking a snapshot of that local repo
-#-- Publishing the repo to S3
-#-- Publishing the GPG public key
-#-- 
-#-- NOTE: This may be better as a playbook if we end up wanting to 
-#--       use Ansible vault for aws credential management
-#
+# Note: This script assumes a virt .img file mounted to the VM at /dev/sda
+#       for access to secure credentials. 
+
 set -euo pipefail
 
 if [[ $EUID -ne 0 ]]; then
   echo "Please run this script as root via: sudo ./scripts/create-aptly-release.sh"
   exit 1;
 fi
+
 apt install -y aptly awscli
 
 umount /dev/sda || true
@@ -25,11 +18,17 @@ mount /dev/sda /mnt || mount /dev/sda1 /mnt || (echo "GPG and AWS credentials we
 
 gpg --import /mnt/apt-votingworks.asc
 cp /mnt/.aws.sh /root/.aws.sh
+
+# Assumes ansible is already available due to being run in a build VM
+# We could eliminate this assumption and run the Ansible install script
+# but I'm ok with this assumption for now.
 source .virtualenv/ansible/bin/activate
 ansible-vault decrypt /root/.aws.sh
 
+# Export the list of packages we need to verify are part of the repo we'll be publishing
 apt list --installed | grep -v Listing | cut -d'/' -f1 > /var/tmp/packages.list
 
+# Download (as necessary) to the apt cache archive
 xargs apt-get install --reinstall --no-install-recommends --download-only -y < /var/tmp/packages.list
 
 repo_date=$(date +%Y%m%d)
@@ -38,13 +37,14 @@ aptly repo create ${repo_date}
 
 aptly repo add ${repo_date} /var/cache/apt/archives/
 
+# We only create a snapshot because it makes S3 publishing a bit easier
 aptly snapshot create "${repo_date}-snapshot" from repo ${repo_date}
 
 # source aws credentials
 . /root/.aws.sh
 
 # edit /root/.aptly.conf to have the S3PublishEndpoints block
-# By default, empty S3 block will exist, so we just insert the required params
+# By default, an empty S3 block will exist, so we just insert the required params
 sed -i -e 's/.*"S3PublishEndpoints".*/  "S3PublishEndpoints": {\
      "votingworks-apt-snapshots":{\
         "region":"us-west-2",\
@@ -75,6 +75,7 @@ set +e
 )
 set -e
 
+# publish the public key so any system building from this repo can verify the integrity of the release
 aws s3 cp /mnt/apt-votingworks.pub s3://votingworks-apt-snapshots/${repo_date}/votingworks-apt-${repo_date}.pub
 
 umount /mnt
