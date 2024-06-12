@@ -54,6 +54,7 @@ all_packages:
   - rsync
   - rsyslog
   - ruby
+  - ruby-dev
   - sbsigntool
   - swig
   - tar
