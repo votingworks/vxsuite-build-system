@@ -1,0 +1,94 @@
+- name: Clean up existing base and clone images that exist
+  hosts: localhost
+  become: yes
+
+  tasks:
+
+    - name: See if virt networking is active
+      ansible.builtin.shell: 
+        cmd: "virsh net-info default | grep Active | grep yes"
+      register: is_virt_networking_running
+      changed_when: no
+      failed_when: false
+
+    - name: Make sure virt networking is active
+      ansible.builtin.command: 
+        cmd: "virsh net-start default"
+      when: is_virt_networking_running.rc != 0
+
+    #-- These variables are defined in the inventory's main.yaml
+    #-- Since vm_name is a single variable and cloned_images is a list
+    #-- the [ ] syntax is required to make a combined list
+    #-- TODO: consider allowing extra VM names to be passed in for when you
+    #--       want to clean up more than what's in the inventory
+    #--       e.g. vx, vxadmin, vxscan
+    - name: Create a list of all VMs to look for
+      set_fact:
+        all_vms: "{{ [ vm_name ] + cloned_images }}"
+
+    #-- TODO: consider not using dominfo since it's so verbose 
+    #--       There may be a simpler approach that's easier to quickly grok
+    - name: Check if the {{ vm_name }} VM already exists
+      ansible.builtin.command:
+        cmd: "virsh dominfo {{ item }}"
+      loop: "{{ all_vms }}"
+      register: does_vm_exist
+      changed_when: no
+      failed_when: false
+
+    - name: Shut down VMs (if running) before deleting
+      ansible.builtin.command: 
+        cmd: "virsh shutdown {{ item.item }}"
+      when: 
+        - item.rc == 0
+        - '"running" in item.stdout'
+      loop: "{{ does_vm_exist.results }}"
+
+    #-- I find this pattern always takes me a second to remember
+    #-- the flow, so a reminder for future me and others.
+    #-- Note this executes one VM at a time until the command
+    #-- successfully completes. For example, with two running VMs
+    #-- named "first" and "second", the task loops on "first" until it 
+    #-- succeeds or runs out of retries. Then it will start over with "second"
+    #-- Here's a pseudoish example in bash
+    #-- for vm in first second
+    #-- do
+    #--   virsh domstate $vm | grep 'shut off'
+    #--   if $? == 0 
+    #--     continue
+    #-- done
+    #--
+    - name: Wait for VMs to shut down
+      ansible.builtin.shell:
+        cmd: "virsh domstate {{ item.item }} | grep 'shut off'"
+      register: is_vm_running
+      until: is_vm_running.rc == 0
+      when: 
+        - item.rc == 0
+        - '"running" in item.stdout'
+      loop: "{{ does_vm_exist.results }}"
+      delay: 5
+      retries: 10
+
+    - name: Undefine the VM and associated nvram
+      ansible.builtin.command:
+        cmd: "virsh undefine {{ item.item }} --nvram"
+      when: item.rc == 0
+      loop: "{{ does_vm_exist.results }}"
+
+    - name: Check for VM image files to delete
+      ansible.builtin.stat:
+        path: "{{ virt_image_path }}/{{ item }}.img"
+        get_checksum: false
+      loop: "{{ all_vms }}"
+      register: does_vm_file_exist
+
+    - name: Delete the VM image file if present
+      ansible.builtin.file:
+        path: "{{ virt_image_path }}/{{ item.item }}.img"
+        state: absent
+      when:
+        - item.stat.exists
+        - item.stat.isreg
+      loop: "{{ does_vm_file_exist.results }}"
+
