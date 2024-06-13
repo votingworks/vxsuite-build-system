@@ -9,7 +9,7 @@
         cmd: virsh dominfo {{ item }}
       register: does_vm_exist
       changed_when: no
-      ignore_errors: true
+      failed_when: false
       loop: "{{ cloned_images }}"
 
     - name: Clone VM
