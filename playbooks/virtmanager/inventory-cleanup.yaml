@@ -50,12 +50,18 @@
     #-- successfully completes. For example, with two running VMs
     #-- named "first" and "second", the task loops on "first" until it 
     #-- succeeds or runs out of retries. Then it will start over with "second"
-    #-- Here's a pseudoish example in bash
+    #-- Here's a pseudoish code example
     #-- for vm in first second
     #-- do
-    #--   virsh domstate $vm | grep 'shut off'
-    #--   if $? == 0 
-    #--     continue
+    #--   while x < $retries
+    #--   do
+    #--     virsh domstate $vm | grep 'shut off'
+    #--     if $? == 0 
+    #--       break
+    #--     else
+    #--       x++
+    #--       sleep $delay 
+    #--   done
     #-- done
     #--
     - name: Wait for VMs to shut down
