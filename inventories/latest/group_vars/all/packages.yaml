@@ -62,6 +62,7 @@ all_packages:
   - rsync
   - rsyslog
   - ruby
+  - ruby-dev
   - sane-airscan
   - sane-utils
   - sbsigntool
