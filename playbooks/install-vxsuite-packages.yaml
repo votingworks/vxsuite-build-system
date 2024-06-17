@@ -55,6 +55,7 @@
       - rsync
       - rsyslog
       - ruby
+      - ruby-dev
       - sbsigntool
       - swig
       - tar
