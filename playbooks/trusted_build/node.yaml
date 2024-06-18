@@ -102,7 +102,8 @@
         - name: See if corepack is present
           command: "which corepack"
           register: corepack_installed
-          ignore_errors: yes
+          failed_when: false
+          changed_when: no
           tags:
             - offline
 

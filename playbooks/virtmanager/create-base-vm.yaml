@@ -27,7 +27,7 @@
             url: "{{ current_url }}/{{ iso_name }}"
             dest: "{{ virt_image_path }}/{{ iso_name }}"
           register: current_download
-          ignore_errors: true
+          failed_when: false 
 
         - name: Download Debian ISO from archive url if current was not available
           get_url: 
@@ -42,7 +42,7 @@
         cmd: virsh net-info default | grep Active | grep yes
       register: is_virt_networking_running
       changed_when: no
-      ignore_errors: true
+      failed_when: false
 
     - name: Make sure virt networking is active
       command: virsh net-start default
@@ -54,7 +54,6 @@
       register: does_vm_exist
       changed_when: no
       failed_when: false
-      ignore_errors: true
 
     - name: Copy the preseed file
       ansible.builtin.copy:
@@ -102,7 +101,7 @@
       ansible.builtin.command:
         cmd: grep "<controller type='scsi' index='0' model='virtio-scsi'>" /etc/libvirt/qemu/{{ vm_name }}.xml
       register: scsi_exists
-      ignore_errors: true
+      failed_when: false
 
     - name: Add scsi device
       ansible.builtin.command:

@@ -76,7 +76,7 @@
         with_dict:
           - "{{ brother_drivers }}"
         register: lpstat_info
-        ignore_errors: yes
+        failed_when: false
         tags:
           - offline
 

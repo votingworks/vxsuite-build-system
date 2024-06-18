@@ -39,7 +39,7 @@
         - name: See if corepack is present
           command: "which corepack"
           register: corepack_installed
-          ignore_errors: yes
+          failed_when: false
 
         - name: Disable corepack if installed
           command: corepack disable
