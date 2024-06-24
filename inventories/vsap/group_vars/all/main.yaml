@@ -1,6 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: 2024-06-24-austin-testing
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian12base27-vsap"
 vm_disk_size_gb: 27
