@@ -17,8 +17,10 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
+  - firmware-iwlwifi
   - firmware-linux-free
   - firmware-misc-nonfree
+  - firmware-realtek
   - firmware-sof-signed
   - fonts-wqy-zenhei
   - git
