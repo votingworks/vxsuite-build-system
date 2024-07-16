@@ -52,6 +52,7 @@ sudo -v
 
 # If in an interactive session, help set up the dock
 if [[ "${DESKTOP_SESSION}" == "gnome" ]]; then
+  echo -e "\n\n"
   echo "Please install the Dash to Dock extension from Firefox. (Opening in 5 seconds.)"
   echo "Once you've done that, close Firefox to proceed."
   sleep 5
