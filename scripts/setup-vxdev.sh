@@ -2,13 +2,14 @@
 
 set -euo pipefail
 
+default_inventory="vxdev-stable"
+ansible_inventory=${1:-$default_inventory}
+
 debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
 local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 vxsuite_complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
-
-ansible_inventory=$1
 
 if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
   echo "ERROR: The $ansible_inventory inventory could not be found."
@@ -51,7 +52,7 @@ sudo -v
 
 # If in an interactive session, help set up the dock
 if [[ "${DESKTOP_SESSION}" == "gnome" ]]; then
-  echo "Please install the Dash to Dock extension from Firefox."
+  echo "Please install the Dash to Dock extension from Firefox. (Opening in 5 seconds.)"
   echo "Once you've done that, close Firefox to proceed."
   sleep 5
   firefox https://extensions.gnome.org/extension/307/dash-to-dock
