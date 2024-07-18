@@ -33,6 +33,9 @@ if [[ "$debian_major_version" == "12" ]]; then
   source .virtualenv/ansible/bin/activate
 fi
 
+# Ensure sudo credentials haven't expired
+sudo -v
+
 echo "Clone the online and offline images"
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/virtmanager/clone-base-vm.yaml

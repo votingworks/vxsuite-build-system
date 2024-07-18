@@ -33,6 +33,9 @@ if [[ ! -f .virtualenv/ansible/bin/activate ]]; then
   echo "Ansible installation is complete."
 fi
 
+# Ensure sudo credentials haven't expired
+sudo -v
+
 echo "Run offline_build playbook. This will take several minutes."
 sleep 5
 cd $vxsuite_build_system_dir
