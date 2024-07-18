@@ -72,6 +72,8 @@
       - xserver-xorg-input-all
       - xserver-xorg-video-all
       - zip
+    dev_packages:
+      - ffmpeg
 
   tasks:
     - name: Update apt cache
@@ -80,3 +82,7 @@
     - name: Install all necessary system packages
       ansible.builtin.command:
         cmd: "apt-get -y --no-install-recommends install {{ all_packages | join(' ') }}"
+    - name: Install all necessary dev packages on a qa image
+      ansible.builtin.command:
+        cmd: "apt-get -y --no-install-recommends install {{ dev_packages | join(' ') }}"
+      when: (qa_image is defined) and (qa_image is true)

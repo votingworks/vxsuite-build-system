@@ -111,3 +111,6 @@ tpm_packages:
   - qrencode
   - tpm2-openssl
   - tpm2-tools
+
+dev_packages:
+  - ffmpeg
