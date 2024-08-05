@@ -41,6 +41,9 @@ if [[ "$debian_major_version" == "12" ]]; then
   source .virtualenv/ansible/bin/activate
 fi
 
+# Ensure sudo credentials haven't expired
+sudo -v
+
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/offline_build.yaml --skip-tags online
 
 echo "Build kiosk-browser. This may take several minutes."

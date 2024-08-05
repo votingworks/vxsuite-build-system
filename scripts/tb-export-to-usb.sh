@@ -33,6 +33,9 @@ if [[ "$debian_major_version" == "12" ]]; then
   source .virtualenv/ansible/bin/activate
 fi
 
+# Ensure sudo credentials haven't expired
+sudo -v
+
 echo "Export VotingWorks tools and repositories to USB"
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/export_to_usb.yaml

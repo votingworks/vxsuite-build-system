@@ -34,6 +34,9 @@ if [[ "$debian_major_version" == "12" ]]; then
   source .virtualenv/ansible/bin/activate
 fi
 
+# Ensure sudo credentials haven't expired
+sudo -v
+
 echo "Run prepare_for_build playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/prepare_for_build.yaml
