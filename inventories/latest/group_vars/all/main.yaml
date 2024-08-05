@@ -1,6 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: 2024-08-19-uat
+    version: 2024-08-19-uat-150
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-latest"
 vm_disk_size_gb: 110
