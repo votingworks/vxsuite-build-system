@@ -2,6 +2,9 @@
 
 debian_version=$(cat /etc/debian_version | cut -d'.' -f1)
 
+# Update apt sources
+sudo apt-get update
+
 if [[ "$debian_version" == "12" ]]; then
   sudo apt install -y python3 python3-pip python3-virtualenv
   mkdir .virtualenv

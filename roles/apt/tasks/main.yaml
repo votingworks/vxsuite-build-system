@@ -1,5 +1,10 @@
 ---
 
+- name: Refresh apt sources if they are more than an hour old
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
 - name: Create apt preference config (if necessary)
   ansible.builtin.template:
     src: ./snapshot_preference.j2
