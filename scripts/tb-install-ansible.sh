@@ -25,6 +25,9 @@ function apt_install ()
     local python_packages="python3.9=3.9.2-1 python3-pip=20.3.4-4+deb11u1"
   fi
 
+  # Update apt sources
+  apt-get update
+
   if [ "$phase" == "online" ]; then
     apt-get install --reinstall --download-only -y ${python_packages}
     apt-get install -y ${python_packages}
