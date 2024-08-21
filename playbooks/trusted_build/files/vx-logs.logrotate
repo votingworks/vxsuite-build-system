@@ -1,7 +1,7 @@
 /var/log/votingworks/vx-logs.log
 {
 	su syslog adm
-	rotate 365
+	rotate 36500
 	daily
 	dateext
 	missingok
