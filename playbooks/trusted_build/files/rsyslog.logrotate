@@ -6,7 +6,7 @@
 /var/log/votingworks/cron.log
 {
 	su syslog adm
-	rotate 365
+	rotate 36500
 	daily
 	dateext
 	missingok
