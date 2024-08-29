@@ -25,6 +25,7 @@ all_packages:
   - gvfs
   - gzip
   - hplip
+  - ipp-usb
   - iptables
   - jq
   - kde-cli-tools
