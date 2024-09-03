@@ -13,12 +13,3 @@
 
     - name: Run the encrypted volume script
       ansible.builtin.command: "bash /tmp/initialize-encrypted-volumes.sh"
-
-    - name: Copy the script to expand var
-      ansible.builtin.copy:
-        src: "files/expand-var-filesystem.sh"
-        dest: "/tmp/expand-var-filesystem.sh"
-
-    - name: Run the encrypted volume script
-      ansible.builtin.shell: 
-        cmd: "echo 'insecure' | bash /tmp/expand-var-filesystem.sh"
