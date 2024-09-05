@@ -3,7 +3,7 @@ repos:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "vxdev-base"
-vm_disk_size_gb: 110
+vm_disk_size_gb: 27
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
 iso_url: "https://cdimage.debian.org/cdimage/archive/{{ iso_version }}/amd64/iso-cd"

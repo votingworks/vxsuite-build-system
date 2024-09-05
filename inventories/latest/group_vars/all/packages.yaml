@@ -6,6 +6,7 @@ all_packages:
   - brightnessctl
   - build-essential
   - chromium
+  - cloud-guest-utils
   - cryptsetup
   - cups
   - cups-bsd

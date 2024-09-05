@@ -13,4 +13,3 @@
 
     - name: Run the encrypted volume script
       ansible.builtin.command: "bash /tmp/initialize-encrypted-volumes.sh"
-
