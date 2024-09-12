@@ -4,6 +4,7 @@ batch_package_install: true
 all_packages:
   - build-essential
   - chromium 
+  - cryptsetup 
   - cups-bsd
   - cups-filters
   - curl
