@@ -69,7 +69,7 @@ configure_postgresql() {
   done
 
   echo "Apply database migrations."
-  cd "${cacvote_dir}/services/cacvote-server"
+  cd "${cacvote_dir}/apps/cacvote-server/backend"
   cargo sqlx migrate run --source db/migrations --database-url "postgres:cacvote"
   cd "${cacvote_dir}/apps/cacvote-jx-terminal/backend"
   cargo sqlx migrate run --source db/migrations --database-url "postgres:cacvote_jx"
@@ -86,7 +86,8 @@ pnpm install
 cargo build
 
 # Only making server while testing locally. Not needed for production
-make -C services/cacvote-server dist
+# Makefile needs an update due to changed path
+make -C apps/cacvote-server/backend dist
 make -C apps/cacvote-jx-terminal dist
 make -C apps/cacvote-mark build
 
