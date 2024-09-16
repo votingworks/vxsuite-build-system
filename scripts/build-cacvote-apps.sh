@@ -131,4 +131,8 @@ cp "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cac
 cp -rp "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
 cp "${BUILD_ROOT}/apps/cacvote-jx-terminal/backend/.env" "${BUILD_ROOT}/apps/cacvote-jx-terminal/dist/.env"
 
+# temp cacvote-server
+mkdir "${BUILD_ROOT}/apps/"
+cp -rp "${cacvote_dir}/apps/cacvote-server" "${BUILD_ROOT}/apps/"
+
 exit 0
