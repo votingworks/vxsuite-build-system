@@ -21,6 +21,7 @@ all_packages:
   - libssl-dev
   - libudev-dev
   - libx11-dev
+  - openjdk-17-jdk
   - pcscd
   - postgresql
   - ruby
