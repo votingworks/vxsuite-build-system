@@ -80,7 +80,7 @@ configure_postgresql() {
 
 install_electionguard() {
   echo "Installing ElectionGuard"
-  local EG_DIR="${cacvote_dir}../egk-ec-mix-net"
+  local EG_DIR="${cacvote_dir}/../egk-ec-mix-net"
   local EG_CLASSPATH="${EG_DIR}/build/libs/egk-ec-mixnet-2.1-SNAPSHOT-uber.jar"
 
   if [[ ! -d "${EG_DIR}" ]]; then
