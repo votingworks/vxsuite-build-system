@@ -78,8 +78,31 @@ configure_postgresql() {
 
 }
 
+install_electionguard() {
+  echo "Installing ElectionGuard"
+  local EG_DIR="${cacvote_dir}../egk-ec-mix-net"
+  local EG_CLASSPATH="${EG_DIR}/build/libs/egk-ec-mixnet-2.1-SNAPSHOT-uber.jar"
+
+  if [[ ! -d "${EG_DIR}" ]]; then
+    git clone --depth 10 https://github.com/votingworks/egk-ec-mixnet "${EG_DIR}"
+  fi
+
+  if [[ ! -f "${EG_CLASSPATH}" ]]; then
+    ( 
+      cd "${EG_DIR}"
+      ./gradlew uberJar
+    ) 
+  fi
+
+  if [[ ! -f "${EG_CLASSPATH}" ]]; then
+    echo "Error: Failed installing ElectionGuard"
+    exit 1
+  fi
+}
+
 install_cargo_tools
 configure_postgresql
+install_electionguard
 
 cd "${cacvote_dir}"
 pnpm install
@@ -107,9 +130,5 @@ cp "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cac
 # cacvote-jx-terminal has already been built, move into build directory
 cp -rp "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
 cp "${BUILD_ROOT}/apps/cacvote-jx-terminal/backend/.env" "${BUILD_ROOT}/apps/cacvote-jx-terminal/dist/.env"
-
-# Only for local testing purposes
-mkdir "${BUILD_ROOT}/services/"
-cp -rp "${cacvote_dir}/services/cacvote-server" "${BUILD_ROOT}/services/"
 
 exit 0
