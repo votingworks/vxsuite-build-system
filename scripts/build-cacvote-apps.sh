@@ -107,12 +107,13 @@ install_electionguard
 cd "${cacvote_dir}"
 pnpm install
 cargo build
+pnpm -r build:rust-addon
 
 # Only making server while testing locally. Not needed for production
 # Makefile needs an update due to changed path
 make -C apps/cacvote-server/backend dist
 make -C apps/cacvote-jx-terminal dist
-make -C apps/cacvote-mark build
+make -C apps/cacvote-mark/frontend build-all
 
 # Create the prod-build link if not present
 if [[ ! -L "${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build" ]]; then
