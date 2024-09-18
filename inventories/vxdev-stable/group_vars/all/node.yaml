@@ -1,8 +1,8 @@
-node_version: "16.19.1"
+node_version: "20.16.0"
 npm_packages:
   yarn:
-    version: "1.22.15"
-    checksum: "3431d5f134d3c752a57a9dd7f5e1167627ca3cc3"
+    version: "1.22.2"
+    checksum: "ac34549e6aa8e7ead463a7407e1c7390f61a6610"
   pnpm:
-    version: "8.3.1"
-    checksum: "75c6e8a4075abfc494770f998bf37b9ada110f51"
+    version: "8.15.5"
+    checksum: "a58c038faac410c947dbdb93eb30994037d0fce2"
