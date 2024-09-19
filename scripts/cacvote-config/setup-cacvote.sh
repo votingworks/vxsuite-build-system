@@ -102,7 +102,8 @@ sudo chown -R vx-ui:vx-group /media/vx
 sudo usermod -aG lpadmin vx-services
 
 echo "Setting up the code"
-sudo mv build/${CHOICE} /vx/code
+cacvote_dir=/home/vx/code/cacvote
+sudo mv ${cacvote_dir}/build/cacvote/ /vx/code
 
 # temporary hack cause of precinct-scanner runtime issue
 #sudo rm /vx/code/vxsuite # it's a symlink
