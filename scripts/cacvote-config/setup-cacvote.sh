@@ -264,6 +264,9 @@ sudo rm -rf /var/tmp/rust*
 # set password for vx-admin
 (echo $ADMIN_PASSWORD; echo $ADMIN_PASSWORD) | sudo passwd vx-admin
 
+# add the vx-services user to postgres
+sudo -u postgres createuser --superuser "vx-services"
+
 # We need to schedule a reboot since the vx user will no longer have sudo privileges. 
 # One minute is the shortest option, and that's plenty of time for final steps.
 sudo shutdown --no-wall -r +1

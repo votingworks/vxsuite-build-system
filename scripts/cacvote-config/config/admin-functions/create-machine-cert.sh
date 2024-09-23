@@ -33,7 +33,7 @@ function get_machine_jurisdiction_from_user_input() {
 }
 
 function create_machine_cert_signing_request() {
-    pushd "${VX_METADATA_ROOT}/vxsuite/libs/auth/scripts" > /dev/null
+    pushd "${VX_METADATA_ROOT}/cacvote/libs/auth/scripts" > /dev/null
     local machine_jurisdiction="${1:-}"
     if [[ -n "${machine_jurisdiction}" ]]; then
         VX_MACHINE_TYPE="${VX_MACHINE_TYPE}" \
