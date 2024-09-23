@@ -28,4 +28,5 @@ all_packages:
   - openjdk-17-jdk
   - pcscd
   - postgresql
+  - rsyslog
   - ruby
