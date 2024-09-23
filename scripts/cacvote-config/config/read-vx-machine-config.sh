@@ -48,6 +48,11 @@ export VX_CODE_VERSION="$(< "${VX_METADATA_ROOT}/code-version")"
 export VX_CODE_TAG="$(< "${VX_METADATA_ROOT}/code-tag")"
 export IS_QA_IMAGE="$(< "${VX_CONFIG_ROOT}/is-qa-image")"
 
+# cacvote vars just hardcoding for now
+export EG_CLASSPATH=/vx/code/egk-ec-mixnet
+export PUBLIC_DIR=./public
+export PORT=3000
+
 if [ -f "${VX_CONFIG_ROOT}/app-mode" ]; then
   export VX_APP_MODE="$(< "${VX_CONFIG_ROOT}/app-mode")"
 fi
@@ -59,3 +64,8 @@ fi
 if [ -f "${VX_CONFIG_ROOT}/machine-private-key-password" ]; then
   export VX_MACHINE_PRIVATE_KEY_PASSWORD="$(< "${VX_CONFIG_ROOT}/machine-private-key-password")"
 fi
+
+if [ -f "${VX_CONFIG_ROOT}/cacvote-url" ]; then
+  export CACVOTE_URL="$(< "${VX_CONFIG_ROOT}/cacvote-url")"
+fi
+
