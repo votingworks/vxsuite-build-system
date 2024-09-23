@@ -13,14 +13,18 @@ all_packages:
   - libcupsimage2
   - libgif-dev 
   - libjpeg-dev
+  - libnotify4
   - libpango1.0-dev
   - libpcsclite-dev
   - libpixman-1-dev
   - libpng-dev
   - libsane
+  - libsecret-common
+  - libsecret-1-0
   - libssl-dev
   - libudev-dev
   - libx11-dev
+  - libxss1
   - openjdk-17-jdk
   - pcscd
   - postgresql
