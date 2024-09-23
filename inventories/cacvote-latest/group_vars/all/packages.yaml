@@ -2,13 +2,28 @@
 batch_package_install: true
 
 all_packages:
+  - alsa-utils
+  - brightnessctl
   - build-essential
   - chromium 
+  - cloud-guest-utils
   - cryptsetup 
   - cups-bsd
   - cups-filters
   - curl
+  - dosfstools
+  - efitools
+  - exfatprogs
+  - fdisk
+  - firmware-linux-free
+  - firmware-misc-nonfree
+  - firmware-sof-signed
   - git
+  - gvfs
+  - gzip
+  - hplip
+  - ipp-usb
+  - jq
   - libcairo2-dev
   - libcupsimage2
   - libgif-dev 
@@ -25,8 +40,27 @@ all_packages:
   - libudev-dev
   - libx11-dev
   - libxss1
+  - mingetty
+  - openbox
   - openjdk-17-jdk
   - pcscd
+  - pcsc-tools
+  - pulseaudio
+  - pulseaudio-utils
   - postgresql
   - rsyslog
   - ruby
+  - sbsigntool
+  - systemd-boot-efi
+  - unclutter
+  - x11-common
+  - xdg-utils
+  - xinit
+  - xinput
+  - xorg
+  - xserver-xorg-core
+  - xserver-xorg-input-all
+  - xserver-xorg-input-libinput
+  - xserver-xorg-input-wacom
+  - xserver-xorg-video-all
+  - zip
