@@ -42,6 +42,34 @@ MODEL_NAME=${MODEL_NAMES[$CHOICE_INDEX]}
 echo "Excellent, let's set up ${CHOICE}."
 
 echo
+read -p "Is this image for QA where you want sudo privileges, the ability to record screengrabs, etc.? [y/N] " qa_image_flag
+
+if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
+    VXADMIN_SUDO=1
+    ADMIN_PASSWORD='insecure'
+    echo "OK, creating a QA image with vx-admin sudo privileges."
+    echo "Using password insecure for vx-admin user."
+else
+    VXADMIN_SUDO=0
+    echo "Ok, creating a production image. No sudo privileges for anyone!"
+    echo
+    echo "Next, we need to set the admin password for this machine."
+    while true; do
+        read -s -p "Set vx-admin password: " ADMIN_PASSWORD
+        echo
+        read -s -p "Confirm vx-admin password: " CONFIRM_PASSWORD
+        echo
+        if [[ "${ADMIN_PASSWORD}" = "${CONFIRM_PASSWORD}" ]]
+        then
+            echo "Password confirmed."
+            break
+        else
+            echo "Passwords do not match, try again."
+        fi
+    done
+fi
+
+echo
 echo "The script will take it from here and set up the machine."
 echo
 
@@ -161,6 +189,9 @@ GIT_HASH=$(git rev-parse HEAD | cut -c -10) sudo -E sh -c 'echo "$(date +%Y.%m.%
 #GIT_TAG=$(git tag --points-at HEAD) sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
 GIT_TAG="todo" sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
 
+# qa image flag, 0 (prod image) or 1 (qa image)
+IS_QA_IMAGE="${VXADMIN_SUDO}" sudo -E sh -c 'echo "${IS_QA_IMAGE}" > /vx/config/is-qa-image'
+
 # machine ID
 sudo sh -c 'echo "0000" > /vx/config/machine-id'
 
@@ -225,7 +256,7 @@ sudo rm -rf /var/tmp/downloads
 sudo rm -rf /var/tmp/rust*
 
 # set password for vx-admin
-(echo "insecure"; echo "insecure") | sudo passwd vx-admin
+(echo $ADMIN_PASSWORD; echo $ADMIN_PASSWORD) | sudo passwd vx-admin
 
 # We need to schedule a reboot since the vx user will no longer have sudo privileges. 
 # One minute is the shortest option, and that's plenty of time for final steps.
