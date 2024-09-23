@@ -59,6 +59,7 @@ echo "Creating necessary directories"
 sudo mkdir -p /vx/code
 sudo mkdir -p /var/vx
 sudo mkdir -p /var/vx/ui
+sudo mkdir -p /var/vx/data
 sudo mkdir -p /var/vx/admin
 sudo mkdir -p /var/vx/services
 
