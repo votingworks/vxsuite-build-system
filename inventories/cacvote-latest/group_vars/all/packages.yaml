@@ -52,6 +52,8 @@ all_packages:
   - ruby
   - sbsigntool
   - systemd-boot-efi
+  - tpm2-openssl
+  - tpm2-tools
   - unclutter
   - x11-common
   - xdg-utils

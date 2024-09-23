@@ -265,7 +265,10 @@ sudo rm -rf /var/tmp/rust*
 (echo $ADMIN_PASSWORD; echo $ADMIN_PASSWORD) | sudo passwd vx-admin
 
 # add the vx-services user to postgres
+current_dir=`pwd`
+cd /tmp
 sudo -u postgres createuser --superuser "vx-services"
+cd ${current_dir}
 
 # We need to schedule a reboot since the vx user will no longer have sudo privileges. 
 # One minute is the shortest option, and that's plenty of time for final steps.
