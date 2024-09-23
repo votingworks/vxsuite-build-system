@@ -140,7 +140,7 @@ sudo cp run-scripts/run-kiosk-browser-forever-and-log.sh /vx/code/
 
 
 # symlink the code and run-*.sh in /vx/services
-sudo ln -s /vx/code/vxsuite /vx/services/vxsuite
+sudo ln -s /vx/code/cacvote /vx/services/cacvote
 sudo ln -s /vx/code/run-${CHOICE}.sh /vx/services/run-${CHOICE}.sh
 
 # symlink appropriate vx/ui files
