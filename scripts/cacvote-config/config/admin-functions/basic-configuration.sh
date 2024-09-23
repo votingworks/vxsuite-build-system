@@ -18,28 +18,29 @@ echo
 echo -e "\e[1mStep 1: Set Machine ID\e[0m"
 ${VX_FUNCTIONS_ROOT}/choose-vx-machine-id.sh
 
-echo
-echo -e "\e[1mStep 2: Set Clock\e[0m"
-sudo ${VX_FUNCTIONS_ROOT}/set-clock.sh
+# cacvote sets time automatically
+#echo
+#echo -e "\e[1mStep 2: Set Clock\e[0m"
+#sudo ${VX_FUNCTIONS_ROOT}/set-clock.sh
 
 echo
-echo -e "\e[1mStep 3: Set CACVote URL\e[0m"
+echo -e "\e[1mStep 2: Set CACVote URL\e[0m"
 sudo ${VX_FUNCTIONS_ROOT}/set-cacvote-url.sh
 
 echo
-echo -e "\e[1mStep 4: Record Machine Key\e[0m"
+echo -e "\e[1mStep 3: Record Machine Key\e[0m"
 echo 'Setting up signing keys...'
 sudo ${VX_FUNCTIONS_ROOT}/generate-key.sh > /dev/null
 PUBLIC_KEY=$(cat "${VX_CONFIG_ROOT}/key.pub")
 echo "Signing key set up successfully."
 
 echo
-echo -e "\e[1mStep 5: Create Machine Cert\e[0m"
+echo -e "\e[1mStep 4: Create Machine Cert\e[0m"
 sudo ${VX_FUNCTIONS_ROOT}/create-machine-cert.sh
 
 if [[ "${VX_MACHINE_TYPE}" = "admin" ]]; then
     echo
-    echo -e "\e[1mStep 6: Program System Administrator Cards\e[0m"
+    echo -e "\e[1mStep 5: Program System Administrator Cards\e[0m"
     sudo ${VX_FUNCTIONS_ROOT}/program-system-administrator-cards.sh
 fi
 
