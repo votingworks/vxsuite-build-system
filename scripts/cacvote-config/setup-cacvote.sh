@@ -56,7 +56,7 @@ sudo cp config/logind.conf /etc/systemd/
 
 echo "Creating necessary directories"
 # directory structure
-sudo mkdir -p /vx
+sudo mkdir -p /vx/code
 sudo mkdir -p /var/vx
 sudo mkdir -p /var/vx/ui
 sudo mkdir -p /var/vx/admin
@@ -92,7 +92,7 @@ sudo usermod -aG adm vx-admin
 sudo usermod -aG adm vx-services
 
 # Set up log config
-#sudo bash setup-scripts/setup-logging.sh
+sudo bash setup-scripts/setup-logging.sh
 
 # set up mount point ahead of time because read-only later
 sudo mkdir -p /media/vx/usb-drive
@@ -103,11 +103,9 @@ sudo usermod -aG lpadmin vx-services
 
 echo "Setting up the code"
 cacvote_dir=/home/vx/code/cacvote
-sudo mv ${cacvote_dir}/build/cacvote/ /vx/code
-
-# temporary hack cause of precinct-scanner runtime issue
-#sudo rm /vx/code/vxsuite # it's a symlink
-#sudo cp -rp vxsuite /vx/code/
+sudo cp -rp ${cacvote_dir}/build/cacvote /vx/code/
+sudo cp -rp config /vx/code/
+sudo cp run-scripts/run-${CHOICE}.sh /vx/code/
 
 # symlink the code and run-*.sh in /vx/services
 sudo ln -s /vx/code/vxsuite /vx/services/vxsuite
@@ -159,7 +157,8 @@ MODEL_NAME="${MODEL_NAME}" sudo -E sh -c 'echo "${MODEL_NAME}" > /vx/config/mach
 GIT_HASH=$(git rev-parse HEAD | cut -c -10) sudo -E sh -c 'echo "$(date +%Y.%m.%d)-${GIT_HASH}" > /vx/code/code-version'
 
 # code tag, e.g. "m11c-rc3"
-GIT_TAG=$(git tag --points-at HEAD) sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
+#GIT_TAG=$(git tag --points-at HEAD) sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
+GIT_TAG="todo" sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
 
 # machine ID
 sudo sh -c 'echo "0000" > /vx/config/machine-id'
