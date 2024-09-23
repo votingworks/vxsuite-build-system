@@ -5,10 +5,10 @@
   become: true
 
   vars:
-    node_version: "16.19.1"
+    node_version: "20.16.0"
     npm_packages:
-      - yarn@1.22.15
-      - pnpm@8.3.1
+      - yarn@1.22.22
+      - pnpm@8.15.5
 
   tasks:
 
