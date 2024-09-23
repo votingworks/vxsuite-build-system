@@ -50,8 +50,6 @@ export IS_QA_IMAGE="$(< "${VX_CONFIG_ROOT}/is-qa-image")"
 
 # cacvote vars just hardcoding for now
 export EG_CLASSPATH=/vx/code/egk-ec-mixnet
-export PUBLIC_DIR=./public
-export PORT=3000
 
 if [ -f "${VX_CONFIG_ROOT}/app-mode" ]; then
   export VX_APP_MODE="$(< "${VX_CONFIG_ROOT}/app-mode")"
