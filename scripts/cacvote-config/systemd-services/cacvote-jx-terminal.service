@@ -1,8 +1,14 @@
 [Unit]
 Description=CACVote Admin
+StartLimitIntervalSec=300
+StartLimitBurst=10
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
+Restart=on-failure
+RestartSec=10
 User=vx-services
 Environment=VX_CONFIG_ROOT=/vx/config
 Environment=VX_METADATA_ROOT=/vx/code
