@@ -134,6 +134,7 @@ echo "Setting up the code"
 cacvote_dir=/home/vx/code/cacvote
 sudo cp -rp ${cacvote_dir}/build/cacvote /vx/code/
 sudo cp -rp config /vx/code/
+sudo cp -rp app-scripts /vx/code/
 sudo cp run-scripts/run-${CHOICE}.sh /vx/code/
 sudo cp run-scripts/run-kiosk-browser.sh /vx/code/
 sudo cp run-scripts/run-kiosk-browser-forever-and-log.sh /vx/code/
