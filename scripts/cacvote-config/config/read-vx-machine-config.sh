@@ -49,7 +49,7 @@ export VX_CODE_TAG="$(< "${VX_METADATA_ROOT}/code-tag")"
 export IS_QA_IMAGE="$(< "${VX_CONFIG_ROOT}/is-qa-image")"
 
 # cacvote vars just hardcoding for now
-export EG_CLASSPATH=/vx/code/egk-ec-mixnet
+export EG_CLASSPATH=/vx/code/egk-ec-mix-net/build/libs/egk-ec-mixnet-2.1-SNAPSHOT-uber.jar
 
 if [ -f "${VX_CONFIG_ROOT}/app-mode" ]; then
   export VX_APP_MODE="$(< "${VX_CONFIG_ROOT}/app-mode")"
