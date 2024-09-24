@@ -41,6 +41,7 @@ all_packages:
   - libx11-dev
   - libxss1
   - mingetty
+  - network-manager
   - openbox
   - openjdk-17-jdk
   - pcscd
