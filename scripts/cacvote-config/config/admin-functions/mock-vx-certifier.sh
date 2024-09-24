@@ -17,17 +17,14 @@ VX_METADATA_ROOT="." ./config/admin-functions/select-usb-drive-and-mount.sh
 
 VX_MACHINE_TYPE="$(< "${USB_DRIVE_CERTS_DIRECTORY}/machine-type")"
 if [[
-    "${VX_MACHINE_TYPE}" != "admin" &&
-    "${VX_MACHINE_TYPE}" != "central-scan" &&
-    "${VX_MACHINE_TYPE}" != "mark" &&
-    "${VX_MACHINE_TYPE}" != "mark-scan" &&
-    "${VX_MACHINE_TYPE}" != "scan"
+    "${VX_MACHINE_TYPE}" != "cacvote-jx-terminal" &&
+    "${VX_MACHINE_TYPE}" != "cacvote-mark"
 ]]; then
-    echo "VX_MACHINE_TYPE must be one of admin, central-scan, mark, or scan" >&2
+    echo "VX_MACHINE_TYPE must be one of cacvote-jx-terminal or cacvote-mark" >&2
     exit 1
 fi
 
-if [[ "${VX_MACHINE_TYPE}" = "admin" ]]; then
+if [[ "${VX_MACHINE_TYPE}" = "cacvote-jx-terminal" ]]; then
     openssl x509 -req \
         -CA ./vxsuite/libs/auth/certs/prod/vx-cert-authority-cert.pem \
         -CAkey "${VX_PRIVATE_KEY_PATH}" \
