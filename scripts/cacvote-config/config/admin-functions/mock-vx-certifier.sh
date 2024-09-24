@@ -26,17 +26,17 @@ fi
 
 if [[ "${VX_MACHINE_TYPE}" = "cacvote-jx-terminal" ]]; then
     openssl x509 -req \
-        -CA ./vxsuite/libs/auth/certs/prod/vx-cert-authority-cert.pem \
+        -CA ./certs/prod/vx-cert-authority-cert.pem \
         -CAkey "${VX_PRIVATE_KEY_PATH}" \
         -CAcreateserial \
         -CAserial "${SERIAL_FILE}" \
         -in "${USB_DRIVE_CERTS_DIRECTORY}/csr.pem" \
         -days 36500 \
-        -extensions v3_ca -extfile ./vxsuite/libs/auth/certs/openssl.cnf \
+        -extensions v3_ca -extfile ./certs/openssl.cnf \
         -out "${USB_DRIVE_CERTS_DIRECTORY}/cert.pem"
 else
     openssl x509 -req \
-        -CA ./vxsuite/libs/auth/certs/prod/vx-cert-authority-cert.pem \
+        -CA ./certs/prod/vx-cert-authority-cert.pem \
         -CAkey "${VX_PRIVATE_KEY_PATH}" \
         -CAcreateserial \
         -CAserial "${SERIAL_FILE}" \
