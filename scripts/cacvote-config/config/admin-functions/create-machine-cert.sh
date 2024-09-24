@@ -9,7 +9,7 @@ set -euo pipefail
 : "${VX_METADATA_ROOT:="/vx/code"}"
 : "${VX_MACHINE_TYPE:="$(< "${VX_CONFIG_ROOT}/machine-type")"}"
 
-if [[ "${VX_MACHINE_TYPE}" == "admin" ]]; then
+if [[ "${VX_MACHINE_TYPE}" == "cacvote-jx-terminal" ]]; then
     MACHINE_CERT_PATH="${VX_CONFIG_ROOT}/vx-${VX_MACHINE_TYPE}-cert-authority-cert.pem"
 else
     MACHINE_CERT_PATH="${VX_CONFIG_ROOT}/vx-${VX_MACHINE_TYPE}-cert.pem"
@@ -59,7 +59,7 @@ function match_vx_config_non_executable_file_permissions() {
 
 mkdir -p "${VX_CONFIG_ROOT}"
 
-if [[ ${VX_MACHINE_TYPE} == "admin" ]]; then
+if [[ ${VX_MACHINE_TYPE} == "cacvote-jx-terminal" ]]; then
     machine_jurisdiction="$(get_machine_jurisdiction_from_user_input)"
 fi
 
@@ -69,7 +69,7 @@ read -p "Insert a USB drive into the machine. Press enter once you've done so. "
 echo "Writing cert signing request to USB drive..."
 rm -rf "${USB_DRIVE_CERTS_DIRECTORY}"
 mkdir "${USB_DRIVE_CERTS_DIRECTORY}"
-if [[ ${VX_MACHINE_TYPE} == "admin" ]]; then
+if [[ ${VX_MACHINE_TYPE} == "cacvote-jx-terminal" ]]; then
     create_machine_cert_signing_request "${machine_jurisdiction}" > "${USB_DRIVE_CERTS_DIRECTORY}/csr.pem"
 else
     create_machine_cert_signing_request > "${USB_DRIVE_CERTS_DIRECTORY}/csr.pem"
