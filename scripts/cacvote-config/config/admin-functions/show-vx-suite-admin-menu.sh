@@ -123,7 +123,7 @@ while true; do
   # Keep conditional choices at the end so that the numbering of the other choices is consistent
   # across machines
 
-  if [ "${VX_MACHINE_TYPE}" = "admin" ]; then
+  if [ "${VX_MACHINE_TYPE}" = "cacvote-jx-terminal" ]; then
     echo "${#CHOICES[@]}. Program System Administrator Cards"
     CHOICES+=('program-system-administrator-cards')
   fi
@@ -195,7 +195,7 @@ while true; do
       echo "Generating a new machine private key necessitates recreating the machine cert"
       sudo "${VX_FUNCTIONS_ROOT}/create-machine-cert.sh"
 
-      if [[ "${VX_MACHINE_TYPE}" = "admin" ]]; then
+      if [[ "${VX_MACHINE_TYPE}" = "cacvote-jx-terminal" ]]; then
         echo
         echo "Recreating the machine cert might necessitate reprogramming system administrator cards"
         sudo "${VX_FUNCTIONS_ROOT}/program-system-administrator-cards.sh"
@@ -210,7 +210,7 @@ while true; do
     recreate-machine-cert)
       sudo "${VX_FUNCTIONS_ROOT}/create-machine-cert.sh"
 
-      if [[ "${VX_MACHINE_TYPE}" = "admin" ]]; then
+      if [[ "${VX_MACHINE_TYPE}" = "cacvote-jx-terminal" ]]; then
         echo
         echo "Recreating the machine cert might necessitate reprogramming system administrator cards"
         sudo "${VX_FUNCTIONS_ROOT}/program-system-administrator-cards.sh"
