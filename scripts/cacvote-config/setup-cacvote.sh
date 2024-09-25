@@ -138,6 +138,7 @@ sudo cp -rp app-scripts /vx/code/
 sudo cp run-scripts/run-${CHOICE}.sh /vx/code/
 sudo cp run-scripts/run-kiosk-browser.sh /vx/code/
 sudo cp run-scripts/run-kiosk-browser-forever-and-log.sh /vx/code/
+sudo ln -s /vx/code/cacvote/libs/auth/certs /vx/code/cacvote/libs/auth/src/certs
 
 echo "Copying ElectionGuard"
 eg_dir=/home/vx/code/egk-ec-mix-net
