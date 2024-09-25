@@ -11,12 +11,12 @@ set -euo pipefail
 
 function program_system_administrator_card() {
     # The underlying cacvote script must be called from within cacvote
-    pushd "${VX_METADATA_ROOT}/cacvote/libs/auth/scripts" > /dev/null
+    pushd "${VX_METADATA_ROOT}/cacvote/libs/auth" > /dev/null
     NODE_ENV=production \
         VX_CONFIG_ROOT="${VX_CONFIG_ROOT}" \
         VX_MACHINE_JURISDICTION="${VX_MACHINE_JURISDICTION}" \
         VX_MACHINE_TYPE="${VX_MACHINE_TYPE}" \
-        ./program-system-administrator-java-card
+        ./scripts/program-system-administrator-java-card
     popd > /dev/null
 }
 
