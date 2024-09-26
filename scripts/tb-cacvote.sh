@@ -41,9 +41,6 @@ echo "Run cacvote_build playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/cacvote_build.yaml
 
-# TODO: fix this in ansible playbook logic. This is just a quick hack for cacvote prototyping
-ln -s "${vxsuite_build_system_dir}/scripts/cacvote-config" "${local_user_home_dir}/code/vxsuite-complete-system"
-
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml
 
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
