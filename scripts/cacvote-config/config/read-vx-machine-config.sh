@@ -50,6 +50,7 @@ export IS_QA_IMAGE="$(< "${VX_CONFIG_ROOT}/is-qa-image")"
 
 # cacvote vars just hardcoding for now
 export EG_CLASSPATH=/vx/code/egk-ec-mix-net/build/libs/egk-ec-mixnet-2.1-SNAPSHOT-uber.jar
+export VX_CA_CERT="/vx/code/cacvote/libs/auth/certs/prod/vx-cert-authority-cert.pem"
 export CAC_ROOT_CA_CERTS="/vx/code/cacvote/apps/cacvote-jx-terminal/backend/certs/DODJITCEMAILCA_63.cer,/vx/code/cacvote/libs/auth/certs/prod/vx-cert-authority-cert.pem"
 SIGNER=tpm:0x81000001
 
