@@ -115,10 +115,6 @@ make -C apps/cacvote-server/backend dist
 make -C apps/cacvote-jx-terminal dist
 make -C apps/cacvote-mark/frontend build-all
 
-# Create the enroll-voter-terminal-machine binary
-# it will be created in ${cacvote_dir}/target/release/
-cargo build --release --bin enroll-voter-terminal-machine
-
 # Create the prod-build link if not present
 if [[ ! -L "${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build" ]]; then
   ln -s ${cacvote_dir}/script/prod-build ${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build
@@ -131,7 +127,6 @@ cd "${cacvote_dir}/apps/cacvote-mark/frontend"
 ./script/prod-build
 cp "${cacvote_dir}/apps/cacvote-mark/backend/.env" "${BUILD_ROOT}/apps/cacvote-mark/backend/.env"
 cp "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cacvote-mark/backend/schema.sql"
-cp "${cacvote_dir}/target/release/enroll-voter-terminal-machine" "${BUILD_ROOT}/apps/cacvote-mark/enroll-voter-terminal-machine"
 
 # cacvote-jx-terminal has already been built, move into build directory
 cp -rp "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
