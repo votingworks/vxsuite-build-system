@@ -1,0 +1,77 @@
+---
+
+#TODO: Handle a locked down release where the kernel packages are
+#      part of a VotingWorks aptly release instead of backports
+#      Probably just a block condition based on existing of aptly release?
+#
+- name: Install an updated kernel
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Ensure we don't carry over any packages from other tasks
+      set_fact:
+        all_packages: []
+
+    - name: Create a list of all the kernel packages we need
+      set_fact:
+        all_packages: "{{ all_packages | default([]) + [ item ] }}"
+      with_items:
+        - "{{ kernel_packages | default([]) }}"
+
+    - name: De-dupe the list for efficiency
+      set_fact:
+        all_packages: "{{ all_packages | unique | select | list }}"
+
+    - name: Add bookworm-backports as an apt source
+       ansible.builtin.lineinfile:
+         path: /etc/apt/sources.list
+         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+       tags:
+         - online
+
+    - name: Assign the highest possible priority for bookworm-backports
+      ansible.builtin.blockinfile:
+        create: true
+        path: /etc/apt/preferences.d/bookworm-backports
+        block: |
+          Package: *
+          Pin: release a=bookworm-backports
+          Pin-Priority: 999
+      tags:
+        - online
+
+    - name: Update apt sources to include bookworm-backports
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - online
+
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
+
+    - name: Remove bookworm-backports as an apt source
+       ansible.builtin.lineinfile:
+         path: /etc/apt/sources.list
+         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+         state: absent
+       tags:
+         - online
+
+    - name: Delete the bookworm-backports preferences file
+       ansible.builtin.file:
+         path: /etc/apt/preferences.d/bookworm-backports
+         state: absent
+       tags:
+         - online
+
+    - name: Update apt sources to remove bookworm-backports
+       ansible.builtin.apt:
+         update_cache: true
+       tags:
+         - online
