@@ -4,6 +4,8 @@
 #      part of a VotingWorks aptly release instead of backports
 #      Probably just a block condition based on existing of aptly release?
 #
+#TODO: dont hardcode to a debian backports release, make it a config var
+#
 - name: Install an updated kernel
   hosts: 127.0.0.1
   connection: local
@@ -13,35 +15,10 @@
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
-    - name: Ensure we don't carry over any packages from other tasks
-      set_fact:
-        all_packages: []
-
-    - name: Create a list of all the kernel packages we need
-      set_fact:
-        all_packages: "{{ all_packages | default([]) + [ item ] }}"
-      with_items:
-        - "{{ kernel_packages | default([]) }}"
-
-    - name: De-dupe the list for efficiency
-      set_fact:
-        all_packages: "{{ all_packages | unique | select | list }}"
-
     - name: Add bookworm-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
-      tags:
-        - online
-
-    - name: Assign the highest possible priority for bookworm-backports
-      ansible.builtin.blockinfile:
-        create: true
-        path: /etc/apt/preferences.d/bookworm-backports
-        block: |
-          Package: *
-          Pin: release a=bookworm-backports
-          Pin-Priority: 999
       tags:
         - online
 
@@ -51,9 +28,19 @@
       tags:
         - online
 
-    - name: Import the apt role which supports online and offline builds
-      ansible.builtin.import_role:
-        name: apt
+    - name: Download the kernel packages
+      ansible.builtin.command:
+        cmd: "apt-get install --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports -y {{ item }}"
+      with_items:
+        - "{{ kernel_packages }}"
+      tags:
+        - online
+
+    - name: Install the packages (batch)
+      ansible.builtin.command:
+        cmd: "apt-get install -y --allow-downgrades --no-install-recommends -t bookworm-backports {{ all_packages | join(' ') }}"
+      tags:
+        - offline
 
     - name: Remove bookworm-backports as an apt source
       ansible.builtin.lineinfile:
