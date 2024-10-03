@@ -30,7 +30,7 @@
 
     - name: Download the kernel packages
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports {{ kernel_packages | join(' ') }}"
+        cmd: "apt-get install -y --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports {{ kernel_packages }}+bpo-amd64"
       with_items:
         - "{{ kernel_packages }}"
       tags:
@@ -50,9 +50,10 @@
       tags:
         - online
 
-    - name: Install the packages (batch)
-      ansible.builtin.command:
-        cmd: "apt-get install -y --allow-downgrades --no-install-recommends {{ kernel_packages | join('/bookworm-backports ') }}"
+    - name: Install backported packages directly
+      ansible.builtin.shell:
+        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}.deb"
+      with_items:
+        - "{{ kernel_packages }}"
       tags:
         - offline
-
