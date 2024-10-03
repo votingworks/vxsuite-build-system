@@ -52,7 +52,7 @@
 
     - name: Install the packages (batch)
       ansible.builtin.command:
-        cmd: "apt-get install -y --allow-downgrades --no-install-recommends -t bookworm-backports {{ kernel_packages | join(' ') }}"
+        cmd: "apt-get install -y --allow-downgrades --no-install-recommends {{ kernel_packages | join('/bookworm-backports ') }}"
       tags:
         - offline
 
