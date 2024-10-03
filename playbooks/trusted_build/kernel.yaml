@@ -56,22 +56,22 @@
         name: apt
 
     - name: Remove bookworm-backports as an apt source
-       ansible.builtin.lineinfile:
-         path: /etc/apt/sources.list
-         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
-         state: absent
-       tags:
-         - online
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+        state: absent
+      tags:
+        - online
 
     - name: Delete the bookworm-backports preferences file
-       ansible.builtin.file:
-         path: /etc/apt/preferences.d/bookworm-backports
-         state: absent
-       tags:
-         - online
+      ansible.builtin.file:
+        path: /etc/apt/preferences.d/bookworm-backports
+        state: absent
+      tags:
+        - online
 
     - name: Update apt sources to remove bookworm-backports
-       ansible.builtin.apt:
-         update_cache: true
-       tags:
-         - online
+      ansible.builtin.apt:
+        update_cache: true
+      tags:
+        - online
