@@ -30,17 +30,11 @@
 
     - name: Download the kernel packages
       ansible.builtin.command:
-        cmd: "apt-get install --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports -y {{ item }}"
+        cmd: "apt-get install -y --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports {{ kernel_packages | join(' ') }}"
       with_items:
         - "{{ kernel_packages }}"
       tags:
         - online
-
-    - name: Install the packages (batch)
-      ansible.builtin.command:
-        cmd: "apt-get install -y --allow-downgrades --no-install-recommends -t bookworm-backports {{ all_packages | join(' ') }}"
-      tags:
-        - offline
 
     - name: Remove bookworm-backports as an apt source
       ansible.builtin.lineinfile:
@@ -50,15 +44,15 @@
       tags:
         - online
 
-    - name: Delete the bookworm-backports preferences file
-      ansible.builtin.file:
-        path: /etc/apt/preferences.d/bookworm-backports
-        state: absent
-      tags:
-        - online
-
     - name: Update apt sources to remove bookworm-backports
       ansible.builtin.apt:
         update_cache: true
       tags:
         - online
+
+    - name: Install the packages (batch)
+      ansible.builtin.command:
+        cmd: "apt-get install -y --allow-downgrades --no-install-recommends -t bookworm-backports {{ kernel_packages | join(' ') }}"
+      tags:
+        - offline
+
