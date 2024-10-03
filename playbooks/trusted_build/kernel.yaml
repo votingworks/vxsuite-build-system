@@ -28,11 +28,11 @@
         all_packages: "{{ all_packages | unique | select | list }}"
 
     - name: Add bookworm-backports as an apt source
-     ansible.builtin.lineinfile:
-       path: /etc/apt/sources.list
-       line: 'deb http://http.us.debian.org/debian bookworm-backports main'
-     tags:
-       - online
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+      tags:
+        - online
 
     - name: Assign the highest possible priority for bookworm-backports
       ansible.builtin.blockinfile:
