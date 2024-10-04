@@ -110,6 +110,9 @@ sudo usermod -aG vx-group vx-ui
 sudo usermod -aG vx-group vx-admin
 sudo usermod -aG vx-group vx-services
 
+# ensure `vx-services` can use the TPM
+sudo usermod -aG tss vx-services
+
 sudo usermod -aG video vx-ui
 
 # remove all files created by default
