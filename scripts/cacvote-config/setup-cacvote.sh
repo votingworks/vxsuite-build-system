@@ -301,6 +301,10 @@ cd
 rm -rf *
 rm -rf .*
 
+# see if this will reclaim space for the zipped image
+/usr/bin/sync
+ls -altr
+
 echo "Machine setup is complete. Please wait for the VM to reboot."
 
 #-- Just to prevent an active prompt
