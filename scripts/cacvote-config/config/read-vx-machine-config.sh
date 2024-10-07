@@ -57,6 +57,8 @@ export SIGNER="tpm:0x81000001"
 
 if [[ "$VX_MACHINE_TYPE" == "cacvote-jx-terminal" ]]; then
   export MACHINE_CERT="/vx/config/vx-cacvote-jx-terminal-cert-authority-cert.pem"
+elif [[ "$VX_MACHINE_TYPE" == "cacvote-mark" ]]; then
+  export MACHINE_CERT="/vx/config/vx-cacvote-mark-cert.pem"
 else
   export MACHINE_CERT="/vx/config/vx-cert-authority-cert.pem"
 fi
