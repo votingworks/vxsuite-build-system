@@ -1,6 +1,6 @@
 repos:
   kiosk-browser:
-    version: main
+    version: e42a0607f9e16112a88a8c726d7b059479ed7ff4
   cacvote:
     version: main
   vxsuite-complete-system:
