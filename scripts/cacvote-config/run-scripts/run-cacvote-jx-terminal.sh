@@ -15,4 +15,4 @@ export PORT=3000
 export PUBLIC_DIR=./public
 
 cd cacvote/apps/cacvote-jx-terminal/dist
-(trap 'kill 0' SIGINT SIGHUP; ./cacvote-jx-terminal)
+(trap 'kill 0' SIGINT SIGHUP; ../../../libs/usb-drive/bin/usb-drive automount & ./cacvote-jx-terminal)
