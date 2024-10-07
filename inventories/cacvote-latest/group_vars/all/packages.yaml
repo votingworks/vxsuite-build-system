@@ -8,7 +8,9 @@ all_packages:
   - chromium 
   - cloud-guest-utils
   - cryptsetup 
+  - cups
   - cups-bsd
+  - cups-client
   - cups-filters
   - curl
   - dosfstools
