@@ -59,6 +59,8 @@ if [[ "$VX_MACHINE_TYPE" == "cacvote-jx-terminal" ]]; then
   export MACHINE_CERT="/vx/config/vx-cacvote-jx-terminal-cert-authority-cert.pem"
 elif [[ "$VX_MACHINE_TYPE" == "cacvote-mark" ]]; then
   export MACHINE_CERT="/vx/config/vx-cacvote-mark-cert.pem"
+  export REACT_APP_BALLOT_PRINTER="PJ-822"
+  export MAILING_LABEL_PRINTER="QL-1100"
 else
   export MACHINE_CERT="/vx/config/vx-cert-authority-cert.pem"
 fi
