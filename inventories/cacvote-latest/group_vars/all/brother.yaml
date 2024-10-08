@@ -1,5 +1,5 @@
 ---
-delete_via_lpadmin: true
+delete_via_lpadmin: false
 
 brother_32bit_packages:
   - libc6:i386
