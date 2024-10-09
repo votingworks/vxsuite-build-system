@@ -119,6 +119,12 @@ fi
 # cacvote-mark build
 export BUILD_ROOT="${cacvote_dir}/build/cacvote"
 rm -rf "${BUILD_ROOT}"
+
+# TODO: eventually eliminate this approach to playwright install
+#       instead, use the vxsuite libs/printing approach
+cd "${cacvote_dir}/apps/cacvote-mark/backend"
+sudo pnpm exec playwright install-deps
+
 cd "${cacvote_dir}/apps/cacvote-mark/frontend"
 ./script/prod-build
 cp "${cacvote_dir}/apps/cacvote-mark/backend/.env" "${BUILD_ROOT}/apps/cacvote-mark/backend/.env"
