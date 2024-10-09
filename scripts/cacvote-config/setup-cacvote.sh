@@ -169,6 +169,12 @@ sudo cp -rp ${eg_dir} /vx/code/
 sudo ln -s /vx/code/cacvote /vx/services/cacvote
 sudo ln -s /vx/code/run-${CHOICE}.sh /vx/services/run-${CHOICE}.sh
 
+# TODO: This is a workaround
+# Install playwright for cacvote-mark as vx-services user
+pushd /vx/code/cacvote/apps/cacvote-mark/backend
+sudo -u vx-services pnpm exec playwright install
+popd
+
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
 sudo ln -s /vx/code/config/Xresources /vx/ui/.Xresources
