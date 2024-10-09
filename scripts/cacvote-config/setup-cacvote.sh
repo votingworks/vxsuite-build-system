@@ -136,20 +136,11 @@ sudo usermod -aG lpadmin vx-services
 ### set up CUPS to read/write all config out of /var to be compatible with read-only root filesystem
 
 # copy existing cups config structure to new /var location
-#sudo mkdir /var/etc
-#sudo cp -rp /etc/cups /var/etc/
-#sudo rm -rf /etc/cups
-
-# set up cups config files that internally include appropriate paths with /var
-#sudo cp config/cupsd.conf /var/etc/cups/
-#sudo cp config/cups-files.conf /var/etc/cups/
-
-# modify cups systemd service to read config files from /var
-#sudo cp config/cups.service /usr/lib/systemd/system/
-
-# modified apparmor profiles to allow cups to access config files in /var
-#sudo cp config/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/
-#sudo cp config/apparmor.d/usr.sbin.cups-browsed /etc/apparmor.d/
+# create symlink for use in locked down image
+sudo mkdir /var/etc
+sudo cp -rp /etc/cups /var/etc
+sudo rm -rf /etc/cups
+sudo ln -s /var/etc/cups /etc/cups
 
 echo "Setting up the code"
 cacvote_dir=/home/vx/code/cacvote
