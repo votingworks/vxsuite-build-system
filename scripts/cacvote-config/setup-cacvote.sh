@@ -143,7 +143,7 @@ sudo rm -rf /etc/cups
 sudo ln -s /var/etc/cups /etc/cups
 
 sudo cp config/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/
-sudo cp config/apparmor.d/usr.sbin.cupsd-browsed /etc/apparmor.d/
+sudo cp config/apparmor.d/usr.sbin.cups-browsed /etc/apparmor.d/
 
 echo "Setting up the code"
 cacvote_dir=/home/vx/code/cacvote
