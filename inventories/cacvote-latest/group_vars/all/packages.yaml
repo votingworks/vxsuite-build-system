@@ -20,6 +20,7 @@ all_packages:
   - firmware-linux-free
   - firmware-misc-nonfree
   - firmware-sof-signed
+  - firmware-amd-graphics
   - git
   - gvfs
   - gzip

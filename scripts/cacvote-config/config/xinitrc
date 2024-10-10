@@ -16,6 +16,14 @@ VSAP155="PENMOUNT PM2501"
 VSAP150="PenMount PM1415"
 
 ( sleep 4 && if xinput list | grep -i "$ELO" > /dev/null; then
+  # cacvote-mark needs to be rotated
+  # to detect the correct xinput source, exclude the Mouse input
+  if grep 'cacvote-mark' $VX_CONFIG_ROOT/machine-type > /dev/null; then
+    xrandr -o left
+    elo_model=$( xinput list --name-only | grep "$ELO" | grep -v Mouse )
+    xinput set-prop "$elo_model" 'Coordinate Transformation Matrix' 0 -1 1 1 0 0 0 0 1
+  fi
+
   pulseaudio --start
   # Specific amixer commands may be needed after testing
 elif xinput list | grep -i "$VSAP150" > /dev/null; then
