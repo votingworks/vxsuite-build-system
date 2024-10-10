@@ -13,13 +13,13 @@
 
     - name: Specify the deviceURI for PJ-822
       ansible.builtin.lineinfile:
-        path: "/etc/cups/printers.conf
+        path: "/etc/cups/printers.conf"
         line: "DeviceURI usb://Brother/PJ-822"
         insertafter: 'MakeModel Brother PJ-822 CUPS'
 
     - name: Specify the deviceURI for QL-1100
       ansible.builtin.lineinfile:
-        path: "/etc/cups/printers.conf
+        path: "/etc/cups/printers.conf"
         line: "DeviceURI usb://Brother/QL-1100"
         insertafter: 'MakeModel Brother QL-1100 CUPS'
 
