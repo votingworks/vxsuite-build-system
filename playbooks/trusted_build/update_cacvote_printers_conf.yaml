@@ -11,6 +11,11 @@
         name: cups
         state: stopped
 
+    #-- TODO: This is so hacky, but I'm tired
+    - name: Strip out invalid DeviceURIs
+      ansible.builtin.shell:
+        cmd: sed -i '/DeviceURI/d' /etc/cups/printers.conf
+
     - name: Specify the deviceURI for PJ-822
       ansible.builtin.lineinfile:
         path: "/etc/cups/printers.conf"
