@@ -43,6 +43,11 @@ ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/cac
 
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml
 
+# Hacky cups config for cacvote printers in a secure boot environment
+sudo ./scripts/cacvote-config/config/admin-functions/configure-cacvote-printers.sh
+
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/update_cacvote_printers_conf.yaml
+
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 if [[ ! -d $kiosk_browser_dir ]]; then
   echo "ERROR: kiosk-browser directory could not be found."
