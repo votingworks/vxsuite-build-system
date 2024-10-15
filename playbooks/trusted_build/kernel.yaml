@@ -15,14 +15,14 @@
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
-      when: (apt_snapshot_date is defined) and (release_name is defined)
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
     - name: Update apt sources to include bookworm-backports
       ansible.builtin.apt:
         update_cache: true
-      when: (apt_snapshot_date is defined) and (release_name is defined)
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
@@ -39,14 +39,14 @@
         path: /etc/apt/sources.list
         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
         state: absent
-      when: (apt_snapshot_date is defined) and (release_name is defined)
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
     - name: Update apt sources to remove bookworm-backports
       ansible.builtin.apt:
         update_cache: true
-      when: (apt_snapshot_date is defined) and (release_name is defined)
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
