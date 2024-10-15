@@ -4,7 +4,6 @@
   connection: local
   become: yes
 
-- import_playbook: kernel.yaml
 - import_playbook: packages.yaml
 - import_playbook: dev_packages.yaml
 - import_playbook: initialize_encrypted_volumes.yaml
@@ -12,3 +11,4 @@
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: repos.yaml
+- import_playbook: kernel.yaml
