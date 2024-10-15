@@ -15,6 +15,7 @@
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+        insertbefore: "BOF"
       when: apt_snapshot_date is not defined
       tags:
         - online
