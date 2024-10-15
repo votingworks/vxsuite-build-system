@@ -13,7 +13,7 @@
 
     - name: Remove unused kernel(s)
       ansible.builtin.command:
-        cmd: "apt autoremove"
+        cmd: "apt -y autoremove"
 
     - name: Add bookworm-backports as an apt source
       ansible.builtin.lineinfile:
