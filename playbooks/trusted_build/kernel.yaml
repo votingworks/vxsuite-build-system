@@ -11,6 +11,10 @@
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+    - name: Remove unused kernel(s)
+      ansible.builtin.command:
+        cmd: "apt autoremove"
+
     - name: Add bookworm-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
@@ -34,10 +38,6 @@
         - "{{ kernel_packages | default([]) }}"
       tags:
         - online
-
-    - name: Remove unused kernel(s)
-      ansible.builtin.apt:
-        autoremove: true
 
     - name: Remove bookworm-backports as an apt source
       ansible.builtin.lineinfile:
