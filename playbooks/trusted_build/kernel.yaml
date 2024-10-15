@@ -1,6 +1,6 @@
 ---
 
-#TODO: dont hardcode to a debian backports release, make it a config var
+# TODO: install linux-kbuild based on the latest kernel installed
 #
 - name: Install an updated kernel
   hosts: 127.0.0.1
@@ -28,7 +28,7 @@
 
     - name: Download the kernel packages
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports {{ item }}"
+        cmd: "apt-get install -y --reinstall --only-upgrade --no-install-recommends --download-only -t bookworm-backports {{ item }}"
       with_items:
         - "{{ kernel_packages | default([]) }}"
       tags:
@@ -52,7 +52,7 @@
 
     - name: Install backported packages directly
       ansible.builtin.shell:
-        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*deb"
+        cmd: "apt-get -y --no-install-recommends --only-upgrade install {{ item }}"
       with_items:
         - "{{ kernel_packages | default([]) }}"
       tags:
