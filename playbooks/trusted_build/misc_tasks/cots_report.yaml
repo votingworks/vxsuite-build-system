@@ -1,5 +1,9 @@
 ---
 
+# TODO: This is going to have to change with our new use of 
+#       self-hosted apt repos
+#       Figure out how to link to a specific package version 
+#       using Debian Snapshot repo?
 - name: Generate a report of COTS tools used for this build
   hosts: 127.0.0.1
   connection: local
