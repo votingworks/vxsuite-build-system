@@ -1,9 +1,5 @@
 ---
 
-#TODO: Handle a locked down release where the kernel packages are
-#      part of a VotingWorks aptly release instead of backports
-#      Probably just a block condition based on existing of aptly release?
-#
 #TODO: dont hardcode to a debian backports release, make it a config var
 #
 - name: Install an updated kernel
@@ -19,12 +15,14 @@
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+      when: (apt_snapshot_date is defined) and (release_name is defined)
       tags:
         - online
 
     - name: Update apt sources to include bookworm-backports
       ansible.builtin.apt:
         update_cache: true
+      when: (apt_snapshot_date is defined) and (release_name is defined)
       tags:
         - online
 
@@ -41,12 +39,14 @@
         path: /etc/apt/sources.list
         line: 'deb http://http.us.debian.org/debian bookworm-backports main'
         state: absent
+      when: (apt_snapshot_date is defined) and (release_name is defined)
       tags:
         - online
 
     - name: Update apt sources to remove bookworm-backports
       ansible.builtin.apt:
         update_cache: true
+      when: (apt_snapshot_date is defined) and (release_name is defined)
       tags:
         - online
 
