@@ -30,7 +30,7 @@
       ansible.builtin.command:
         cmd: "apt-get install -y --reinstall --allow-downgrades --no-install-recommends --download-only -t bookworm-backports {{ item }}"
       with_items:
-        - "{{ kernel_packages }}"
+        - "{{ kernel_packages | default([]) }}"
       tags:
         - online
 
@@ -54,6 +54,6 @@
       ansible.builtin.shell:
         cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*deb"
       with_items:
-        - "{{ kernel_packages }}"
+        - "{{ kernel_packages | default([]) }}"
       tags:
         - offline
