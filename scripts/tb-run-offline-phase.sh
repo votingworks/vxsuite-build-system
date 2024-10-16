@@ -53,8 +53,8 @@ make offline-kiosk-browser
 
 echo "Run build.sh in complete-system. This will take several minutes."
 sleep 5
-#cd $vxsuite_complete_system_dir
-#./build.sh
+cd $vxsuite_complete_system_dir
+./build.sh
 
 echo "The offline build phase is complete."
 echo "Depending on your needs, clone this VM and run setup-machine OR"
