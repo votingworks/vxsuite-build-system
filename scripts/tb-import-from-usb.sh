@@ -84,8 +84,10 @@ if [ ! -d $electron_gyp_dir ]; then
   mkdir -p $electron_gyp_dir
   chown -R ${local_user}:${local_user} $electron_gyp_dir
 fi
-cp -r ${usb_root}/electron_gyp_cache/* $electron_gyp_dir
-chown -R ${local_user}:${local_user} $electron_gyp_dir
+if [ -d ${usb_root}/electron_gyp_cache ]; then
+  cp -r ${usb_root}/electron_gyp_cache/* $electron_gyp_dir
+  chown -R ${local_user}:${local_user} $electron_gyp_dir
+fi
 
 #-- Copy yarn cache
 echo "Copying yarn cache"
