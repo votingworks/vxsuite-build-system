@@ -11,4 +11,3 @@
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: repos.yaml
-- import_playbook: kernel.yaml
