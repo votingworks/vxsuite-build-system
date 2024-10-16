@@ -55,13 +55,6 @@
       tags:
         - online
 
-    - name: Update apt sources to not include bookworm-backports
-      ansible.builtin.apt:
-        update_cache: true
-      when: apt_snapshot_date is not defined
-      tags:
-        - online
-
     - name: Install backported packages directly
       ansible.builtin.shell:
         cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*deb"
