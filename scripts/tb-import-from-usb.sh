@@ -37,6 +37,10 @@ cp -r ${usb_root}/downloads /var/tmp/
 #-- Copy all the apt packages to the local cache
 echo "Copying apt packages to local cache"
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/
+#
+#-- Copy all the apt lists to the local system
+echo "Copying apt lists to local system"
+cp -r ${usb_root}/apt_lists/* /var/lib/apt/lists/
 
 if [ ! -d $code_dir ]; then
   mkdir -p $code_dir

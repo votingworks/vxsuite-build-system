@@ -38,7 +38,7 @@ fi
 sudo -v
 
 # Don't install the kernel in the online phase
-#ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/kernel.yaml --skip-tags offline
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/kernel.yaml --skip-tags offline
 
 echo "Run prepare_for_build playbook. This will take several minutes."
 sleep 5
