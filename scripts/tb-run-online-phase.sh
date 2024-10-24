@@ -37,6 +37,9 @@ fi
 # Ensure sudo credentials haven't expired
 sudo -v
 
+# Don't install the kernel in the online phase
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/kernel.yaml --skip-tags offline
+
 echo "Run prepare_for_build playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/prepare_for_build.yaml
@@ -60,6 +63,7 @@ echo "Download Brother printer drivers."
 sleep 5
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/brother_printers.yaml --skip-tags offline
+
 
 echo "The online phase is complete. Please insert a USB drive and run: "
 echo "./scripts/tb-export-to-usb.sh ${ansible_inventory}"

@@ -37,6 +37,10 @@ cp -r ${usb_root}/downloads /var/tmp/
 #-- Copy all the apt packages to the local cache
 echo "Copying apt packages to local cache"
 cp -r ${usb_root}/apt_packages/* /var/cache/apt/archives/
+#
+#-- Copy all the apt lists to the local system
+echo "Copying apt lists to local system"
+cp -r ${usb_root}/apt_lists/* /var/lib/apt/lists/
 
 if [ ! -d $code_dir ]; then
   mkdir -p $code_dir
@@ -84,8 +88,10 @@ if [ ! -d $electron_gyp_dir ]; then
   mkdir -p $electron_gyp_dir
   chown -R ${local_user}:${local_user} $electron_gyp_dir
 fi
-cp -r ${usb_root}/electron_gyp_cache/* $electron_gyp_dir
-chown -R ${local_user}:${local_user} $electron_gyp_dir
+if [ -d ${usb_root}/electron_gyp_cache ]; then
+  cp -r ${usb_root}/electron_gyp_cache/* $electron_gyp_dir
+  chown -R ${local_user}:${local_user} $electron_gyp_dir
+fi
 
 #-- Copy yarn cache
 echo "Copying yarn cache"

@@ -56,6 +56,10 @@ sleep 5
 cd $vxsuite_complete_system_dir
 ./build.sh
 
+# Node20 upgrade has modified the permissions on some cached build dirs
+# Reset them so they can later be deleted during final image creation
+sudo chown -R ${local_user}:${local_user} ${local_user_home_dir}/.*
+
 echo "The offline build phase is complete."
 echo "Depending on your needs, clone this VM and run setup-machine OR"
 echo "run setup-machine in this VM, understanding it is destructive."
