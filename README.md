@@ -6,18 +6,18 @@
 2. Parallels Virtualization SDK for Mac: https://www.parallels.com/products/desktop/download/
 3. Xcode Command Line Tools (There are multiple ways to install this. A simple method: `xcode-select --install`
 4. Install `packer` via homebrew (if you don't already have homebrew installed, you can install homebrew via instructions here: https://brew.sh/):
-    1. `brew tap hashicorp/tap`
-    2. `brew install hashicorp/tap/packer`
-    3. (Optional, but recommended): `brew upgrade hashicorp/tap/packer`
+   1. `brew tap hashicorp/tap`
+   2. `brew install hashicorp/tap/packer`
+   3. (Optional, but recommended): `brew upgrade hashicorp/tap/packer`
 
 ## Clone and initialize the `vxsuite-build-system` repository
 
 1. Clone `vxsuite-build-system` via https or ssh
-    1. Via https: `git clone https://github.com/votingworks/vxsuite-build-system.git`
-    2. Via ssh: `git clone git@github.com:votingworks/vxsuite-build-system.git`
+   1. Via https: `git clone https://github.com/votingworks/vxsuite-build-system.git`
+   2. Via ssh: `git clone git@github.com:votingworks/vxsuite-build-system.git`
 2. Initialize packer
-    1. Be sure to cd into the newly cloned `vxsuite-build-system` repo
-    2. Run: `packer init parallels-debian12.pkr.hcl`
+   1. Be sure to cd into the newly cloned `vxsuite-build-system` repo
+   2. Run: `packer init parallels-debian12.pkr.hcl`
 
 ## Build a base Debian VM with VotingWorks repositories cloned
 
@@ -27,7 +27,7 @@
 
 ## Additional Options
 
-You can further customize your Parallels VM with various options provided to the `packer build` command. Unless otherwise noted, you can combine as many of these in a single command as you want. 
+You can further customize your Parallels VM with various options provided to the `packer build` command. Unless otherwise noted, you can combine as many of these in a single command as you want.
 
 ### Use a custom user account
 
@@ -38,6 +38,7 @@ For example: `packer build -var "local_user=your_username" parallels-debian12.pk
 ### Share a folder from your Mac to the Parallels VM
 
 It's possible to make a local folder accessible to this Parallels VM via two variables.
+
 - `shared_path` - the full path on your local machine to make available in the VM (default is /tmp)
 - `enable_shared_path` - whether to enable/disable sharing. The default is `disable`
 
@@ -60,3 +61,8 @@ To change the name of the VM being built, use the `vm_name` variable (default is
 
 For example, to name your VM "MyVM":
 `packer build -var "vm_name=MyVM" parallels-debian12.pkr.hcl`
+
+## License
+
+All files are licensed under GNU GPL v3.0 only. Refer to the [license file](./LICENSE) for
+more information.
