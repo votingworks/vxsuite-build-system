@@ -36,6 +36,7 @@
         cmd: "apt-get install -y --reinstall --no-install-recommends --download-only -t bookworm-backports {{ item }}"
       with_items:
         - "{{ kernel_packages | default([]) }}"
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
