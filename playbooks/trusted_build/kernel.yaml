@@ -33,7 +33,7 @@
 
     - name: Download the kernel packages
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --no-install-recommends --download-only -t bookworm-backports {{ item }}"
+        cmd: "apt-get install -y --reinstall --no-install-recommends --download-only {{ item }}"
       with_items:
         - "{{ kernel_packages | default([]) }}"
       tags:
