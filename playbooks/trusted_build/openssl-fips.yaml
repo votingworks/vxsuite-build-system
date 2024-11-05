@@ -49,8 +49,8 @@
         src: "{{ downloads_directory }}/openssl-{{ openssl_version }}.tar.gz"
         dest: "{{ downloads_directory }}"
         remote_src: yes
-        tags:
-          - offline
+      tags:
+        - offline
 
     - name: Configure OpenSSL {{ openssl_version }} with FIPS support
       ansible.builtin.shell:
