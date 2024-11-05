@@ -27,8 +27,8 @@
 
   tasks:
 
-    - import_tasks: shared_tasks/well_known_paths.yaml
     - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
 
     - name: Define downloads_directory from well_known_paths
       set_fact:
