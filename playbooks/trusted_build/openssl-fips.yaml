@@ -83,5 +83,5 @@
 
     - name: Copy the OpenSSL {{ openssl_version }} config file
       ansible.builtin.copy:
-        src: "files/opensssl-{{ openssl_version }}.cnf"
+        src: "files/openssl-{{ openssl_version }}.cnf"
         dest: "/etc/ssl/openssl.cnf"
