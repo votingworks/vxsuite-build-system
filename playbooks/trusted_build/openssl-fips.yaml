@@ -22,13 +22,16 @@
   connection: local
   become: true
 
-  vars:
-    openssl_version: "{{ openssl_version | default('3.0.9') }}"
 
   tasks:
 
+
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Set the OpenSSL version
+      set_fact:
+        openssl_version: "{{ openssl_version | default('3.0.9') }}"
 
     - name: Define downloads_directory from well_known_paths
       set_fact:
