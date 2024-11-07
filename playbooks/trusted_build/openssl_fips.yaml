@@ -1,21 +1,3 @@
-# Steps
-# cp /usr/local/lib64/ossl-modules/fips.so /usr/lib/x86_64-linux-gnu/ossl-modules/
-# Edit /etc/ssl/openssl.cnf
-# .include /usr/local/ssl/fipsmodule.cnf
-# [openssl_init]
-# providers = provider_sect
-# alg_section = algorithm_sect
-#
-# [provider_sect]
-# default = default_sect
-# fips = fips_sect
-#
-# [default_sect]
-# activate = 1
-#
-# [algorithm_sect]
-# default_properties = fips=yes
-#
 ---
 - name: Build a FIPS-compliant version of OpenSSL
   hosts: 127.0.0.1
@@ -85,3 +67,26 @@
       ansible.builtin.copy:
         src: "files/openssl-{{ openssl_version }}.cnf"
         dest: "/etc/ssl/openssl.cnf"
+      tags:
+        - offline
+
+    - name: Define the vxsuite openssl.cnf file path
+      set_fact: 
+        vxsuite_openssl_cnf: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}/vxsuite/libs/auth/certs/openssl.cnf"
+      tags:
+        - offline
+
+    - name: See if the vxsuite openssl.cnf file exists
+      ansible.builtin.stat:
+        path: "{{ vxsuite_openssl_cnf }}"
+      register: vxsuite_openssl_exists
+      tags:
+        - offline
+
+    - name: Override the vxsuite openssl.cnf file
+      ansible.builtin.copy:
+        src: "files/openssl-{{ openssl_version }}.cnf"
+        dest: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}/vxsuite/libs/auth/certs/openssl.cnf"
+      when: vxsuite_openssl_exists.stat.exists
+      tags:
+        - offline
