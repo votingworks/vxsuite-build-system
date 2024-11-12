@@ -122,7 +122,6 @@ tpm_packages:
   - tpm2-abrmd
   - tpm2-openssl
   - tpm2-tools
-  - tpm2-tss
 
 dev_packages:
   - ffmpeg
