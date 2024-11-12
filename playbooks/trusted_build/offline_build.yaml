@@ -11,7 +11,7 @@
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: tpm.yaml
-- import_playbook: openssl_fips.yaml
+  #- import_playbook: openssl_fips.yaml
 - import_playbook: brother_printers.yaml
 - import_playbook: firewalld.yaml
 - import_playbook: logrotate.yaml
