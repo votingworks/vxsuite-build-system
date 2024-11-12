@@ -6,12 +6,12 @@
 
 - import_playbook: packages.yaml
 - import_playbook: dev_packages.yaml
-- import_playbook: openssl_fips.yaml
 - import_playbook: initialize_encrypted_volumes.yaml
 - import_playbook: node.yaml
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: tpm.yaml
+- import_playbook: openssl_fips.yaml
 - import_playbook: brother_printers.yaml
 - import_playbook: firewalld.yaml
 - import_playbook: logrotate.yaml
