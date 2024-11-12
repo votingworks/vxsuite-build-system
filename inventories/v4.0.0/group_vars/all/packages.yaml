@@ -116,10 +116,13 @@ tpm_packages:
   - libtss2-tctildr0
   - libtss2-tcti-mssim0
   - libtss2-tcti-swtpm0
+  - libtss2-tcti-tabrmd0
   - m4
   - qrencode
+  - tpm2-abrmd
   - tpm2-openssl
   - tpm2-tools
+  - tpm2-tss
 
 dev_packages:
   - ffmpeg
