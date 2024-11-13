@@ -1,7 +1,7 @@
 ---
 batch_package_install: true
-apt_snapshot_date: "20241030"
-release_name: "bookworm"
+  #apt_snapshot_date: "20241030"
+  #release_name: "bookworm"
 
 #-- get the latest available kernel
 #-- kbuild needs to be tied to kernel, so probably move to the playbook
