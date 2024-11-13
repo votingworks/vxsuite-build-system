@@ -85,7 +85,7 @@
 
     - name: Override the vxsuite openssl.cnf file
       ansible.builtin.copy:
-        src: "files/openssl-{{ openssl_version }}.cnf"
+        src: "files/vxsuite-openssl-{{ openssl_version }}.cnf"
         dest: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}/vxsuite/libs/auth/certs/openssl.cnf"
       when: vxsuite_openssl_exists.stat.exists
       tags:
