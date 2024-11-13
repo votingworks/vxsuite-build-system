@@ -94,11 +94,11 @@
 
       when: ansible_distribution_major_version == "11"
 
-        #- name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
-        #ansible.builtin.shell:
-        #cmd: "bash setup-scripts/setup-tpm2-totp.sh"
-        #chdir: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}"
-        #become: true
-        #become_user: "{{ user_to_configure }}"
-        #tags:
-        #- offline
+    - name: Run vxsuite-complete-system/setup-scripts/setup-tpm2-totp.sh
+      ansible.builtin.shell:
+        cmd: "bash setup-scripts/setup-tpm2-totp.sh"
+        chdir: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}"
+      become: true
+      become_user: "{{ user_to_configure }}"
+      tags:
+        - offline
