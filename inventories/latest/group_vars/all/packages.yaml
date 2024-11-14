@@ -64,6 +64,8 @@ all_packages:
   - parted
   - pcscd
   - pcsc-tools
+  - plymouth
+  - plymouth-themes
   - pulseaudio
   - pulseaudio-utils
   - rsync
