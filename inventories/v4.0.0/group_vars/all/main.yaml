@@ -2,7 +2,7 @@ repos:
   vxsuite-complete-system:
     version: v4.0.0-beta
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian-v4.0.0"
+vm_name: "debian-v4.0.0-beta"
 vm_disk_size_gb: 27
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
