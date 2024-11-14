@@ -7,6 +7,11 @@
 
   tasks:
 
+    - name: Add apt_snapshot_date and release_name to vm_name if defined
+      set_fact:
+        vm_name: "{{ vm_name }}-{{ apt_snapshot_date }}-{{ release_name }}"
+      when: apt_snapshot_date is defined and release_name is defined
+
     - name: Allocate 60% of system RAM for the VM
       set_fact:
         vm_ram: "{{ (ansible_facts['memtotal_mb'] * 0.60)|round(0, 'floor')|int }}"
