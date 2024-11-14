@@ -7,6 +7,11 @@
 
   tasks:
 
+    - name: Add apt_snapshot_date and release_name to vm_name if defined
+      set_fact:
+        vm_name: "{{ vm_name }}-{{ apt_snapshot_date }}-{{ release_name }}"
+      when: apt_snapshot_date is defined and release_name is defined
+
     - name: Allocate 60% of system RAM for the VM
       set_fact:
         vm_ram: "{{ (ansible_facts['memtotal_mb'] * 0.60)|round(0, 'floor')|int }}"
@@ -55,21 +60,11 @@
       changed_when: no
       failed_when: false
 
-    - name: Copy the preseed file
-      ansible.builtin.copy:
-        src: "{{ vm_preseed_path }}/{{ vm_preseed_file }}"
-        dest: "/tmp/{{ vm_preseed_file }}"
-        remote_src: yes
-
     - name: Prepare the preseed file
-      ansible.builtin.blockinfile:
-        path: "/tmp/{{ vm_preseed_file }}"
-        block: |
-          d-i preseed/late_command string \
-              wget -O "/target/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc" "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/votingworks-apt-{{ apt_snapshot_date }}.pub"; \
-              echo "deb [check-valid-until=no signed-by=/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc] http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/{{ apt_snapshot_date }}/ {{ release_name }} main" > /target/etc/apt/sources.list; \
-              in-target apt-get -y update;
-      when: (apt_snapshot_date is defined) and (release_name is defined)
+      ansible.builtin.template:
+        src: "templates/{{ vm_preseed_file }}.j2"
+        dest: "/tmp/{{ vm_preseed_file }}"
+      delegate_to: localhost
 
     - name: Create the {{ vm_name }} VM (This will take several minutes)
       command: >
