@@ -95,7 +95,7 @@ d-i netcfg/wireless_wep string
 
 ### Mirror settings
 # If you select ftp, the mirror/country string does not need to be set.
-{% if apt_snapshot_date is defined %}
+{% if apt_snapshot_date is defined and release_name is defined %}
 d-i mirror/protocol string http
 d-i mirror/country string manual
 d-i mirror/http/hostname string http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com
