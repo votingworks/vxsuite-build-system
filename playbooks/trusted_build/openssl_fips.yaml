@@ -1,0 +1,69 @@
+---
+- name: Build a FIPS-compliant version of OpenSSL
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Set the OpenSSL version
+      set_fact:
+        openssl_version: "{{ openssl_version | default('3.0.9') }}"
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
+
+    - name: Download OpenSSL {{ openssl_version }} source code
+      ansible.builtin.get_url:
+        url: "https://www.openssl.org/source/openssl-{{ openssl_version }}.tar.gz"
+        dest: "{{ downloads_directory }}/"
+      tags:
+        - online
+
+    - name: Extract OpenSSL {{ openssl_version }} source code
+      ansible.builtin.unarchive:
+        src: "{{ downloads_directory }}/openssl-{{ openssl_version }}.tar.gz"
+        dest: "{{ downloads_directory }}"
+        remote_src: yes
+      tags:
+        - offline
+
+    - name: Configure OpenSSL {{ openssl_version }} with FIPS support
+      ansible.builtin.shell:
+        chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
+        cmd: "./Configure enable-fips"
+      tags:
+        - offline
+
+    - name: Build the OpenSSL {{ openssl_version }} binaries
+      ansible.builtin.shell:
+        chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
+        cmd: "make"
+      tags:
+        - offline
+
+    - name: Install the OpenSSL {{ openssl_version }} binaries
+      ansible.builtin.shell:
+        chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
+        cmd: "make install"
+      tags:
+        - offline
+
+    - name: Copy the FIPS module to the system level OpenSSL install
+      ansible.builtin.copy:
+        src: "/usr/local/lib64/ossl-modules/fips.so"
+        dest: "/usr/lib/x86_64-linux-gnu/ossl-modules/fips.so"
+        remote_src: yes
+      tags:
+        - offline
+
+    - name: Copy the OpenSSL {{ openssl_version }} config file
+      ansible.builtin.copy:
+        src: "files/openssl-{{ openssl_version }}.cnf"
+        dest: "/etc/ssl/openssl.cnf"
+      tags:
+        - offline

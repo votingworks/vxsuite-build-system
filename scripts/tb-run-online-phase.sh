@@ -58,6 +58,7 @@ echo "Download necessary tools for TPM."
 sleep 5
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml --skip-tags offline
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/openssl_fips.yaml --skip-tags offline
 
 echo "Download Brother printer drivers."
 sleep 5
