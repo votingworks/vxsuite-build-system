@@ -4,9 +4,7 @@
   connection: local
   become: true
 
-
   tasks:
-
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
@@ -69,4 +67,3 @@
         dest: "/etc/ssl/openssl.cnf"
       tags:
         - offline
-
