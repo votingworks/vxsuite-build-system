@@ -70,23 +70,3 @@
       tags:
         - offline
 
-    - name: Define the vxsuite openssl.cnf file path
-      set_fact: 
-        vxsuite_openssl_cnf: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}/vxsuite/libs/auth/certs/openssl.cnf"
-      tags:
-        - offline
-
-    - name: See if the vxsuite openssl.cnf file exists
-      ansible.builtin.stat:
-        path: "{{ vxsuite_openssl_cnf }}"
-      register: vxsuite_openssl_exists
-      tags:
-        - offline
-
-    - name: Override the vxsuite openssl.cnf file
-      ansible.builtin.copy:
-        src: "files/vxsuite-openssl-{{ openssl_version }}.cnf"
-        dest: "{{ well_known_paths['vxsuite-complete-system']['system_path'] }}/vxsuite/libs/auth/certs/openssl.cnf"
-      when: vxsuite_openssl_exists.stat.exists
-      tags:
-        - offline
