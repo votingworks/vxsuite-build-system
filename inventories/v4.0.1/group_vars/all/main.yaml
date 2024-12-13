@@ -1,0 +1,16 @@
+repos:
+  vxsuite-complete-system:
+    version: v4.0.0-rc2
+virt_image_path: "/var/lib/libvirt/images"
+vm_name: "debian-v4.0.0"
+vm_disk_size_gb: 27
+iso_version: "12.2.0"
+iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
+iso_url: "https://cdimage.debian.org/cdimage/archive/{{ iso_version }}/amd64/iso-cd"
+vm_preseed_path: "/home/{{ ansible_env.SUDO_USER }}/code/vxsuite-build-system/preseeds"
+vm_preseed_file: "production-preseed.cfg"
+secure_boot: true
+rust_version: "1.81.0"
+cloned_images:
+  - online
+  - offline
