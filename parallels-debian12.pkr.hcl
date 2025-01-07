@@ -3,7 +3,7 @@ packer {
 
   required_plugins {
     parallels = {
-      version = ">= 1.0.0"
+      version = ">= 1.1.5"
       source  = "github.com/hashicorp/parallels"
     }
     ansible = {
@@ -162,7 +162,7 @@ source "parallels-iso" "debian12" {
     "<f10><wait>"
   ]
 
-  boot_wait = "5s"
+  boot_wait = "10s"
   cpus = "${var.cpus}"
   disk_size = "${var.disk_size}"
   guest_os_type = "debian"
