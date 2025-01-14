@@ -1,9 +1,5 @@
 ---
 
-# TODO: This is going to have to change with our new use of 
-#       self-hosted apt repos
-#       Figure out how to link to a specific package version 
-#       using Debian Snapshot repo?
 - name: Generate a report of COTS tools used for this build
   hosts: 127.0.0.1
   connection: local
@@ -109,7 +105,7 @@
     - name: Get the filename in the apt repo
       ansible.builtin.shell:
         cmd: >
-          apt-cache show {{ item }} | grep "Filename" | 
+          apt-cache show {{ item }} | grep "Filename:" | 
           cut -d' ' -f2
       loop: "{{ deduped_packages }}"
       register: apt_filenames
@@ -117,14 +113,22 @@
     - name: Get the SHA256 hash
       ansible.builtin.shell:
         cmd: >
-          apt-cache show {{ item }} | grep "SHA256" | 
+          apt-cache show {{ item }} | grep "SHA256:" | 
           cut -d' ' -f2
       loop: "{{ deduped_packages }}"
       register: apt_checksums
 
+    - name: Get the version
+      ansible.builtin.shell:
+        cmd: >
+          apt-cache show {{ item }} | grep "Version:" | 
+          cut -d' ' -f2
+      loop: "{{ deduped_packages }}"
+      register: apt_versions
+
     - name: Print COTS for apt packages
       ansible.builtin.shell:
         cmd: >
-          echo "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.0 | split('=') | last }},,{{ item.2.stdout }}" >> {{ cots_csv_file }}
-      loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results) | list }}"
+          echo "{{ apt_url.url }}{{ item.1.stdout }},{{ item.1.stdout | split('/') | last }},{{ item.3.stdout }},,{{ item.2.stdout }}" >> {{ cots_csv_file }}
+      loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results, apt_versions.results) | list }}"
 
