@@ -4,6 +4,7 @@
   connection: local
   become: yes
 
+- import_playbook: kernel.yaml
 - import_playbook: packages.yaml
 - import_playbook: node.yaml
 - import_playbook: rust.yaml

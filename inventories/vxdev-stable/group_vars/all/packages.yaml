@@ -1,6 +1,12 @@
 ---
 batch_package_install: true
 
+#-- get the latest available kernel
+#-- kbuild needs to be tied to kernel, so probably move to the playbook
+kernel_packages:
+  - linux-image-6.10.*+bpo-amd64
+  - linux-kbuild-6.10
+
 all_packages:
   - alsa-utils
   - brightnessctl
@@ -28,6 +34,7 @@ all_packages:
   - gvfs
   - gzip
   - hplip
+  - ipp-usb
   - iptables
   - jq
   - kde-cli-tools
@@ -53,7 +60,6 @@ all_packages:
   - libxss1
   - libxtst6
   - libzbar-dev
-  - linux-kbuild-6.1
   - make
   - mingetty
   - openbox
