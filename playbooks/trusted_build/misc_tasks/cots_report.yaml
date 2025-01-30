@@ -43,6 +43,10 @@
       set_fact:
         rust_manifest_url: "https://static.rust-lang.org/dist/{{ rust_manifest }}"
 
+    - name: Define the Rust maintainer
+      set_fact:
+        rust_maintainer: "https://www.rust-lang.org/governance"
+
     - name: Download Rust channel manifest for this version
       ansible.builtin.get_url:
         url: "{{ rust_manifest_url }}"
@@ -56,7 +60,7 @@
     - name: Add Rust to COTS report
       ansible.builtin.shell:
         cmd: >
-          echo "{{ rust_tarball_url }},{{ rust_tarball }},{{ rust_version }},,{{ rust_checksum_from_manifest.stdout }}" >> {{ cots_csv_file }}
+          echo "{{ rust_tarball_url }},{{ rust_tarball }},{{ rust_version }},,{{ rust_checksum_from_manifest.stdout }},{{ rust_maintainer }}" >> {{ cots_csv_file }}
 
     # Node version and checksum
     #
@@ -71,6 +75,10 @@
     - name: Set Node release URL
       set_fact:
         node_release_url: "https://nodejs.org/dist/v{{ node_version }}/{{ node_tarball }}"
+
+    - name: Define the Node maintainer
+      set_fact:
+        node_maintainer: "https://nodejs.org/en/about/governance"
 
     - name: Define the Node {{ node_version }} checksum file path
       set_fact:
@@ -89,7 +97,7 @@
     - name: Add Node to COTS report
       ansible.builtin.shell:
         cmd: >
-          echo "{{ node_release_url }},{{ node_tarball }},{{ node_version }},,{{ node_checksum.stdout }}" >> {{ cots_csv_file }}
+          echo "{{ node_release_url }},{{ node_tarball }},{{ node_version }},,{{ node_checksum.stdout }},{{ node_maintainer }}" >> {{ cots_csv_file }}
 
     # Apt packages versions and checksums
     #
@@ -141,11 +149,19 @@
       loop: "{{ deduped_packages }}"
       register: apt_versions
 
+    - name: Get the apt maintainer
+      ansible.builtin.shell:
+        cmd: >
+          apt-cache show {{ item }} | grep "Maintainer:" | 
+          cut -d' ' -f2-
+      loop: "{{ deduped_packages }}"
+      register: apt_maintainer
+
     # The regex_replace filter is necessary to remove a Debian versioning
     # convention that is not used in snapshot.debian.org package names
     - name: Print COTS for apt packages
       ansible.builtin.shell:
         cmd: >
-          echo "{{ apt_url.url }}{{ item.1.stdout | regex_replace('\d+%3a', '') }},{{ item.1.stdout | split('/') | last }},{{ item.3.stdout }},,{{ item.2.stdout }}" >> {{ cots_csv_file }}
-      loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results, apt_versions.results) | list }}"
+          echo "{{ apt_url.url }}{{ item.1.stdout | regex_replace('\d+%3a', '') }},{{ item.1.stdout | split('/') | last }},{{ item.3.stdout }},,{{ item.2.stdout }},{{ item.4.stdout }}" >> {{ cots_csv_file }}
+      loop: "{{ deduped_packages | zip(apt_filenames.results, apt_checksums.results, apt_versions.results, apt_maintainer.results) | list }}"
 
