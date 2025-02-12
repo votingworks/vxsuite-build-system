@@ -1,0 +1,63 @@
+- name: Clone a VM and disable networking in the new VM
+  hosts: localhost
+  become: yes
+
+  tasks:
+
+    - name: Define "offline" as the new VM to create
+      set_fact:
+        vm_to_create: "offline"
+
+    - name: Default to "online" as the VM to clone if none provided
+      set_fact:
+        vm_to_clone: "{{ vm_to_clone | default('online') }}"
+
+    - name: See if the VM to clone from exists
+      ansible.builtin.shell:
+        cmd: virsh dominfo {{ vm_to_clone }}
+      register: does_vm_exist
+      changed_when: no
+      failed_when: false
+
+    - name: End the play if the {{ vm_to_clone }} VM does not exist
+      ansible.builtin.fail:
+        msg: "The {{ vm_to_clone }} VM does not exist. Please be sure to provide the name of an existing VM."
+      when: does_vm_exist.rc != 0
+
+    - name: See if there is already an offline VM
+      ansible.builtin.shell:
+        cmd: virsh dominfo {{ vm_to_create }}
+      register: does_offline_vm_exist
+      changed_when: no
+      failed_when: false
+
+    - name: End the playbook if the offline VM already exists
+      ansible.builtin.fail:
+        msg: "The {{ vm_to_create }} VM already exists. You need to delete it before you can clone from the {{ vm_to_clone }} VM."
+      when: does_offline_vm_exist.rc == 0
+
+    - name: Clone {{ vm_to_clone }} to {{ vm_to_create }}
+      ansible.builtin.command: >
+        virt-clone 
+        -o {{ vm_to_clone }} 
+        -n {{ vm_to_create }} 
+        --auto-clone 
+        --check disk_size=off
+      register: clone_status
+
+    - name: Check for offline VM xml definition
+      ansible.builtin.stat:
+        path: "/etc/libvirt/qemu/offline.xml"
+      register: offline_xml
+
+    - name: Disable networking in offline VM if it exists
+      ansible.builtin.lineinfile:
+        path: "/etc/libvirt/qemu/offline.xml"
+        insertafter: "<interface type='bridge'>"
+        line: "  <link state='down'/>"
+      when: offline_xml.stat.exists and offline_xml.stat.isreg
+
+    - name: Update the offline VM from new XML definition
+      ansible.builtin.command:
+        cmd: "virsh define /etc/libvirt/qemu/offline.xml"
+      when: offline_xml.stat.exists and offline_xml.stat.isreg

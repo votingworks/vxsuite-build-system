@@ -13,4 +13,3 @@ secure_boot: true
 rust_version: "1.81.0"
 cloned_images:
   - online
-  - offline

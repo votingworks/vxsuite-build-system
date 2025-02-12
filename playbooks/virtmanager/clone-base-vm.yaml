@@ -28,19 +28,3 @@
       when: item.rc != 0
       loop: "{{ does_vm_exist.results }}"
 
-    - name: Check for offline VM xml definition
-      ansible.builtin.stat:
-        path: "/etc/libvirt/qemu/offline.xml"
-      register: offline_xml
-
-    - name: Disable networking in offline VM if it exists
-      ansible.builtin.lineinfile:
-        path: "/etc/libvirt/qemu/offline.xml"
-        insertafter: "<interface type='bridge'>"
-        line: "  <link state='down'/>"
-      when: offline_xml.stat.exists and offline_xml.stat.isreg
-
-    - name: Update the offline VM from new XML definition
-      ansible.builtin.command:
-        cmd: "virsh define /etc/libvirt/qemu/offline.xml"
-      when: offline_xml.stat.exists and offline_xml.stat.isreg
