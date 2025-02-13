@@ -66,7 +66,6 @@ cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/brother_printers.yaml --skip-tags offline
 
 
-echo "The online phase is complete. Please insert a USB drive and run: "
-echo "./scripts/tb-export-to-usb.sh ${ansible_inventory}"
+echo "The online phase is complete."
 
 exit 0
