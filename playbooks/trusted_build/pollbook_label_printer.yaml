@@ -41,6 +41,6 @@
 
     - name: Install the citizen drivers directly
       ansible.builtin.shell:
-        cmd: "dpkg -i {{ downloads_directory }}/{{ citizen_package_name }}"
+        cmd: "dpkg -i {{ downloads_directory }}/{{ citizen_driver_package_name }}"
       tags:
         - offline
