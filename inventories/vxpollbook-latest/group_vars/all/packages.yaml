@@ -97,7 +97,6 @@ all_packages:
   - avahi-utils
   - strongswan
   - avahi-autoipd
-  - iptables-persistent
 
 tpm_packages:
   - autoconf

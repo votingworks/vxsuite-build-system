@@ -39,12 +39,6 @@
       tags:
         - offline
 
-    - name: Install proper package directory
-      ansible.builtin.shell:
-        cmd: "dpkg -i /var/cache/apt/archives/*_i386.deb"
-      tags:
-        - offline
-
     - name: Install the citizen drivers directly
       ansible.builtin.shell:
         cmd: "dpkg -i {{ downloads_directory }}/{{ citizen_package_name }}"
