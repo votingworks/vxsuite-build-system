@@ -1,0 +1,3 @@
+rust_version: "1.76.0"
+targets_to_add:
+  - wasm32-unknown-unknown
