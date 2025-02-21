@@ -19,6 +19,12 @@
       with_items:
         - "{{ citizen_packages | default([]) }}"
 
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
+      tags:
+        - online
+
     - name: Define downloads_directory from well_known_paths
       set_fact:
         downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
