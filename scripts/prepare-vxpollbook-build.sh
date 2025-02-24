@@ -59,14 +59,14 @@ echo "Build VxPollbook"
 sleep 5
 cd $pollbook_dir
 pnpm install
-export BUILD_ROOT="${local_user_home_dir}/build/vxpollbook"
+export BUILD_ROOT="${local_user_home_dir}/build"
 set +e
   (
     set -euo pipefail
 
     cd "${pollbook_dir}/frontend"
 
-    BUILD_ROOT="${BUILD_ROOT}/code" ./scripts/prod-build
+    BUILD_ROOT="${BUILD_ROOT}/vxpollbook" ./scripts/prod-build
 
     cp -rp \
       "${vxsuite_build_system_dir}/scripts/pollbook-files/run-pollbook-prod.sh" \
