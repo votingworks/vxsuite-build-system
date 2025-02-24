@@ -7,6 +7,7 @@ local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
+complete_system_dir="${local_user_home_dir}/code/kiosk-browser"
 pollbook_dir="${local_user_home_dir}/code/vxpollbook"
 
 ansible_inventory='vxpollbook-latest'
@@ -58,7 +59,22 @@ echo "Build VxPollbook"
 sleep 5
 cd $pollbook_dir
 pnpm install
-cd frontend
-./scripts/prod-build
+export BUILD_ROOT="${local_user_home_dir}/build/vxpollbook"
+set +e
+  (
+    set -euo pipefail
+
+    cd "${pollbook_dir}/frontend"
+
+    BUILD_ROOT="${BUILD_ROOT}/code" ./scripts/prod-build
+
+    cp -rp \
+      "${vxsuite_build_system_dir}/scripts/pollbook-files/run-pollbook-prod.sh" \
+      "${complete_system_dir}/run-scripts/run-kiosk-browser.sh" \
+      "${complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
+      "${complete_system_dir}/config" \
+      "${complete_system_dir}/app-scripts" \
+      "${BUILD_ROOT}"
+  )
 
 exit 0
