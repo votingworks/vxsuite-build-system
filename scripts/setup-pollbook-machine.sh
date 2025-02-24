@@ -1,6 +1,10 @@
 #!/bin/bash
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
-config_files_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
+pollbook_config_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
+build_dir="/home/vx/build"
+standard_config_files_dir="${build_dir}/config"
+app_scripts_dir="${build_dir}/app-scripts"
+
 
 set -euo pipefail
 sudo apt install iptables-persistent -y
@@ -51,10 +55,10 @@ sudo chown :lpadmin /sbin/lpinfo
 echo "export PATH=$PATH:/sbin" | sudo tee -a /etc/bash.bashrc
 
 # turn off automatic updates
-sudo cp $config_files_dir/20auto-upgrades /etc/apt/apt.conf.d/
+sudo cp $standard_config_files_dir/20auto-upgrades /etc/apt/apt.conf.d/
 
 # make sure machine never shuts down on idle, and does shut down on power key (no hibernate or anything.)
-sudo cp $config_files_dir/logind.conf /etc/systemd/
+sudo cp $standard_config_files_dir/logind.conf /etc/systemd/
 
 echo "Creating necessary directories"
 # directory structure
@@ -99,7 +103,7 @@ sudo usermod -aG adm vx-vendor
 sudo usermod -aG adm vx-services
 
 # Set up log config
-sudo bash $config_files_dir/setup-logging.sh
+sudo bash $build_dir/setup-logging.sh
 
 # set up mount point ahead of time because read-only later
 sudo mkdir -p /media/vx/usb-drive
@@ -109,15 +113,15 @@ sudo chown -R vx-ui:vx-group /media/vx
 sudo usermod -aG lpadmin vx-services
 
 # Move IPSec configuration files
-sudo cp "$config_files_dir/mesh-ipsec.conf" /etc/ipsec.conf
-sudo cp "$config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
-sudo cp "$config_files_dir/update-ipsec.sh" /vx/scripts/.
+sudo cp "$pollbook_config_files_dir/mesh-ipsec.conf" /etc/ipsec.conf
+sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
+sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
 
 # Move mesh network configuration files
-sudo cp "$config_files_dir/setup_basic_mesh.sh" /vx/scripts/.
-sudo cp "$config_files_dir/join-mesh-network.service" /etc/systemd/system/.
-sudo cp "$config_files_dir/avahi-autoipd.service" /etc/systemd/system/.
-sudo cp "$config_files_dir/99-mesh-network.rules" /etc/udev/rules.d/.
+sudo cp "$pollbook_config_files_dir/setup_basic_mesh.sh" /vx/scripts/.
+sudo cp "$pollbook_config_files_dir/join-mesh-network.service" /etc/systemd/system/.
+sudo cp "$pollbook_config_files_dir/avahi-autoipd.service" /etc/systemd/system/.
+sudo cp "$pollbook_config_files_dir/99-mesh-network.rules" /etc/udev/rules.d/.
 
 ### set up CUPS to read/write all config out of /var to be compatible with read-only root filesystem
 
@@ -138,8 +142,8 @@ sudo cp $config_files_dir/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/
 sudo cp $config_files_dir/apparmor.d/usr.sbin.cups-browsed /etc/apparmor.d/
 
 # copy any modprobe configs we might use
-sudo cp config/modprobe.d/10-i915.conf /etc/modprobe.d/
-sudo cp config/modprobe.d/50-bluetooth.conf /etc/modprobe.d/
+sudo cp $config_files_dir/modprobe.d/10-i915.conf /etc/modprobe.d/
+sudo cp $config_files_dir/modprobe.d/50-bluetooth.conf /etc/modprobe.d/
 
 # load the i915 display module as early as possible
 sudo sh -c 'echo "i915" >> /etc/modules-load.d/modules.conf'
@@ -153,16 +157,10 @@ sudo sh -c 'echo "i915" >> /etc/modules-load.d/modules.conf'
 # and applying this change can not be used on them without causing other
 # undesireable graphical behaviors. Longer term, it would be better to 
 # detect during initial boot whether to apply this xorg config.
-sudo cp config/10-intel-xorg.conf /etc/X11/xorg.conf.d/10-intel.conf
-
-# TODO CARO THIS IS WHERE YOU ARE
+sudo cp $config_files_dir/10-intel-xorg.conf /etc/X11/xorg.conf.d/10-intel.conf
 
 echo "Setting up the code"
-sudo mv build/vxpollbook /vx/code
-
-# temporary hack cause of precinct-scanner runtime issue
-sudo rm /vx/code/vxpollbook # it's a symlink
-sudo cp -rp vxpollbook /vx/code/
+sudo mv build /vx/code
 
 # symlink the code and run-*.sh in /vx/services
 sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook

@@ -74,6 +74,7 @@ set +e
       "${complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
       "${complete_system_dir}/config" \
       "${complete_system_dir}/app-scripts" \
+      "${complete_system_dir}/setup-scripts/setup-logging.sh" \
       "${BUILD_ROOT}"
   )
 
