@@ -1,6 +1,6 @@
 #!/bin/bash
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
-pollbook_config_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
+pollbook_config_files_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
 build_dir="/home/vx/build"
 standard_config_files_dir="${build_dir}/config"
 app_scripts_dir="${build_dir}/app-scripts"
@@ -274,7 +274,7 @@ sudo ln -sf /vx/config/localtime /etc/localtime
 sudo rm -f /etc/NetworkManager/system-connections/*
 
 # set up the service for the selected machine type
-sudo cp config/vxpollbook.service /etc/systemd/system/
+sudo cp $pollbook_config_files_dir/vxpollbook.service /etc/systemd/system/
 sudo chmod 644 /etc/systemd/system/vxpollbook.service
 sudo systemctl enable vxpollbook.service
 sudo systemctl start vxpollbook.service
