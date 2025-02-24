@@ -53,6 +53,7 @@
           repo: "https://github.com/votingworks/{{ item.key }}.git"
           dest: "{{ tmp_code_directory }}/{{ item.key }}"
           version: "{{ item.value.version | default('main') }}"
+          recursive: false # dont clone submodules
         with_dict: "{{ repos }}"
 
       tags:
