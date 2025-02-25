@@ -167,35 +167,35 @@ sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook
 sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
 # symlink appropriate vx/ui files
-sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
-sudo ln -s /vx/code/config/Xresources /vx/ui/.Xresources
-sudo ln -s /vx/code/config/xinitrc /vx/ui/.xinitrc
+sudo ln -s /vx/code/build/config/ui_bash_profile /vx/ui/.bash_profile
+sudo ln -s /vx/code/build/config/Xresources /vx/ui/.Xresources
+sudo ln -s /vx/code/build/config/xinitrc /vx/ui/.xinitrc
 
 # symlink the GTK .settings.ini
 sudo mkdir -p /vx/ui/.config/gtk-3.0
-sudo ln -s /vx/code/config/gtksettings.ini /vx/ui/.config/gtk-3.0/settings.ini
+sudo ln -s /vx/code/build/config/gtksettings.ini /vx/ui/.config/gtk-3.0/settings.ini
 
 # vendor function scripts
-sudo ln -s /vx/code/config/vendor-functions /vx/vendor/vendor-functions
+sudo ln -s /vx/code/build/config/vendor-functions /vx/vendor/vendor-functions
 
 # Make sure our cmdline file is readable by vx-vendor
 sudo mkdir -p /vx/vendor/config
-sudo cp $standard_config_files_dir/cmdline /vx/code/config/cmdline
-sudo cp $standard_config_files_dir/grub.cfg /vx/code/config/grub.cfg
-sudo ln -s /vx/code/config/cmdline /vx/vendor/config/cmdline
-sudo ln -s /vx/code/config/grub.cfg /vx/vendor/config/grub.cfg
+sudo cp /vx/code/build/config/cmdline /vx/code/build/config/cmdline
+sudo cp /vx/code/build/config/grub.cfg /vx/code/build/config/grub.cfg
+sudo ln -s /vx/code/build/config/cmdline /vx/vendor/config/cmdline
+sudo ln -s /vx/code/build/config/grub.cfg /vx/vendor/config/grub.cfg
 
 # All our logo files are 16-color BMP files. VxScan requires an 800x600 image, per
 # https://up-shop.org/up-bios-splash-service.html
-sudo cp $standard_config_files_dir/logo-horizontal.bmp /vx/code/config/logo.bmp
-sudo ln -s /vx/code/config/logo.bmp /vx/vendor/config/logo.bmp
+sudo cp /vx/code/build/config/logo-horizontal.bmp /vx/code/build/config/logo.bmp
+sudo ln -s /vx/code/build/config/logo.bmp /vx/vendor/config/logo.bmp
 
 # machine configuration
 sudo mkdir -p /var/vx/config
 sudo mkdir /var/vx/config/app-flags
 sudo ln -sf /var/vx/config /vx/config
 
-sudo ln -s /vx/code/config/read-vx-machine-config.sh /vx/config/read-vx-machine-config.sh
+sudo ln -s /vx/code/build/config/read-vx-machine-config.sh /vx/config/read-vx-machine-config.sh
 
 # machine manufacturer
 sudo sh -c 'echo "VotingWorks" > /vx/config/machine-manufacturer'
@@ -217,8 +217,8 @@ sudo sh -c 'echo "0000" > /vx/config/machine-id'
 
 # vx-ui OpenBox configuration
 sudo mkdir -p /vx/ui/.config/openbox
-sudo ln -s /vx/code/config/openbox-menu.xml /vx/ui/.config/openbox/menu.xml
-sudo ln -s /vx/code/config/openbox-rc.xml /vx/ui/.config/openbox/rc.xml
+sudo ln -s /vx/code/build/config/openbox-menu.xml /vx/ui/.config/openbox/menu.xml
+sudo ln -s /vx/code/build/config/openbox-rc.xml /vx/ui/.config/openbox/rc.xml
 
 # permissions on directories
 sudo chown -R vx-ui:vx-ui /var/vx/ui
@@ -251,11 +251,11 @@ sudo systemctl set-default multi-user.target
 
 # setup auto login
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
-sudo cp $standard_config_files_dir/override.conf /etc/systemd/system/getty@tty1.service.d/override.conf
+sudo cp /vx/code/build/config/override.conf /etc/systemd/system/getty@tty1.service.d/override.conf
 sudo systemctl daemon-reload
 
 # turn off grub
-sudo cp $standard_config_files_dir/grub /etc/default/grub
+sudo cp /vx/code/build/config/grub /etc/default/grub
 sudo update-grub
 
 # turn off network time sync
@@ -361,7 +361,7 @@ sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
 
 # Set up a one-time run of fstrim to reduce VM size
-sudo cp $standard_config_files_dir/vm-fstrim.service /etc/systemd/system/
+sudo cp /vx/code/build/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
 
 # copy in our sudoers file, which removes sudo privileges except for very specific circumstances
