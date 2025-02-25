@@ -103,7 +103,7 @@ sudo usermod -aG adm vx-vendor
 sudo usermod -aG adm vx-services
 
 # Set up log config
-(cd $complete_system_dir & sudo bash setup-scripts/setup-logging.sh)
+(cd $complete_system_dir && sudo bash setup-scripts/setup-logging.sh)
 
 # set up mount point ahead of time because read-only later
 sudo mkdir -p /media/vx/usb-drive
