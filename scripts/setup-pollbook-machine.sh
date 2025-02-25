@@ -164,7 +164,7 @@ sudo mv $build_dir /vx/code
 
 # symlink the code and run-*.sh in /vx/services
 sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook
-sudo ln -s /vx/code/run-${vxpollbook}.sh /vx/services/run-${vxpollbook}.sh
+sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
