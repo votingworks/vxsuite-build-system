@@ -1,5 +1,8 @@
 #!/bin/bash
+local_user=`logname`
+local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
+complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 pollbook_config_files_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
 build_dir="/home/vx/build"
 standard_config_files_dir="${build_dir}/config"
@@ -7,7 +10,6 @@ app_scripts_dir="${build_dir}/app-scripts"
 
 
 set -euo pipefail
-sudo apt install iptables-persistent -y
 
 echo "Welcome to the VxPollbook setup script."
 echo "THIS IS A DESTRUCTIVE SCRIPT. Ctrl+C now to cancel."
@@ -43,9 +45,7 @@ while true; do
 done
 
 # Disable NetworkManager and firewalld
-sudo systemctl disable NetworkManager
 sudo systemctl disable firewalld
-sudo systemctl stop NetworkManager
 sudo systemctl stop firewalld
 
 # Set the IPsec secret passphrase.
@@ -103,7 +103,7 @@ sudo usermod -aG adm vx-vendor
 sudo usermod -aG adm vx-services
 
 # Set up log config
-sudo bash $build_dir/setup-logging.sh
+(cd $complete_system_dir & sudo bash setup-scripts/setup-logging.sh)
 
 # set up mount point ahead of time because read-only later
 sudo mkdir -p /media/vx/usb-drive
@@ -180,14 +180,14 @@ sudo ln -s /vx/code/config/vendor-functions /vx/vendor/vendor-functions
 
 # Make sure our cmdline file is readable by vx-vendor
 sudo mkdir -p /vx/vendor/config
-sudo cp config/cmdline /vx/code/config/cmdline
-sudo cp config/grub.cfg /vx/code/config/grub.cfg
+sudo cp $standard_config_files_dir/cmdline /vx/code/config/cmdline
+sudo cp $standard_config_files_dir/grub.cfg /vx/code/config/grub.cfg
 sudo ln -s /vx/code/config/cmdline /vx/vendor/config/cmdline
 sudo ln -s /vx/code/config/grub.cfg /vx/vendor/config/grub.cfg
 
 # All our logo files are 16-color BMP files. VxScan requires an 800x600 image, per
 # https://up-shop.org/up-bios-splash-service.html
-sudo cp config/logo-horizontal.bmp /vx/code/config/logo.bmp
+sudo cp $standard_config_files_dir/logo-horizontal.bmp /vx/code/config/logo.bmp
 sudo ln -s /vx/code/config/logo.bmp /vx/vendor/config/logo.bmp
 
 # machine configuration
@@ -251,11 +251,11 @@ sudo systemctl set-default multi-user.target
 
 # setup auto login
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
-sudo cp config/override.conf /etc/systemd/system/getty@tty1.service.d/override.conf
+sudo cp $standard_config_files_dir/override.conf /etc/systemd/system/getty@tty1.service.d/override.conf
 sudo systemctl daemon-reload
 
 # turn off grub
-sudo cp config/grub /etc/default/grub
+sudo cp $standard_config_files_dir/grub /etc/default/grub
 sudo update-grub
 
 # turn off network time sync
@@ -361,7 +361,7 @@ sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
 
 # Set up a one-time run of fstrim to reduce VM size
-sudo cp config/vm-fstrim.service /etc/systemd/system/
+sudo cp $standard_config_files_dir/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
 
 # copy in our sudoers file, which removes sudo privileges except for very specific circumstances

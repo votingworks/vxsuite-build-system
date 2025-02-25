@@ -7,7 +7,7 @@ local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
-complete_system_dir="${local_user_home_dir}/code/kiosk-browser"
+complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 pollbook_dir="${local_user_home_dir}/code/vxpollbook"
 
 ansible_inventory='vxpollbook-latest'
@@ -66,7 +66,7 @@ set +e
 
     cd "${pollbook_dir}/frontend"
 
-    BUILD_ROOT="${BUILD_ROOT}/vxpollbook" ./scripts/prod-build
+    BUILD_ROOT="${BUILD_ROOT}/vxpollbook" ./script/prod-build
 
     cp -rp \
       "${vxsuite_build_system_dir}/scripts/pollbook-files/run-pollbook-prod.sh" \
