@@ -200,6 +200,7 @@ sudo sh -c 'echo "VotingWorks" > /vx/config/machine-manufacturer'
 
 # machine model name i.e. "VxScan"
 sudo -E sh -c 'echo "VxPollbook" > /vx/config/machine-model-name'
+sudo -E sh -c 'echo "pollbook" > /vx/config/machine-type'
 
 # code version, e.g. "2021.03.29-d34db33fcd"
 GIT_HASH=$(git rev-parse HEAD | cut -c -10) sudo -E sh -c 'echo "$(date +%Y.%m.%d)-${GIT_HASH}" > /vx/code/code-version'
