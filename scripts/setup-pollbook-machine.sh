@@ -131,19 +131,19 @@ sudo cp -rp /etc/cups /var/etc/
 sudo rm -rf /etc/cups
 
 # set up cups config files that internally include appropriate paths with /var
-sudo cp $config_files_dir/cupsd.conf /var/etc/cups/
-sudo cp $config_files_dir/cups-files.conf /var/etc/cups/
+sudo cp $standard_config_files_dir/cupsd.conf /var/etc/cups/
+sudo cp $standard_config_files_dir/cups-files.conf /var/etc/cups/
 
 # modify cups systemd service to read config files from /var
-sudo cp $config_files_dir/cups.service /usr/lib/systemd/system/
+sudo cp $standard_config_files_dir/cups.service /usr/lib/systemd/system/
 
 # modified apparmor profiles to allow cups to access config files in /var
-sudo cp $config_files_dir/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/
-sudo cp $config_files_dir/apparmor.d/usr.sbin.cups-browsed /etc/apparmor.d/
+sudo cp $standard_config_files_dir/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/
+sudo cp $standard_config_files_dir/apparmor.d/usr.sbin.cups-browsed /etc/apparmor.d/
 
 # copy any modprobe configs we might use
-sudo cp $config_files_dir/modprobe.d/10-i915.conf /etc/modprobe.d/
-sudo cp $config_files_dir/modprobe.d/50-bluetooth.conf /etc/modprobe.d/
+sudo cp $standard_config_files_dir/modprobe.d/10-i915.conf /etc/modprobe.d/
+sudo cp $standard_config_files_dir/modprobe.d/50-bluetooth.conf /etc/modprobe.d/
 
 # load the i915 display module as early as possible
 sudo sh -c 'echo "i915" >> /etc/modules-load.d/modules.conf'
@@ -157,7 +157,7 @@ sudo sh -c 'echo "i915" >> /etc/modules-load.d/modules.conf'
 # and applying this change can not be used on them without causing other
 # undesireable graphical behaviors. Longer term, it would be better to 
 # detect during initial boot whether to apply this xorg config.
-sudo cp $config_files_dir/10-intel-xorg.conf /etc/X11/xorg.conf.d/10-intel.conf
+sudo cp $standard_config_files_dir/10-intel-xorg.conf /etc/X11/xorg.conf.d/10-intel.conf
 
 echo "Setting up the code"
 sudo mv build /vx/code
@@ -367,7 +367,7 @@ sudo systemctl enable vm-fstrim.service
 # copy in our sudoers file, which removes sudo privileges except for very specific circumstances
 # where needed
 # NOTE: you cannot use sudo commands after this runs
-sudo cp ${config_files_dir}/sudoers-for-dev /etc/sudoers
+sudo cp ${pollbook_config_files_dir}/sudoers-for-dev /etc/sudoers
 
 # NOTE AGAIN: no more sudo commands below this line. Privileges have been removed.
 
