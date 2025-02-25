@@ -325,7 +325,6 @@ sudo systemctl enable avahi-daemon
 sudo systemctl enable avahi-autoipd
 
 sudo systemctl start avahi-autoipd
-sudo systemctl start join-mesh-network
 
 echo "Successfully setup machine."
 
