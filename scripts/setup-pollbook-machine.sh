@@ -160,7 +160,7 @@ sudo sh -c 'echo "i915" >> /etc/modules-load.d/modules.conf'
 sudo cp $standard_config_files_dir/10-intel-xorg.conf /etc/X11/xorg.conf.d/10-intel.conf
 
 echo "Setting up the code"
-sudo mv build /vx/code
+sudo mv $build_dir /vx/code
 
 # symlink the code and run-*.sh in /vx/services
 sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook
