@@ -69,7 +69,7 @@ set +e
     BUILD_ROOT="${BUILD_ROOT}/vxpollbook" ./script/prod-build
 
     cp -rp \
-      "${vxsuite_build_system_dir}/scripts/pollbook-files/run-pollbook-prod.sh" \
+      "${vxsuite_build_system_dir}/scripts/pollbook-files/run-vxpollbook.sh" \
       "${complete_system_dir}/run-scripts/run-kiosk-browser.sh" \
       "${complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
       "${complete_system_dir}/config" \
