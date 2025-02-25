@@ -2,7 +2,7 @@ repos:
   vxsuite-complete-system:
     version: 2025-02-25-electrical-testing
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian-latest"
+vm_name: "debian-latest-2025-02-25"
 vm_disk_size_gb: 27
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
