@@ -175,7 +175,8 @@ sudo ln -s /vx/code/config/xinitrc /vx/ui/.xinitrc
 sudo mkdir -p /vx/ui/.config/gtk-3.0
 sudo ln -s /vx/code/config/gtksettings.ini /vx/ui/.config/gtk-3.0/settings.ini
 
-# vendor function scripts
+# vendor user setup 
+sudo ln -s /vx/code/config/admin_bash_profile /vx/vendor/.bash_profile
 sudo ln -s /vx/code/config/vendor-functions /vx/vendor/vendor-functions
 
 # Make sure our cmdline file is readable by vx-vendor
