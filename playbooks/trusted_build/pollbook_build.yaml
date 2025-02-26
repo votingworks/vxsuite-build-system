@@ -13,3 +13,4 @@
 - import_playbook: pollbook_label_printer.yaml
 - import_playbook: brother_printers.yaml
 - import_playbook: logrotate.yaml
+- import_playbook: kernel.yaml
