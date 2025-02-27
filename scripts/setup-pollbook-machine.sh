@@ -359,6 +359,10 @@ sudo passwd -l vx-services
 sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
 
+sudo cp \
+	/vx/code/vxpollbook/libs/auth/certs/dev/vx-cert-authority-cert.pem \
+	/vx/code/vxpollbook/libs/auth/certs/prod/vx-cert-authority-cert.pem
+
 # Set up a one-time run of fstrim to reduce VM size
 sudo cp /vx/code/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
