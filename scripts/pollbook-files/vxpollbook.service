@@ -6,7 +6,7 @@ Type=simple
 User=vx-services
 Environment=VX_CONFIG_ROOT=/vx/config
 Environment=VX_METADATA_ROOT=/vx/code
-Environment=WORKSPACE=/vx/data/pollbook
+Environment=WORKSPACE=/var/vx/data/pollbook
 ExecStart=/bin/bash /vx/services/run-vxpollbook.sh
 StandardOutput=syslog
 StandardError=syslog
