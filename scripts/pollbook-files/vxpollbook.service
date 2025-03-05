@@ -1,0 +1,16 @@
+[Unit]
+Description=VxPollbook
+
+[Service]
+Type=simple
+User=vx-services
+Environment=VX_CONFIG_ROOT=/vx/config
+Environment=VX_METADATA_ROOT=/vx/code
+Environment=WORKSPACE=/var/vx/data/pollbook
+ExecStart=/bin/bash /vx/services/run-vxpollbook.sh
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=votingworksapp
+
+[Install]
+WantedBy=multi-user.target

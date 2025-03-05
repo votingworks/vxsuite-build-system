@@ -1,0 +1,6 @@
+citizen_packages: 
+  - libcupsimage2
+
+citizen_driver_url: https://www.citizen-systems.com/resource/support/POS/Generic_Printer_Files/CUPS_Linux_Driver/CUPS_Linux_Driver.zip
+citizen_driver_checksum: fd58c3f6768f20657ac533c639803ee4e62e655cc1723972fdebdfc0bb8d97a3
+citizen_driver_package_name: Linux_POS_CUPSdriver_V1280E/ctzpos-cups_1.2.8-0_amd64.deb

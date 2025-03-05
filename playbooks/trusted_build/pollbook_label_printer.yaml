@@ -1,0 +1,52 @@
+---
+
+- name: Install VxPollbook printer drivers
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Ensure we don't carry over any packages from other tasks
+      set_fact:
+        all_packages: []
+
+    - name: Create a list of all the packages we need
+      set_fact:
+        all_packages: "{{ all_packages | default([]) + [ item ] }}"
+      with_items:
+        - "{{ citizen_packages | default([]) }}"
+
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
+      tags:
+        - online
+
+    - name: Define downloads_directory from well_known_paths
+      set_fact:
+        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
+
+    - name: Download the Citizen printer drivers
+      ansible.builtin.get_url:
+        url: "{{ citizen_driver_url }}"
+        dest: "{{ downloads_directory }}/CUPS_Linux_Driver.zip"
+        checksum: "sha256:{{ citizen_driver_checksum }}"
+      tags:
+        - online
+
+    - name: Extract the driver
+      ansible.builtin.unarchive:
+        src: "{{ downloads_directory }}/CUPS_Linux_Driver.zip"
+        dest: "{{ downloads_directory }}"
+        remote_src: yes
+      tags:
+        - offline
+
+    - name: Install the citizen drivers directly
+      ansible.builtin.shell:
+        cmd: "dpkg -i {{ downloads_directory }}/{{ citizen_driver_package_name }}"
+      tags:
+        - offline
