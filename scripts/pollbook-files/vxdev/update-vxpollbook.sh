@@ -48,6 +48,13 @@ fi
 pnpm install
 cd frontend && pnpm type-check
 
+# install kiosk-browser if it hasn't been installed
+if ! which kiosk-browser > /dev/null 2>&1
+then
+  cd /home/vx/code/vxsuite-complete-system
+  make build-kiosk-browser
+fi
+
 # Turn off the network and renable the mesh network.
 sudo systemctl stop NetworkManager
 sleep 1
