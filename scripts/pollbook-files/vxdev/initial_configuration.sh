@@ -10,6 +10,10 @@ echo "Proceeding..."
 
 sudo apt install avahi-daemon avahi-utils avahi-autoipd strongswan -y
 
+cd /home/vx/code
+git clone https://github.com/votingworks/vxpollbook.git
+cd "$VXDEV_SCRIPT_DIR"
+
 sudo cp "$BASE_SCRIPT_DIR/mesh-ipsec.conf" /etc/ipsec.conf
 sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
 sudo cp "$BASE_SCRIPT_DIR/update-ipsec.sh" /vx/scripts/.
