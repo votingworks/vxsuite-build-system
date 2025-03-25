@@ -1,37 +1,30 @@
 ---
 
-- name: Install CACvote Label Printer Driver
+#Driver: files/libNPrint.so.2.9
+#
+- name: Install CACvote Nippon Label Printer Driver 
   hosts: 127.0.0.1
   connection: local
   become: true
 
   tasks:
-    - import_tasks: shared_tasks/user_to_configure.yaml
-    - import_tasks: shared_tasks/well_known_paths.yaml
 
-    - name: Define downloads_directory from well_known_paths
+    - name: Define printer driver
       set_fact:
-        downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
-
-    - name: Download the label printer driver
-      ansible.builtin.get_url:
-        url: "https://www.idprt.com/prt_v2/files/down_file/id/131/fid/432.html"
-        dest: "{{ downloads_directory }}/idprt_tspl_printer_linux_driver_v1.4.2.zip"
-      tags:
-        - online
-
-    - name: Extract the driver
-      ansible.builtin.unarchive:
-        src: "{{ downloads_directory }}/idprt_tspl_printer_linux_driver_v1.4.2.zip"
-        dest: "{{ downloads_directory }}"
-        remote_src: yes
-      tags:
-        - offline
+        label_printer_driver: "files/libNPrint.so.2.9"
 
     - name: Install the driver
-      ansible.builtin.shell:
-        cmd: "bash install"
-        chdir: "{{ downloads_directory }}/idprt_tspl_printer_linux_driver_v1.4.2"
-      tags:
-        - offline
+      ansible.builtin.copy:
+        src: "{{ label_printer_driver }}"
+        dest: "/usr/lib/"
 
+    - name: Update potential library dependencies for the driver
+      ansible.builtin.cmd: "/usr/sbin/ldconfig"
+
+    - name: Create the NPI directory and set permissions
+      ansible.builtin.file:
+        path: "/usr/npi"
+        state: directory
+        owner: root
+        group: lp
+        mode: 0777
