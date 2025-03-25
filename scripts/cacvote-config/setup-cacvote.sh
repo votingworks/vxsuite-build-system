@@ -104,6 +104,12 @@ id -u vx-ui &> /dev/null || sudo useradd -u 1751 -m -d /var/vx/ui -s /bin/bash v
 id -u vx-admin &> /dev/null || sudo useradd -u 1752 -m -d /var/vx/admin -s /bin/bash vx-admin
 id -u vx-services &> /dev/null || sudo useradd -u 1750 -m -d /var/vx/services vx-services
 
+# Need to add users to the lp group for Nippon printer
+for user in vx-ui vx-admin vx-services
+do
+  sudo usermod -aG lp ${user}
+done
+
 # a vx group for all vx users
 getent group vx-group || sudo groupadd -g 800 vx-group
 sudo usermod -aG vx-group vx-ui
