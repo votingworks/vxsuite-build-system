@@ -19,7 +19,7 @@
         dest: "/usr/lib/"
 
     - name: Update potential library dependencies for the driver
-      ansible.builtin.cmd: "/usr/sbin/ldconfig"
+      ansible.builtin.command: "/usr/sbin/ldconfig"
 
     - name: Create the NPI directory and set permissions
       ansible.builtin.file:
