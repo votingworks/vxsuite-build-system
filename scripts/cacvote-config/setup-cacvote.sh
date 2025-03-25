@@ -110,6 +110,10 @@ do
   sudo usermod -aG lp ${user}
 done
 
+# Copy the udev rules for Nippon and Fujitsu printers
+sudo cp config/60-fujitsu-printer.rules /etc/udev/rules.d/
+sudo cp config/61-nippon-printer.rules /etc/udev/rules.d/
+
 # a vx group for all vx users
 getent group vx-group || sudo groupadd -g 800 vx-group
 sudo usermod -aG vx-group vx-ui
@@ -319,6 +323,10 @@ if [[ "${VXADMIN_SUDO}" == 1 ]] ; then
 else
     sudo cp config/sudoers /etc/sudoers
 fi
+
+# Set up a one-time run of fstrim to reduce VM size
+sudo cp config/vm-fstrim.service /etc/systemd/system/
+sudo systemctl enable vm-fstrim.service
 
 # remove everything from this bootstrap user's home directory
 cd
