@@ -21,6 +21,12 @@
     - name: Update potential library dependencies for the driver
       ansible.builtin.command: "/usr/sbin/ldconfig"
 
+    - name: Manually add a symlink needed for the library
+      ansible.builtin.file:
+        dest: "/usr/lib/libNPrint.so"
+        src: "/usr/lib/libNPrint.so.2"
+        state: link
+
     - name: Create the NPI directory and set permissions
       ansible.builtin.file:
         path: "/usr/npi"

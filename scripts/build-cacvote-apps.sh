@@ -111,6 +111,12 @@ make -C apps/cacvote-server/backend dist
 make -C apps/cacvote-jx-terminal dist
 make -C apps/cacvote-mark/frontend build-all
 
+# Create the nprint driver
+# builds by default in $cacvote_dir/target/release/
+cd apps/cacvote-mark/nprint
+cargo build --release
+cd "${cacvote_dir}"
+
 # Create the prod-build link if not present
 if [[ ! -L "${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build" ]]; then
   ln -s ${cacvote_dir}/script/prod-build ${cacvote_dir}/apps/cacvote-mark/frontend/script/prod-build
@@ -133,6 +139,9 @@ cp "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cac
 # cacvote-jx-terminal has already been built, move into build directory
 cp -rp "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
 cp "${BUILD_ROOT}/apps/cacvote-jx-terminal/backend/.env" "${BUILD_ROOT}/apps/cacvote-jx-terminal/dist/.env"
+
+# Nippon printer has already been built, move into build directory
+cp -rp "${cacvote_dir}/target" "${BUILD_ROOT}/"
 
 # temp cacvote-server
 cp -rp "${cacvote_dir}/apps/cacvote-server" "${BUILD_ROOT}/apps/"
