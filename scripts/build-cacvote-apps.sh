@@ -133,17 +133,17 @@ sudo pnpm exec playwright install-deps
 
 cd "${cacvote_dir}/apps/cacvote-mark/frontend"
 ./script/prod-build
-cp "${cacvote_dir}/apps/cacvote-mark/backend/.env" "${BUILD_ROOT}/apps/cacvote-mark/backend/.env"
-cp "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cacvote-mark/backend/schema.sql"
+mv "${cacvote_dir}/apps/cacvote-mark/backend/.env" "${BUILD_ROOT}/apps/cacvote-mark/backend/.env"
+mv "${cacvote_dir}/apps/cacvote-mark/backend/schema.sql" "${BUILD_ROOT}/apps/cacvote-mark/backend/schema.sql"
 
 # cacvote-jx-terminal has already been built, move into build directory
-cp -rp "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
-cp "${BUILD_ROOT}/apps/cacvote-jx-terminal/backend/.env" "${BUILD_ROOT}/apps/cacvote-jx-terminal/dist/.env"
+mv "${cacvote_dir}/apps/cacvote-jx-terminal" "${BUILD_ROOT}/apps/"
+mv "${BUILD_ROOT}/apps/cacvote-jx-terminal/backend/.env" "${BUILD_ROOT}/apps/cacvote-jx-terminal/dist/.env"
 
 # Nippon printer has already been built, move into build directory
-cp -rp "${cacvote_dir}/target" "${BUILD_ROOT}/"
+mv "${cacvote_dir}/target" "${BUILD_ROOT}/"
 
 # temp cacvote-server
-cp -rp "${cacvote_dir}/apps/cacvote-server" "${BUILD_ROOT}/apps/"
+mv "${cacvote_dir}/apps/cacvote-server" "${BUILD_ROOT}/apps/"
 
 exit 0
