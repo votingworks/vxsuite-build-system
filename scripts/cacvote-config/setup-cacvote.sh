@@ -312,6 +312,10 @@ sudo passwd -l root
 sudo passwd -l ${USER}
 sudo passwd -l vx-ui
 sudo passwd -l vx-services
+#
+# Set up a one-time run of fstrim to reduce VM size
+sudo cp config/vm-fstrim.service /etc/systemd/system/
+sudo systemctl enable vm-fstrim.service
 
 # set a clean hostname
 sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
@@ -324,18 +328,11 @@ else
     sudo cp config/sudoers /etc/sudoers
 fi
 
-# Set up a one-time run of fstrim to reduce VM size
-sudo cp config/vm-fstrim.service /etc/systemd/system/
-sudo systemctl enable vm-fstrim.service
 
 # remove everything from this bootstrap user's home directory
 cd
 rm -rf *
 rm -rf .*
-
-# see if this will reclaim space for the zipped image
-/usr/bin/sync
-ls -altr
 
 echo "Machine setup is complete. Please wait for the VM to reboot."
 
