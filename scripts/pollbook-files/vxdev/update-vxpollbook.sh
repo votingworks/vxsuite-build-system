@@ -25,7 +25,7 @@ if [ $IS_CONNECTED -eq 0 ]; then
 fi
 
 # Update the code.
-cd /home/vx/code/vxpollbook
+cd /home/vx/code/vxsuite-complete-system/vxsuite
 # If there is no .env.local file, create one.
 if [ ! -f .env.local ]; then
   cp .env .env.local
@@ -46,7 +46,7 @@ if [ $PRESERVE_POLLBOOK -eq 1 ]; then
   cp /tmp/pollbook-package.zip libs/usb-drive/dev-workspace/mock-usb-data/pollbook-package.zip
 fi
 pnpm install
-cd frontend && pnpm type-check
+cd apps/pollbook/frontend && pnpm type-check
 
 # install kiosk-browser if it hasn't been installed
 if ! which kiosk-browser > /dev/null 2>&1
