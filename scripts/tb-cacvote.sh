@@ -43,6 +43,8 @@ ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/cac
 
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml
 
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/cacvote_label_printer.yaml
+
 # Hacky cups config for cacvote printers in a secure boot environment
 sudo ./scripts/cacvote-config/config/admin-functions/configure-cacvote-printers.sh
 
