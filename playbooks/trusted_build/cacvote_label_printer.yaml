@@ -31,6 +31,6 @@
       ansible.builtin.file:
         path: "/usr/npi"
         state: directory
-        owner: root
+        owner: lp
         group: lp
         mode: 0777
