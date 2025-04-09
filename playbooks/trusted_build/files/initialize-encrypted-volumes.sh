@@ -22,9 +22,10 @@ if [ -e "${decrypted_dev_path}" ]; then
   exit 0
 fi
 
-# Using a simple passphrase during initial encryption 
-# This passphrase will be needed on first boot of a newly flashed system
-echo -n "insecure" > ${insecure_key}
+# Using an empty passphrase during initial encryption 
+# This will allow use of the try-empty-passsword option on first boot
+# After that, the TPM will be the only valid method for decrypting the drive
+echo -n "" > ${insecure_key}
 
 echo "Preparing ${encrypted_dev_path} for encryption..."
 cryptsetup luksFormat -q --cipher aes-xts-plain64 --key-size 512 --hash sha256 --key-file ${insecure_key} ${encrypted_dev_path}
@@ -48,7 +49,7 @@ mkdir ${partition_path}
 mount ${decrypted_dev_path} ${partition_path}
 
 echo "Updating /etc/crypttab and /etc/fstab..."
-echo "${decrypted_map_name} ${encrypted_dev_path} ${insecure_key} luks" >> /etc/crypttab
+echo "${decrypted_map_name} ${encrypted_dev_path} ${insecure_key} try-empty-password,luks" >> /etc/crypttab
 echo "${decrypted_dev_path} ${partition_path} ext4 defaults 0 2" >> /etc/fstab 
 
 echo "${partition_path} encryption has been initialized."
