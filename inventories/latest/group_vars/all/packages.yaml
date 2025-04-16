@@ -4,8 +4,8 @@ batch_package_install: true
 #-- get the latest available kernel
 #-- kbuild needs to be tied to kernel, so probably move to the playbook
 kernel_packages:
-  - linux-image-6.10.*+bpo-amd64
-  - linux-kbuild-6.10
+  - linux-image-6.12.*+bpo-amd64
+  - linux-kbuild-6.12
 
 all_packages:
   - alsa-utils
