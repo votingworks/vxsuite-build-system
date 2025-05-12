@@ -24,6 +24,8 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
+  - firmware-amd-graphics
+  - firmware-linux
   - firmware-linux-free
   - firmware-misc-nonfree
   - firmware-sof-signed
