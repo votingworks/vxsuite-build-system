@@ -57,6 +57,8 @@ sudo dpkg -i dist/kiosk-browser_1.0.0_*.deb
 
 echo "Build VxPollbook"
 sleep 5
+# Make sure cargo is available in case it hasn't been sourced yet
+export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
 cd $pollbook_dir
 pnpm install
 export BUILD_ROOT="${local_user_home_dir}/build"
