@@ -166,6 +166,9 @@ sudo mv $build_dir /vx/code
 sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook
 sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
+# symlink to vxsuite so paths dont break
+sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
+
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
 sudo ln -s /vx/code/config/Xresources /vx/ui/.Xresources
