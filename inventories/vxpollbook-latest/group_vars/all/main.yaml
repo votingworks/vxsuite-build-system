@@ -1,7 +1,7 @@
 repos:
   kiosk-browser:
     version: main
-  vxpollbook:
+  vxsuite:
     version: main
   vxsuite-complete-system:
     version: caro/vxpollbook
