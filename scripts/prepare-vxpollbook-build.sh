@@ -8,7 +8,8 @@ local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
 complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
-pollbook_dir="${local_user_home_dir}/code/vxsuite/apps/pollbook"
+vxsuite_dir="${local_user_home_dir}/code/vxsuite"
+pollbook_dir="${vxsuite_dir}/apps/pollbook"
 
 ansible_inventory='vxpollbook-latest'
 
@@ -78,6 +79,15 @@ set +e
       "${complete_system_dir}/app-scripts" \
       "${complete_system_dir}/setup-scripts/setup-logging.sh" \
       "${BUILD_ROOT}"
+
+    # TODO: Understand why this is necessary
+    # The BUILD_ROOT output does not include fixtures/data
+    # so we copy it over from the original build within vxsuite
+    # A similar workaround is present for other vxsuite apps
+    # but since we build them all at once with a slightly different
+    # approach, a symlink to the entire vxsuite build is used
+    rm -rf "${BUILD_ROOT}/vxpollbook/libs/fixtures"
+    cp -rp "${vxsuite_dir}/libs/fixtures" "${BUILD_ROOT}/vxpollbook/libs/"
   )
 
 exit 0
