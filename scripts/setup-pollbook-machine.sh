@@ -166,6 +166,9 @@ sudo mv $build_dir /vx/code
 sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook
 sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
+# symlink to vxsuite so paths dont break
+sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
+
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
 sudo ln -s /vx/code/config/Xresources /vx/ui/.Xresources
@@ -207,7 +210,7 @@ sudo sh -c 'echo "VotingWorks" > /vx/config/machine-manufacturer'
 
 # machine model name i.e. "VxScan"
 sudo -E sh -c 'echo "VxPollbook" > /vx/config/machine-model-name'
-sudo -E sh -c 'echo "pollbook" > /vx/config/machine-type'
+sudo -E sh -c 'echo "poll-book" > /vx/config/machine-type'
 
 # code version, e.g. "2021.03.29-d34db33fcd"
 GIT_HASH=$(git rev-parse HEAD | cut -c -10) sudo -E sh -c 'echo "$(date +%Y.%m.%d)-${GIT_HASH}" > /vx/code/code-version'
