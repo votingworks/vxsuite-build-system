@@ -114,9 +114,6 @@ sudo usermod -aG lpadmin vx-services
 
 # Move IPSec configuration files
 sudo cp "$pollbook_config_files_dir/swanmesh.conf" /etc/swanctl/conf.d/.
-sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-private-key.pem /etc/swanctl/private/.
-sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-cert-authority-cert.pem /etc/swanctl/x509/.
-sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-cert-authority-cert.pem /etc/swanctl/x509ca/.
 
 #sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
 #sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
@@ -172,6 +169,12 @@ sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
 # symlink to vxsuite so paths dont break
 sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
+
+# copy dev keys and certs for strongswan
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-private-key.pem /etc/swanctl/private/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-cert-authority-cert.pem /etc/swanctl/x509/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-cert-authority-cert.pem /etc/swanctl/x509ca/.
+sudo systemctl restart strongswan
 
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
