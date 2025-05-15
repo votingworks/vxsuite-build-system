@@ -30,26 +30,26 @@ while true; do
     fi
 done
 
-while true; do
-    read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
-    echo
-    read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
-    echo
-    if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
-    then
-        echo "Password confirmed."
-        break
-    else
-        echo "Passwords do not match, try again."
-    fi
-done
+#while true; do
+#    read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
+#    echo
+#    read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
+#    echo
+#    if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
+#    then
+#        echo "Password confirmed."
+#        break
+#    else
+#        echo "Passwords do not match, try again."
+#    fi
+#done
 
 # Disable NetworkManager and firewalld
 sudo systemctl disable firewalld
 sudo systemctl stop firewalld
 
 # Set the IPsec secret passphrase.
-echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
+# echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
 
 sudo chown :lpadmin /sbin/lpinfo
 echo "export PATH=$PATH:/sbin" | sudo tee -a /etc/bash.bashrc
@@ -113,9 +113,13 @@ sudo chown -R vx-ui:vx-group /media/vx
 sudo usermod -aG lpadmin vx-services
 
 # Move IPSec configuration files
-sudo cp "$pollbook_config_files_dir/mesh-ipsec.conf" /etc/ipsec.conf
-sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
-sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
+sudo cp "$pollbook_config_files_dir/swanmesh.conf" /etc/swanctl/conf.d/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-private-key.pem /etc/swanctl/private/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-cert-authority-cert.pem /etc/swanctl/x509/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-cert-authority-cert.pem /etc/swanctl/x509ca/.
+
+#sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
+#sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
 
 # Move mesh network configuration files
 sudo cp "$pollbook_config_files_dir/setup_basic_mesh.sh" /vx/scripts/.
@@ -254,6 +258,25 @@ sudo chmod -R u=rwX /var/vx/config
 sudo chmod -R g=rX /var/vx/config
 sudo chmod -R g=rwX /var/vx/config/app-flags
 sudo chmod -R o-rwX /var/vx/config
+
+
+# Prep the symlink structure for swapping of the default OpenSSL config file in a way that doesn't
+# change the contents of the locked-down partition, for the rare circumstance where that's needed:
+#
+# /etc/ssl/openssl.cnf --> /vx/config/openssl.cnf -->
+#   EITHER /etc/ssl/openssl.default.cnf
+#   OR     /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf
+# Where:
+# /vx/code/vxsuite/libs/auth/config/openssl.vx-tpm.cnf includes
+#   /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf, which in turn includes
+#   /etc/ssl/openssl.default.cnf.
+#
+sudo cp /etc/ssl/openssl.cnf /etc/ssl/openssl.default.cnf
+sudo sed -i 's|^\.include /etc/ssl/openssl\.cnf$|.include /etc/ssl/openssl.default.cnf|' \
+    /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf
+sudo ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
+sudo ln -fs /vx/config/openssl.cnf /etc/ssl/openssl.cnf
+sudo chown -h vx-vendor:vx-group /vx/config/openssl.cnf
 
 # non-graphical login
 sudo systemctl set-default multi-user.target
