@@ -263,7 +263,7 @@ d-i partman-auto/expert_recipe string     \
     filesystem{ ext2 }                     \
     mountpoint{ /boot }                   \
     .                                     \
-    14000 800 14000 ext4                    \
+    8000 800 8000 ext4                    \
     \$lvmok{ }                            \
     method{ format }                      \
     format{ }                             \
@@ -282,7 +282,7 @@ d-i partman-auto/expert_recipe string     \
    use_filesystem{ } filesystem{ ext4 }     \
     mountpoint{ /tmp }                    \
     .                                     \
-    13000 3000 13000 ext4                   \
+    15000 3000 15000 ext4                   \
     \$lvmok{ }                            \
     method{ format }                      \
     format{ }                             \
