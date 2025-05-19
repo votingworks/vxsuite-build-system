@@ -36,7 +36,7 @@ fi
 # Ensure sudo credentials haven't expired
 sudo -v
 
-echo "Clone the online and offline images"
+echo "Clone image(s)"
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/virtmanager/clone-base-vm.yaml
 
