@@ -1,0 +1,51 @@
+---
+- name: Manage firewalld rules for pollbook systems
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  # Using a different approach with this firewall than for our offline systems
+  # We'll create two zones: VxMesh and loopback
+  # loopback is for all localhost traffic in the app, e.g. localhost:3000
+  # pollbook_mesh is for all mesh0 interfaces in a given mesh
+  # Assumption: interfaces in our mesh are always named: mesh0
+  # Both of these zones will allow traffic
+  # All other traffic will be blocked
+  tasks:
+
+    - name: Ensure firewalld starts on boot and is running
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Create firewall zones
+      ansible.builtin.command: "firewall-cmd --permanent --new-zone={{item}}"
+      loop:
+        - loopback
+        - pollbook_mesh
+
+    - name: Add explicit interface for loopback zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=loopback --add-interface=lo"
+
+    - name: Add explicit interface for pollbook_mesh zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=pollbook_mesh --add-interface=mesh0"
+
+    - name: Enable firewall zones
+      ansible.builtin.command: "firewall-cmd --permanent --zone={{ item }} --set-target=ACCEPT"
+      loop:
+        - loopback
+        - pollbook_mesh
+
+    - name: Drop all other traffic
+      ansible.builtin.command: "firewall-cmd --set-default-zone=drop"
+
+    # TODO: does this cause mesh issues? Doubtful, but need to verify
+    #- name: Block incoming services enabled by default
+    #ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
+    #with_items:
+    #- ssh
+    #- dhcpv6-client
+
+    - name: Reload to save and apply firewall changes
+      ansible.builtin.command: "firewall-cmd --reload"
