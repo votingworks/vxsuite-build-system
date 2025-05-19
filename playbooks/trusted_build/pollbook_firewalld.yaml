@@ -4,13 +4,8 @@
   connection: local
   become: true
 
-  # Using a different approach with this firewall than for our offline systems
-  # We'll create two zones: VxMesh and loopback
-  # loopback is for all localhost traffic in the app, e.g. localhost:3000
-  # pollbook_mesh is for all mesh0 interfaces in a given mesh
-  # Assumption: interfaces in our mesh are always named: mesh0
-  # Both of these zones will allow traffic
-  # All other traffic will be blocked
+  #TODO: This is identical to firewalld, just with mesh0 added
+  #      Possible candidate for future refactor/combine
   tasks:
 
     - name: Ensure firewalld starts on boot and is running
@@ -19,33 +14,20 @@
         state: started
         enabled: yes
 
-    - name: Create firewall zones
-      ansible.builtin.command: "firewall-cmd --permanent --new-zone={{item}}"
-      loop:
-        - loopback
-        - pollbook_mesh
+    - name: Allow localhost/loopback traffic
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o lo -j ACCEPT"
 
-    - name: Add explicit interface for loopback zone
-      ansible.builtin.command: "firewall-cmd --permanent --zone=loopback --add-interface=lo"
+    - name: Allow mesh0 traffic
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 1 -o mesh0 -j ACCEPT"
 
-    - name: Add explicit interface for pollbook_mesh zone
-      ansible.builtin.command: "firewall-cmd --permanent --zone=pollbook_mesh --add-interface=mesh0"
+    - name: Deny all other outgoing traffic
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 9 -j DROP"
 
-    - name: Enable firewall zones
-      ansible.builtin.command: "firewall-cmd --permanent --zone={{ item }} --set-target=ACCEPT"
-      loop:
-        - loopback
-        - pollbook_mesh
+    - name: Block incoming services enabled by default
+      ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
+      with_items:
+        - ssh
+        - dhcpv6-client
 
-    - name: Drop all other traffic
-      ansible.builtin.command: "firewall-cmd --set-default-zone=drop"
-
-    # TODO: does this cause mesh issues? Doubtful, but need to verify
-    #- name: Block incoming services enabled by default
-    #ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
-    #with_items:
-    #- ssh
-    #- dhcpv6-client
-
-    - name: Reload to save and apply firewall changes
+    - name: Reload to save and apply changes
       ansible.builtin.command: "firewall-cmd --reload"
