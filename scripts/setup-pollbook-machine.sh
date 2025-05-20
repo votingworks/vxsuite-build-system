@@ -14,39 +14,67 @@ set -euo pipefail
 echo "Welcome to the VxPollbook setup script."
 echo "THIS IS A DESTRUCTIVE SCRIPT. Ctrl+C now to cancel."
 sleep 5
-echo "Setting up the pollbook machine. This will be a QA image with sudo privileges."
+echo "Preparing to set up the pollbook machine..."
+echo 
 
-while true; do
-    read -s -p "Set vx-vendor password: " VENDOR_PASSWORD
-    echo
-    read -s -p "Confirm vx-vendor password: " CONFIRM_PASSWORD
-    echo
-    if [[ "${VENDOR_PASSWORD}" = "${CONFIRM_PASSWORD}" ]]
-    then
-        echo "Password confirmed."
-        break
-    else
-        echo "Passwords do not match, try again."
-    fi
-done
+read -p "Is this image for QA, where you want sudo privileges, terminal access via TTY2, and the ability to record screengrabs? [y/N] " qa_image_flag
 
-while true; do
-    read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
-    echo
-    read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
-    echo
-    if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
-    then
-        echo "Password confirmed."
-        break
-    else
-        echo "Passwords do not match, try again."
-    fi
-done
 
-# Disable NetworkManager and firewalld
-sudo systemctl disable firewalld
-sudo systemctl stop firewalld
+if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
+    IS_QA_IMAGE=1
+    VENDOR_PASSWORD='insecure'
+    IPSEC_PASSWORD='insecure'
+    echo "OK, creating a QA image with sudo privileges for the vx-vendor user and terminal access via TTY2."
+    echo "Using password insecure for the vx-vendor user."
+    echo "Using passphrase insecure for the IPSec secret."
+else
+    IS_QA_IMAGE=0
+    echo "Ok, creating a production image. No sudo privileges for anyone!"
+    echo
+
+    echo "We need to set a password for the vx-vendor user."
+    while true; do
+        read -s -p "Set vx-vendor password: " VENDOR_PASSWORD
+        echo
+        read -s -p "Confirm vx-vendor password: " CONFIRM_PASSWORD
+        echo
+        if [[ "${VENDOR_PASSWORD}" = "${CONFIRM_PASSWORD}" ]]
+        then
+            echo "Password confirmed."
+            break
+        else
+            echo "Passwords do not match, try again."
+        fi
+    done
+
+    echo
+    echo "Next, we need to set the IPSec secret passphrase."
+    while true; do
+        read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
+        echo
+        read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
+        echo
+        if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
+        then
+            echo "Password confirmed."
+            break
+        else
+            echo "Passwords do not match, try again."
+        fi
+    done
+fi
+
+echo
+echo "The script will take it from here and set up the machine."
+echo
+
+# TODO: Uncomment after secure boot / prod testing is complete
+#       It's just easier to have tty2 for troubleshooting w/o vendor card process
+# Disable terminal access via TTY2 for production images
+#if [[ "${IS_QA_IMAGE}" == 0 ]]
+#then
+    #sudo cp config/11-disable-tty.conf /etc/X11/xorg.conf.d/
+#fi
 
 # Set the IPsec secret passphrase.
 echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
@@ -219,7 +247,7 @@ GIT_HASH=$(git rev-parse HEAD | cut -c -10) sudo -E sh -c 'echo "$(date +%Y.%m.%
 GIT_TAG=$(git tag --points-at HEAD) sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
 
 # qa image flag, 0 (prod image) or 1 (qa image)
-sudo -E sh -c 'echo "1" > /vx/config/is-qa-image'
+IS_QA_IMAGE="${IS_QA_IMAGE}" sudo -E sh -c 'echo "${IS_QA_IMAGE}" > /vx/config/is-qa-image'
 
 # machine ID
 sudo sh -c 'echo "0000" > /vx/config/machine-id'
@@ -368,14 +396,17 @@ sudo passwd -l vx-services
 sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
 
-sudo cp \
-	/vx/code/vxpollbook/libs/auth/certs/dev/vx-cert-authority-cert.pem \
-	/vx/code/vxpollbook/libs/auth/certs/prod/vx-cert-authority-cert.pem
+if [[ "${IS_QA_IMAGE}" == 1 ]]; then
+    sudo cp \
+      /vx/code/vxpollbook/libs/auth/certs/dev/vx-cert-authority-cert.pem \
+      /vx/code/vxpollbook/libs/auth/certs/prod/vx-cert-authority-cert.pem
+fi
 
 # Set up a one-time run of fstrim to reduce VM size
 sudo cp /vx/code/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
 
+# TODO: we should eventually have a prod vs dev sudoers like complete-system
 # copy in our sudoers file, which removes sudo privileges except for very specific circumstances
 # where needed
 # NOTE: you cannot use sudo commands after this runs
