@@ -289,6 +289,20 @@ sudo chmod -R g=rX /var/vx/config
 sudo chmod -R g=rwX /var/vx/config/app-flags
 sudo chmod -R o-rwX /var/vx/config
 
+sudo cp /etc/ssl/openssl.cnf /etc/ssl/openssl.default.cnf
+sudo sed -i 's|^\.include /etc/ssl/openssl\.cnf$|.include /etc/ssl/openssl.default.cnf|' \
+    /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf
+sudo ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
+sudo ln -fs /vx/config/openssl.cnf /etc/ssl/openssl.cnf
+sudo chown -h vx-vendor:vx-group /vx/config/openssl.cnf
+
+# Pollbook has mesh networking functionality
+# This requires modifying files on the read-only root filesystem
+# so we create a symlink structure to enable writes to those files
+sudo mkdir -p /vx/config/etc
+sudo mv /etc/hosts /vx/config/etc/hosts
+sudo ln -fs /vx/config/etc/hosts /etc/hosts
+
 # non-graphical login
 sudo systemctl set-default multi-user.target
 
