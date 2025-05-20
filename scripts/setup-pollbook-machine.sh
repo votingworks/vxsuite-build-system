@@ -302,6 +302,8 @@ sudo chown -h vx-vendor:vx-group /vx/config/openssl.cnf
 sudo mkdir -p /vx/config/etc
 sudo mv /etc/hosts /vx/config/etc/hosts
 sudo ln -fs /vx/config/etc/hosts /etc/hosts
+sudo mv /etc/hostname /vx/config/etc/hostname
+sudo ln -fs /vx/config/etc/hostname /etc/hostname
 
 # non-graphical login
 sudo systemctl set-default multi-user.target
