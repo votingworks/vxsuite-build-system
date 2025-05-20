@@ -212,8 +212,14 @@ sudo ln -s /vx/code/config/vendor-functions /vx/vendor/vendor-functions
 
 # Make sure our cmdline file is readable by vx-vendor
 sudo mkdir -p /vx/vendor/config
+sudo cp ${complete_system_dir}/config/cmdline /vx/code/config/cmdline
+sudo cp ${complete_system_dir}/config/grub.cfg /vx/code/config/grub.cfg
 sudo ln -s /vx/code/config/cmdline /vx/vendor/config/cmdline
 sudo ln -s /vx/code/config/grub.cfg /vx/vendor/config/grub.cfg
+
+# dm-verity initramfs hooks
+sudo cp ${complete_system_dir}/config/dmverity-root.hook /etc/initramfs-tools/hooks/dmverity-root
+sudo cp ${complete_system_dir}/config/dmverity-root.script /etc/initramfs-tools/scripts/local-premount/dmverity-root
 
 # All our logo files are 16-color BMP files. VxScan requires an 800x600 image, per
 # https://up-shop.org/up-bios-splash-service.html
