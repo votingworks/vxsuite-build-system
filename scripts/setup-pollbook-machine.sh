@@ -391,8 +391,6 @@ echo "Successfully setup machine."
 
 # now we remove permissions, reset passwords, and ready for production.
 
-USER=$(whoami)
-
 # cleanup
 sudo apt remove -y git firefox snapd > /dev/null 2>&1 || true
 sudo apt autoremove -y > /dev/null 2>&1 || true
@@ -410,7 +408,7 @@ sudo shutdown --no-wall -r +1
 
 # disable all passwords
 sudo passwd -l root
-sudo passwd -l ${USER}
+sudo passwd -l ${local_user}
 sudo passwd -l vx-ui
 sudo passwd -l vx-services
 
@@ -450,7 +448,7 @@ sudo cp ${pollbook_config_files_dir}/sudoers-for-dev /etc/sudoers
 # NOTE AGAIN: no more sudo commands below this line. Privileges have been removed.
 
 # remove everything from this bootstrap user's home directory
-cd
+cd ${local_user_home_dir}
 rm -rf *
 rm -rf .*
 
