@@ -421,7 +421,7 @@ sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 # breaking the symlink, which we need for secure boot
 # Instead, directly edit the file and use the hostname command
 # Note: choose-vx-machine-id.sh also uses this approach now
-sudo sh -c 'echo "VotingWorks" >> /etc/hostname'
+sudo sh -c 'echo "VotingWorks" > /etc/hostname'
 sudo hostname VotingWorks
 
 if [[ "${IS_QA_IMAGE}" == 1 ]]; then
