@@ -416,7 +416,13 @@ sudo passwd -l vx-services
 
 # set a clean hostname
 sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
-sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
+#sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
+# We can't use hostnamectl because it recreates /etc/hostname as a file
+# breaking the symlink, which we need for secure boot
+# Instead, directly edit the file and use the hostname command
+# Note: choose-vx-machine-id.sh also uses this approach now
+sudo sh -c 'echo "VotingWorks" >> /etc/hostname'
+sudo hostname VotingWorks
 
 if [[ "${IS_QA_IMAGE}" == 1 ]]; then
     sudo cp \
