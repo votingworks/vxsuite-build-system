@@ -424,6 +424,13 @@ sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 sudo sh -c 'echo "VotingWorks" > /etc/hostname'
 sudo hostname VotingWorks
 
+# The symlink approach results in a hostname of localhost
+# because it's not available early enough in the boot process
+# This simple service sets the hostname from the symlink
+sudo cp ${pollbook_config_files_dir}/early-hostname.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable early-hostname.service
+
 if [[ "${IS_QA_IMAGE}" == 1 ]]; then
     sudo cp \
       /vx/code/vxpollbook/libs/auth/certs/dev/vx-cert-authority-cert.pem \
