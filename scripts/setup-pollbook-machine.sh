@@ -14,39 +14,82 @@ set -euo pipefail
 echo "Welcome to the VxPollbook setup script."
 echo "THIS IS A DESTRUCTIVE SCRIPT. Ctrl+C now to cancel."
 sleep 5
-echo "Setting up the pollbook machine. This will be a QA image with sudo privileges."
+echo "Preparing to set up the pollbook machine..."
+echo 
 
-while true; do
-    read -s -p "Set vx-vendor password: " VENDOR_PASSWORD
+read -p "Is this image for QA, where you want sudo privileges, terminal access via TTY2, and the ability to record screengrabs? [y/N] " qa_image_flag
+
+IS_RELEASE_IMAGE=0
+
+if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
+    IS_QA_IMAGE=1
+    VENDOR_PASSWORD='insecure'
+    IPSEC_PASSWORD='insecure'
+    echo "OK, creating a QA image with sudo privileges for the vx-vendor user and terminal access via TTY2."
+    echo "Using password insecure for the vx-vendor user."
+    echo "Using passphrase insecure for the IPSec secret."
+else
+    IS_QA_IMAGE=0
+    echo "Ok, creating a production image. No sudo privileges for anyone!"
     echo
-    read -s -p "Confirm vx-vendor password: " CONFIRM_PASSWORD
-    echo
-    if [[ "${VENDOR_PASSWORD}" = "${CONFIRM_PASSWORD}" ]]
-    then
-        echo "Password confirmed."
-        break
+        read -p "Is this additionally an official release image? [y/N] " release_image_flag
+    if [[ "${release_image_flag}" == 'y' || "${release_image_flag}" == 'Y' ]]; then
+        read -p "Are you sure? [y/N] " confirm_release_image_flag
+        if [[ "${confirm_release_image_flag}" == 'y' || "${confirm_release_image_flag}" == 'Y' ]]; then
+            IS_RELEASE_IMAGE=1
+pollbook_config_files_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
+            VERSION="$(< ${pollbook_config_files_dir}/VERSION)"
+            echo "OK, will set the displayed code version to: ${VERSION}"
+        else
+            echo "OK, not an official release image."
+        fi
     else
-        echo "Passwords do not match, try again."
+        echo "OK, not an official release image."
     fi
-done
 
-while true; do
-    read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
-    echo
-    read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
-    echo
-    if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
-    then
-        echo "Password confirmed."
-        break
-    else
-        echo "Passwords do not match, try again."
-    fi
-done
+    echo "Next, we need to set a password for the vx-vendor user."
+    while true; do
+        read -s -p "Set vx-vendor password: " VENDOR_PASSWORD
+        echo
+        read -s -p "Confirm vx-vendor password: " CONFIRM_PASSWORD
+        echo
+        if [[ "${VENDOR_PASSWORD}" = "${CONFIRM_PASSWORD}" ]]
+        then
+            echo "Password confirmed."
+            break
+        else
+            echo "Passwords do not match, try again."
+        fi
+    done
 
-# Disable NetworkManager and firewalld
-sudo systemctl disable firewalld
-sudo systemctl stop firewalld
+    echo
+    echo "Next, we need to set the IPSec secret passphrase."
+    while true; do
+        read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
+        echo
+        read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
+        echo
+        if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
+        then
+            echo "Password confirmed."
+            break
+        else
+            echo "Passwords do not match, try again."
+        fi
+    done
+fi
+
+echo
+echo "The script will take it from here and set up the machine."
+echo
+
+# TODO: Uncomment after secure boot / prod testing is complete
+#       It's just easier to have tty2 for troubleshooting w/o vendor card process
+# Disable terminal access via TTY2 for production images
+#if [[ "${IS_QA_IMAGE}" == 0 ]]
+#then
+    #sudo cp config/11-disable-tty.conf /etc/X11/xorg.conf.d/
+#fi
 
 # Set the IPsec secret passphrase.
 echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
@@ -184,8 +227,14 @@ sudo ln -s /vx/code/config/vendor-functions /vx/vendor/vendor-functions
 
 # Make sure our cmdline file is readable by vx-vendor
 sudo mkdir -p /vx/vendor/config
+sudo cp ${complete_system_dir}/config/cmdline /vx/code/config/cmdline
+sudo cp ${complete_system_dir}/config/grub.cfg /vx/code/config/grub.cfg
 sudo ln -s /vx/code/config/cmdline /vx/vendor/config/cmdline
 sudo ln -s /vx/code/config/grub.cfg /vx/vendor/config/grub.cfg
+
+# dm-verity initramfs hooks
+sudo cp ${complete_system_dir}/config/dmverity-root.hook /etc/initramfs-tools/hooks/dmverity-root
+sudo cp ${complete_system_dir}/config/dmverity-root.script /etc/initramfs-tools/scripts/local-premount/dmverity-root
 
 # All our logo files are 16-color BMP files. VxScan requires an 800x600 image, per
 # https://up-shop.org/up-bios-splash-service.html
@@ -215,11 +264,18 @@ sudo -E sh -c 'echo "poll-book" > /vx/config/machine-type'
 # code version, e.g. "2021.03.29-d34db33fcd"
 GIT_HASH=$(git rev-parse HEAD | cut -c -10) sudo -E sh -c 'echo "$(date +%Y.%m.%d)-${GIT_HASH}" > /vx/code/code-version'
 
+if [[ "${IS_RELEASE_IMAGE}" == 1 ]]; then
+    # Still keep the full code version for reference
+    sudo cp /vx/code/code-version /vx/code/code-version-full
+    # But use the nicely formatted version, e.g., "v4.0.0", for display
+    VERSION="${VERSION}" sudo -E sh -c 'echo "${VERSION}" > /vx/code/code-version'
+fi
+
 # code tag, e.g. "m11c-rc3"
 GIT_TAG=$(git tag --points-at HEAD) sudo -E sh -c 'echo "${GIT_TAG}" > /vx/code/code-tag'
 
 # qa image flag, 0 (prod image) or 1 (qa image)
-sudo -E sh -c 'echo "1" > /vx/config/is-qa-image'
+IS_QA_IMAGE="${IS_QA_IMAGE}" sudo -E sh -c 'echo "${IS_QA_IMAGE}" > /vx/config/is-qa-image'
 
 # machine ID
 sudo sh -c 'echo "0000" > /vx/config/machine-id'
@@ -254,6 +310,22 @@ sudo chmod -R u=rwX /var/vx/config
 sudo chmod -R g=rX /var/vx/config
 sudo chmod -R g=rwX /var/vx/config/app-flags
 sudo chmod -R o-rwX /var/vx/config
+
+sudo cp /etc/ssl/openssl.cnf /etc/ssl/openssl.default.cnf
+sudo sed -i 's|^\.include /etc/ssl/openssl\.cnf$|.include /etc/ssl/openssl.default.cnf|' \
+    /vx/code/vxsuite/libs/auth/config/openssl.vx.cnf
+sudo ln -fs /etc/ssl/openssl.default.cnf /vx/config/openssl.cnf
+sudo ln -fs /vx/config/openssl.cnf /etc/ssl/openssl.cnf
+sudo chown -h vx-vendor:vx-group /vx/config/openssl.cnf
+
+# Pollbook has mesh networking functionality
+# This requires modifying files on the read-only root filesystem
+# so we create a symlink structure to enable writes to those files
+sudo mkdir -p /vx/config/etc
+sudo mv /etc/hosts /vx/config/etc/hosts
+sudo ln -fs /vx/config/etc/hosts /etc/hosts
+sudo mv /etc/hostname /vx/config/etc/hostname
+sudo ln -fs /vx/config/etc/hostname /etc/hostname
 
 # non-graphical login
 sudo systemctl set-default multi-user.target
@@ -341,8 +413,6 @@ echo "Successfully setup machine."
 
 # now we remove permissions, reset passwords, and ready for production.
 
-USER=$(whoami)
-
 # cleanup
 sudo apt remove -y git firefox snapd > /dev/null 2>&1 || true
 sudo apt autoremove -y > /dev/null 2>&1 || true
@@ -360,22 +430,38 @@ sudo shutdown --no-wall -r +1
 
 # disable all passwords
 sudo passwd -l root
-sudo passwd -l ${USER}
+sudo passwd -l ${local_user}
 sudo passwd -l vx-ui
 sudo passwd -l vx-services
 
 # set a clean hostname
 sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
-sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
+#sudo hostnamectl set-hostname "VotingWorks" 2>/dev/null
+# We can't use hostnamectl because it recreates /etc/hostname as a file
+# breaking the symlink, which we need for secure boot
+# Instead, directly edit the file and use the hostname command
+# Note: choose-vx-machine-id.sh also uses this approach now
+sudo sh -c 'echo "VotingWorks" > /etc/hostname'
+sudo hostname VotingWorks
 
-sudo cp \
-	/vx/code/vxpollbook/libs/auth/certs/dev/vx-cert-authority-cert.pem \
-	/vx/code/vxpollbook/libs/auth/certs/prod/vx-cert-authority-cert.pem
+# The symlink approach results in a hostname of localhost
+# because it's not available early enough in the boot process
+# This simple service sets the hostname from the symlink
+sudo cp ${pollbook_config_files_dir}/early-hostname.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable early-hostname.service
+
+if [[ "${IS_QA_IMAGE}" == 1 ]]; then
+    sudo cp \
+      /vx/code/vxpollbook/libs/auth/certs/dev/vx-cert-authority-cert.pem \
+      /vx/code/vxpollbook/libs/auth/certs/prod/vx-cert-authority-cert.pem
+fi
 
 # Set up a one-time run of fstrim to reduce VM size
 sudo cp /vx/code/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
 
+# TODO: we should eventually have a prod vs dev sudoers like complete-system
 # copy in our sudoers file, which removes sudo privileges except for very specific circumstances
 # where needed
 # NOTE: you cannot use sudo commands after this runs
@@ -384,7 +470,7 @@ sudo cp ${pollbook_config_files_dir}/sudoers-for-dev /etc/sudoers
 # NOTE AGAIN: no more sudo commands below this line. Privileges have been removed.
 
 # remove everything from this bootstrap user's home directory
-cd
+cd ${local_user_home_dir}
 rm -rf *
 rm -rf .*
 

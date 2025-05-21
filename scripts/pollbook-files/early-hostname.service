@@ -1,0 +1,13 @@
+[Unit]
+Description=Set the hostname early in the boot process
+DefaultDependencies=no
+Before=sysinit.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/hostname -F /etc/hostname
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

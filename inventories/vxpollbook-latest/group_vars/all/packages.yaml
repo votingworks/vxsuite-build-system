@@ -94,6 +94,7 @@ all_packages:
   - xserver-xorg-input-libinput
   - xserver-xorg-input-wacom
   - xserver-xorg-video-all
+  - xxd
   - zip
   - avahi-daemon
   - avahi-utils
