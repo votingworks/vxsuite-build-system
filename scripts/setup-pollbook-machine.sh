@@ -182,7 +182,6 @@ sudo cp $standard_config_files_dir/cups.service /usr/lib/systemd/system/
 
 # modified apparmor profiles to allow cups to access config files in /var
 sudo cp $standard_config_files_dir/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/
-sudo cp $standard_config_files_dir/apparmor.d/usr.sbin.cups-browsed /etc/apparmor.d/
 
 # copy any modprobe configs we might use
 sudo cp $standard_config_files_dir/modprobe.d/10-i915.conf /etc/modprobe.d/
