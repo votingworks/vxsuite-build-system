@@ -63,6 +63,7 @@ all_packages:
   - make
   - mingetty
   - openbox
+  - pahole
   - parted
   - pcscd
   - pcsc-tools
