@@ -333,6 +333,8 @@ sudo ln -fs /vx/config/etc/hostname /etc/hostname
 sudo mv /etc/ipsec.conf /vx/config/etc/ipsec.conf
 sudo ln -fs /vx/config/etc/ipsec.conf /etc/ipsec.conf
 
+sudo cp ${complete_system_dir}/config/interfaces /etc/network/interfaces
+
 # non-graphical login
 sudo systemctl set-default multi-user.target
 

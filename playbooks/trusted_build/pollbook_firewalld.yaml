@@ -23,11 +23,5 @@
     - name: Deny all other outgoing traffic
       ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 9 -j DROP"
 
-    - name: Block incoming services enabled by default
-      ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
-      with_items:
-        - ssh
-        - dhcpv6-client
-
     - name: Reload to save and apply changes
       ansible.builtin.command: "firewall-cmd --reload"
