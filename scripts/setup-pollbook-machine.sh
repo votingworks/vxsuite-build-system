@@ -322,10 +322,16 @@ sudo chown -h vx-vendor:vx-group /vx/config/openssl.cnf
 # This requires modifying files on the read-only root filesystem
 # so we create a symlink structure to enable writes to those files
 sudo mkdir -p /vx/config/etc
+
+# Pollbook: Host/Hostname links
 sudo mv /etc/hosts /vx/config/etc/hosts
 sudo ln -fs /vx/config/etc/hosts /etc/hosts
 sudo mv /etc/hostname /vx/config/etc/hostname
 sudo ln -fs /vx/config/etc/hostname /etc/hostname
+
+# Pollbook: IPSec links
+sudo mv /etc/ipsec.conf /vx/config/etc/ipsec.conf
+sudo ln -fs /vx/config/etc/ipsec.conf /etc/ipsec.conf
 
 # non-graphical login
 sudo systemctl set-default multi-user.target
