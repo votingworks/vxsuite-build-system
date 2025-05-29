@@ -18,6 +18,7 @@ all_packages:
   - cups-bsd
   - cups-client
   - curl
+  - ddcutil
   - default-jdk
   - dosfstools
   - efitools
