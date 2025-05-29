@@ -96,5 +96,6 @@ set +e
 # Build the barcode scanner app
 cd "${pollbook_dir}/barcode-scanner-daemon"
 mkdir -p target && cargo build --release --target-dir target/.
+cp -rp "${pollbook_dir}/barcode-scanner-daemon" "${BUILD_ROOT}/vxpollbook/apps/pollbook/"
 
 exit 0
