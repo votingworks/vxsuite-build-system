@@ -4,7 +4,7 @@ repos:
   vxsuite:
     version: main
   vxsuite-complete-system:
-    version: main
+    version: kevin/pollbook-barcode-scanner-daemon
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian12-2-pollbook-base"
 vm_disk_size_gb: 35
