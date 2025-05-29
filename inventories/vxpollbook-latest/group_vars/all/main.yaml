@@ -2,9 +2,9 @@ repos:
   kiosk-browser:
     version: main
   vxsuite:
-    version: main
-  vxsuite-complete-system:
     version: kevin/pollbook-barcode-scanner-daemon
+  vxsuite-complete-system:
+    version: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian12-2-pollbook-base"
 vm_disk_size_gb: 35
