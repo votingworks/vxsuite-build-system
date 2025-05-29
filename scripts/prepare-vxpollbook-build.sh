@@ -86,8 +86,15 @@ set +e
     # A similar workaround is present for other vxsuite apps
     # but since we build them all at once with a slightly different
     # approach, a symlink to the entire vxsuite build is used
+    # UPDATE: We know why this happens. The "files" block in package.json
+    # can cause files/directories to not be included in the build output
+    # Once we settle on a final solution, this can be removed
     rm -rf "${BUILD_ROOT}/vxpollbook/libs/fixtures"
     cp -rp "${vxsuite_dir}/libs/fixtures" "${BUILD_ROOT}/vxpollbook/libs/"
   )
+
+# Build the barcode scanner app
+cd "${pollbook_dir}/barcode-scanner-daemon"
+mkdir -p target && cargo build --release --target-dir target/.
 
 exit 0
