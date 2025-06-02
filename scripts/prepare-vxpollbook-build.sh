@@ -92,5 +92,5 @@ set +e
 
 # This runs as the very last step since it locks the network down
 # to only loopback and mesh traffic
-ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_build.yaml
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_firewalld.yaml
 exit 0

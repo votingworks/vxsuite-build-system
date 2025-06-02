@@ -4,8 +4,6 @@
   connection: local
   become: true
 
-  #TODO: This is identical to firewalld, just with mesh0 added
-  #      Possible candidate for future refactor/combine
   tasks:
 
     - name: Ensure firewalld starts on boot and is running
@@ -14,14 +12,20 @@
         state: started
         enabled: yes
 
-    - name: Allow localhost/loopback traffic
-      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o lo -j ACCEPT"
+    - name: Set the default zone to "drop" so all traffic is dropped by default
+      ansible.builtin.command: "firewall-cmd --set-default-zone=drop"
 
-    - name: Allow mesh0 traffic
-      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 1 -o mesh0 -j ACCEPT"
+    - name: Create a new zone for the mesh interface (mesh0)
+      ansible.builtin.command: "firewall-cmd --permanent --new-zone=mesh"
 
-    - name: Deny all other outgoing traffic
-      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 9 -j DROP"
+    - name: Accept all traffic in the mesh zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=mesh --set-target=ACCEPT"
+
+    - name: Add the mesh0 interface to the mesh zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=mesh --add-interface=mesh0"
+
+    - name: Make sure the loopback interface is part of the "trusted" zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=trusted --add-interface=lo"
 
     - name: Reload to save and apply changes
       ansible.builtin.command: "firewall-cmd --reload"
