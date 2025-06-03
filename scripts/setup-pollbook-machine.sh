@@ -337,8 +337,8 @@ sudo mv /etc/hostname /vx/config/etc/hostname
 sudo ln -fs /vx/config/etc/hostname /etc/hostname
 
 # Pollbook: IPSec links
-sudo mv /etc/ipsec.conf /vx/config/etc/ipsec.conf
-sudo ln -fs /vx/config/etc/ipsec.conf /etc/ipsec.conf
+#sudo mv /etc/ipsec.conf /vx/config/etc/ipsec.conf
+#sudo ln -fs /vx/config/etc/ipsec.conf /etc/ipsec.conf
 
 sudo cp ${complete_system_dir}/config/interfaces /etc/network/interfaces
 
