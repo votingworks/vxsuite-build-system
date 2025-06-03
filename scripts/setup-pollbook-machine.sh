@@ -24,10 +24,8 @@ IS_RELEASE_IMAGE=0
 if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
     IS_QA_IMAGE=1
     VENDOR_PASSWORD='insecure'
-    #IPSEC_PASSWORD='insecure'
     echo "OK, creating a QA image with sudo privileges for the vx-vendor user and terminal access via TTY2."
     echo "Using password insecure for the vx-vendor user."
-    #echo "Using passphrase insecure for the IPSec secret."
 else
     IS_QA_IMAGE=0
     echo "Ok, creating a production image. No sudo privileges for anyone!"
@@ -63,20 +61,6 @@ pollbook_config_files_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
     done
 
     echo
-    #echo "Next, we need to set the IPSec secret passphrase."
-    #while true; do
-        #read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
-        #echo
-        #read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
-        #echo
-        #if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
-        #then
-            #echo "Password confirmed."
-            #break
-        #else
-            #echo "Passwords do not match, try again."
-        #fi
-    #done
 fi
 
 echo
@@ -90,9 +74,6 @@ echo
 #then
     #sudo cp config/11-disable-tty.conf /etc/X11/xorg.conf.d/
 #fi
-
-# Set the IPsec secret passphrase.
-#echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
 
 sudo chown :lpadmin /sbin/lpinfo
 echo "export PATH=$PATH:/sbin" | sudo tee -a /etc/bash.bashrc
@@ -155,11 +136,6 @@ sudo chown -R vx-ui:vx-group /media/vx
 # let vx-services manage printers
 sudo usermod -aG lpadmin vx-services
 
-# Move IPSec configuration files
-#sudo cp "$pollbook_config_files_dir/mesh-ipsec.conf" /etc/ipsec.conf
-#sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
-#sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
-
 # Strongswan config
 sudo cp "$pollbook_config_files_dir/swanmesh.conf" /etc/swanctl/conf.d/.
 
@@ -213,11 +189,6 @@ sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
 # symlink to vxsuite so paths dont break
 sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
-
-# dev keys/certs for strongswan testing
-sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-private-key.pem /etc/swanctl/private/.
-sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-cert-authority-cert.pem /etc/swanctl/x509/.
-sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-cert-authority-cert.pem /etc/swanctl/x509ca/.
 
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
@@ -336,9 +307,9 @@ sudo ln -fs /vx/config/etc/hosts /etc/hosts
 sudo mv /etc/hostname /vx/config/etc/hostname
 sudo ln -fs /vx/config/etc/hostname /etc/hostname
 
-# Pollbook: IPSec links
-#sudo mv /etc/ipsec.conf /vx/config/etc/ipsec.conf
-#sudo ln -fs /vx/config/etc/ipsec.conf /etc/ipsec.conf
+# Pollbook: strongswan links
+sudo mv /etc/swanctl/ /vx/config/etc/
+sudo ln -fs /vx/config/etc/swanctl /etc/swanctl
 
 sudo cp ${complete_system_dir}/config/interfaces /etc/network/interfaces
 
@@ -415,7 +386,7 @@ PULSE
 # Fix permissions so vx-ui owns the pulseaudio config
 sudo chown -R vx-ui:vx-ui ${vx_ui_homedir}/.config/pulse
 
-# Enable the mesh network and ipsec services
+# Enable the mesh network and related services
 sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
 sudo systemctl enable join-mesh-network
