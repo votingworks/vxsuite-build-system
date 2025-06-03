@@ -24,10 +24,10 @@ IS_RELEASE_IMAGE=0
 if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
     IS_QA_IMAGE=1
     VENDOR_PASSWORD='insecure'
-    IPSEC_PASSWORD='insecure'
+    #IPSEC_PASSWORD='insecure'
     echo "OK, creating a QA image with sudo privileges for the vx-vendor user and terminal access via TTY2."
     echo "Using password insecure for the vx-vendor user."
-    echo "Using passphrase insecure for the IPSec secret."
+    #echo "Using passphrase insecure for the IPSec secret."
 else
     IS_QA_IMAGE=0
     echo "Ok, creating a production image. No sudo privileges for anyone!"
@@ -63,20 +63,20 @@ pollbook_config_files_dir="${vxsuite_build_system_dir}/scripts/pollbook-files"
     done
 
     echo
-    echo "Next, we need to set the IPSec secret passphrase."
-    while true; do
-        read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
-        echo
-        read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
-        echo
-        if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
-        then
-            echo "Password confirmed."
-            break
-        else
-            echo "Passwords do not match, try again."
-        fi
-    done
+    #echo "Next, we need to set the IPSec secret passphrase."
+    #while true; do
+        #read -s -p "Set IPSec secret passphrase: " IPSEC_PASSWORD
+        #echo
+        #read -s -p "Confirm IPSec secret passphrase: " IPSEC_CONFIRM_PASSWORD
+        #echo
+        #if [[ "${IPSEC_PASSWORD}" = "${IPSEC_CONFIRM_PASSWORD}" ]]
+        #then
+            #echo "Password confirmed."
+            #break
+        #else
+            #echo "Passwords do not match, try again."
+        #fi
+    #done
 fi
 
 echo
@@ -92,7 +92,7 @@ echo
 #fi
 
 # Set the IPsec secret passphrase.
-echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
+#echo ": PSK \"$IPSEC_PASSWORD\"" | sudo tee /etc/ipsec.secrets > /dev/null
 
 sudo chown :lpadmin /sbin/lpinfo
 echo "export PATH=$PATH:/sbin" | sudo tee -a /etc/bash.bashrc
@@ -156,9 +156,12 @@ sudo chown -R vx-ui:vx-group /media/vx
 sudo usermod -aG lpadmin vx-services
 
 # Move IPSec configuration files
-sudo cp "$pollbook_config_files_dir/mesh-ipsec.conf" /etc/ipsec.conf
-sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
-sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
+#sudo cp "$pollbook_config_files_dir/mesh-ipsec.conf" /etc/ipsec.conf
+#sudo cp "$pollbook_config_files_dir/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
+#sudo cp "$pollbook_config_files_dir/update-ipsec.sh" /vx/scripts/.
+
+# Strongswan config
+sudo cp "$pollbook_config_files_dir/swanmesh.conf" /etc/swanctl/conf.d/.
 
 # Move mesh network configuration files
 sudo cp "$pollbook_config_files_dir/setup_basic_mesh.sh" /vx/scripts/.
@@ -210,6 +213,11 @@ sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 
 # symlink to vxsuite so paths dont break
 sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
+
+# dev keys/certs for strongswan testing
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-private-key.pem /etc/swanctl/private/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-poll-book-cert-authority-cert.pem /etc/swanctl/x509/.
+sudo cp /vx/code/vxsuite/libs/auth/certs/dev/vx-cert-authority-cert.pem /etc/swanctl/x509ca/.
 
 # symlink appropriate vx/ui files
 sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
