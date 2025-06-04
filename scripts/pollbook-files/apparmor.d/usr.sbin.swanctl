@@ -17,6 +17,9 @@
 
   # All reading configuration, certificate, and key files beneath /etc/swanctl/
   /etc/swanctl/**               r,
+
+  # For secure boot, we store the real config here and make /etc/swanctl a link
+  # so this path also needs read access
   /var/vx/config/etc/swanctl/**               r,
 
   # Allow communication with VICI plugin UNIX domain socket
