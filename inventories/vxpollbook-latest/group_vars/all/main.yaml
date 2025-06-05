@@ -2,7 +2,7 @@ repos:
   kiosk-browser:
     version: main
   vxsuite:
-    version: arsalan/poll-book-strongswan-tpm-key
+    version: main
   vxsuite-complete-system:
     version: adam/strongswan-tpm
 virt_image_path: "/var/lib/libvirt/images"
