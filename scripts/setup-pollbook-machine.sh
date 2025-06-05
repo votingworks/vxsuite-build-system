@@ -138,7 +138,7 @@ sudo usermod -aG lpadmin vx-services
 
 # Strongswan config and apparmor profile
 sudo cp "$pollbook_config_files_dir/swanmesh.conf" /etc/swanctl/conf.d/.
-sudo cp "$pollbook_config_files_dir/apparmor.d/usr.sbin.swanctl /etc/apparmor.d/."
+sudo cp "$pollbook_config_files_dir/apparmor.d/usr.sbin.swanctl" /etc/apparmor.d/.
 
 # Move mesh network configuration files
 sudo cp "$pollbook_config_files_dir/setup_basic_mesh.sh" /vx/scripts/.
