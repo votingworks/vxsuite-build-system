@@ -1,8 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: main
-  kiosk-browser:
-    version: drew/upgrade
+    version: drew/upgrade-electron
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-latest"
 vm_disk_size_gb: 27
