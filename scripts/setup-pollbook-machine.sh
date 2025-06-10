@@ -211,7 +211,6 @@ sudo mv $build_dir /vx/code
 # symlink the code and run-*.sh in /vx/services
 sudo ln -s /vx/code/vxpollbook /vx/services/vxpollbook
 sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
-sudo ln -s /vx/code/run-barcode-scanner-daemon.sh /vx/services/run-barcode-scanner-daemon.sh
 
 # symlink to vxsuite so paths dont break
 sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
@@ -367,6 +366,8 @@ sudo systemctl start vxpollbook.service
 
 # set up the barcode scanner service
 sudo cp $pollbook_config_files_dir/barcode-scanner-daemon.service /etc/systemd/system/
+sudo cp $pollbook_config_files_dir/run-barcode-scanner-daemon.sh /vx/code/.
+sudo ln -s /vx/code/run-barcode-scanner-daemon.sh /vx/services/run-barcode-scanner-daemon.sh
 sudo chmod 644 /etc/systemd/system/barcode-scanner-daemon.service
 sudo systemctl daemon-reload
 sudo systemctl enable barcode-scanner-daemon.service
