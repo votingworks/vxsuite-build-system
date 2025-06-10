@@ -145,6 +145,10 @@ sudo usermod -aG adm vx-ui
 sudo usermod -aG adm vx-vendor
 sudo usermod -aG adm vx-services
 
+# Add groups needed for barcode scanner to vx-services user
+sudo usermod -aG dialout vx-services
+sudo usermod -aG plugdev vx-services
+
 # Set up log config
 (cd $complete_system_dir && sudo bash setup-scripts/setup-logging.sh)
 
