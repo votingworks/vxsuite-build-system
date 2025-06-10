@@ -51,6 +51,7 @@ fi
 
 echo "Build kiosk-browser"
 sleep 5
+sudo -v
 cd $kiosk_browser_dir
 make install
 make build
@@ -58,6 +59,7 @@ sudo dpkg -i dist/kiosk-browser_1.0.0_*.deb
 
 echo "Build VxPollbook"
 sleep 5
+sudo -v
 # Make sure cargo is available in case it hasn't been sourced yet
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
 cd $pollbook_dir
@@ -92,5 +94,7 @@ set +e
 
 # This runs as the very last step since it locks the network down
 # to only loopback and mesh traffic
+cd $vxsuite_build_system_dir
+sudo -v
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_firewalld.yaml
 exit 0
