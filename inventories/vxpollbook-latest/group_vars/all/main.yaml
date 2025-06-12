@@ -2,7 +2,7 @@ repos:
   kiosk-browser:
     version: main
   vxsuite:
-    version: kevin/pollbook-barcode-scanner-daemon
+    version: main
   vxsuite-complete-system:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
