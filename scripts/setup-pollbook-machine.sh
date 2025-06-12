@@ -126,6 +126,10 @@ sudo usermod -aG adm vx-ui
 sudo usermod -aG adm vx-vendor
 sudo usermod -aG adm vx-services
 
+# Add groups needed for barcode scanner to vx-services user
+sudo usermod -aG dialout vx-services
+sudo usermod -aG plugdev vx-services
+
 # Set up log config
 (cd $complete_system_dir && sudo bash setup-scripts/setup-logging.sh)
 
@@ -145,6 +149,10 @@ sudo cp "$pollbook_config_files_dir/setup_basic_mesh.sh" /vx/scripts/.
 sudo cp "$pollbook_config_files_dir/join-mesh-network.service" /etc/systemd/system/.
 sudo cp "$pollbook_config_files_dir/avahi-autoipd.service" /etc/systemd/system/.
 sudo cp "$pollbook_config_files_dir/99-mesh-network.rules" /etc/udev/rules.d/.
+
+# Barcode scanner udev rules
+sudo cp "$pollbook_config_files_dir/70-ts100-plugdev-usb.rules" /etc/udev/rules.d/.
+sudo cp "$pollbook_config_files_dir/99-ts100-dialout-tty.rules" /etc/udev/rules.d/.
 
 ### set up CUPS to read/write all config out of /var to be compatible with read-only root filesystem
 
@@ -344,8 +352,19 @@ sudo rm -f /etc/NetworkManager/system-connections/*
 # set up the service for the selected machine type
 sudo cp $pollbook_config_files_dir/vxpollbook.service /etc/systemd/system/
 sudo chmod 644 /etc/systemd/system/vxpollbook.service
+sudo systemctl daemon-reload
 sudo systemctl enable vxpollbook.service
 sudo systemctl start vxpollbook.service
+
+# set up the barcode scanner service
+sudo cp $pollbook_config_files_dir/barcode-scanner-daemon.service /etc/systemd/system/
+sudo cp $pollbook_config_files_dir/run-barcode-scanner-daemon.sh /vx/code/.
+sudo ln -s /vx/code/run-barcode-scanner-daemon.sh /vx/services/run-barcode-scanner-daemon.sh
+sudo chmod 644 /etc/systemd/system/barcode-scanner-daemon.service
+sudo systemctl daemon-reload
+sudo systemctl enable barcode-scanner-daemon.service
+sudo systemctl start barcode-scanner-daemon.service
+
 
 # To provide a boot sequence with as few console logs as possible
 # we suppress the messages from the login command
