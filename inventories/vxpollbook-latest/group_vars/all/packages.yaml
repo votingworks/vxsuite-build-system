@@ -99,7 +99,11 @@ all_packages:
   - zip
   - avahi-daemon
   - avahi-utils
-  - strongswan
+  - strongswan-swanctl
+  - libstrongswan-extra-plugins
+  - libstrongswan-standard-plugins
+  - charon-systemd
+  - strongswan-pki
   - avahi-autoipd
   - iw
 

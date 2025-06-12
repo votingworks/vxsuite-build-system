@@ -1,0 +1,31 @@
+---
+- name: Manage firewalld rules for pollbook systems
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Ensure firewalld starts on boot and is running
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Set the default zone to "drop" so all traffic is dropped by default
+      ansible.builtin.command: "firewall-cmd --set-default-zone=drop"
+
+    - name: Create a new zone for the mesh interface (mesh0)
+      ansible.builtin.command: "firewall-cmd --permanent --new-zone=mesh"
+
+    - name: Accept all traffic in the mesh zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=mesh --set-target=ACCEPT"
+
+    - name: Add the mesh0 interface to the mesh zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=mesh --add-interface=mesh0"
+
+    - name: Make sure the loopback interface is part of the "trusted" zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=trusted --add-interface=lo"
+
+    - name: Reload to save and apply changes
+      ansible.builtin.command: "firewall-cmd --reload"

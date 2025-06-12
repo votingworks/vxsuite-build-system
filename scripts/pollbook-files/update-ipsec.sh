@@ -10,7 +10,8 @@ echo "Updating IPsec config with new IP: $MESH_IP"
 
 # Update /etc/ipsec.conf:
 #   - Replaces the line starting with "left=" in the "meshvpn" connection
-sudo sed -i "s/^[[:space:]]*left=.*$/    left=$MESH_IP/" /etc/ipsec.conf
+sudo sed "s/^[[:space:]]*left=.*$/    left=$MESH_IP/" /etc/ipsec.conf > /var/tmp/ipsec.conf
+sudo cp /var/tmp/ipsec.conf /etc/ipsec.conf
 
 # Restart strongSwan so it picks up the new IP
 sudo ipsec restart

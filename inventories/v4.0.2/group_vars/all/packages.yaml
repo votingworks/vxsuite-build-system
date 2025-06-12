@@ -1,31 +1,43 @@
 ---
 batch_package_install: true
-apt_snapshot_date: "20240606"
+apt_snapshot_date: "20250605"
 release_name: "bookworm"
+
+#-- get the latest available kernel
+#-- kbuild needs to be tied to kernel, so probably move to the playbook
+kernel_packages:
+  - linux-image-6.12.*+bpo-amd64
+  - linux-kbuild-6.12
 
 all_packages:
   - alsa-utils
   - brightnessctl
   - build-essential
   - chromium
+  - cloud-guest-utils
   - cryptsetup
   - cups
   - cups-bsd
   - cups-client
   - curl
+  - ddcutil
   - default-jdk
   - dosfstools
   - efitools
   - exfatprogs
   - fdisk
   - firewalld
+  - firmware-amd-graphics
+  - firmware-linux
   - firmware-linux-free
   - firmware-misc-nonfree
   - firmware-sof-signed
+  - fonts-wqy-zenhei
   - git
   - gvfs
   - gzip
   - hplip
+  - ipp-usb
   - iptables
   - jq
   - kde-cli-tools
@@ -51,10 +63,10 @@ all_packages:
   - libxss1
   - libxtst6
   - libzbar-dev
-  - linux-kbuild-6.1
   - make
   - mingetty
   - openbox
+  - pahole
   - parted
   - pcscd
   - pcsc-tools
@@ -84,6 +96,7 @@ all_packages:
   - xserver-xorg-input-libinput
   - xserver-xorg-input-wacom
   - xserver-xorg-video-all
+  - xxd
   - zip
 
 tpm_packages:
@@ -112,3 +125,6 @@ tpm_packages:
   - qrencode
   - tpm2-openssl
   - tpm2-tools
+
+dev_packages:
+  - ffmpeg
