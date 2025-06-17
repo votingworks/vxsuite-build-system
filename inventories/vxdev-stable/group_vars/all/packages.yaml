@@ -66,6 +66,7 @@ all_packages:
   - make
   - mingetty
   - openbox
+  - pahole
   - parted
   - pcscd
   - pcsc-tools
@@ -95,6 +96,7 @@ all_packages:
   - xserver-xorg-input-libinput
   - xserver-xorg-input-wacom
   - xserver-xorg-video-all
+  - xxd
   - zip
 
 tpm_packages:
