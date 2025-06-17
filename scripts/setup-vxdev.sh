@@ -62,6 +62,9 @@ if [[ "${DESKTOP_SESSION}" == "gnome" ]]; then
   dconf write /org/gnome/shell/extensions/dash-to-dock/intellihide true
 fi
 
+echo "Enabling live USB support..."
+sudo /usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot/efi --removable
+
 echo "VxDev set up is complete." 
 
 exit 0
