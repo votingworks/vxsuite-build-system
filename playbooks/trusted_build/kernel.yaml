@@ -14,6 +14,8 @@
     - name: Remove unused kernel(s)
       ansible.builtin.command:
         cmd: "apt -y autoremove"
+      tags:
+        - online
 
     - name: Add bookworm-backports as an apt source
       ansible.builtin.lineinfile:
@@ -31,11 +33,17 @@
       tags:
         - online
 
-    - name: Download the kernel packages
+    - name: Get the latest kernel version available in bookworm-backports
+      ansible.builtin.shell:
+        cmd: "apt-cache madison linux-image-amd64 | grep backports | sort -k 3 -r | awk '{print $3}' | cut -d'-' -f1 | head -1"
+      register: latest_kernel_version
+      tags:
+        - online
+
+    - name: Upgrade the kernel packages and dependencies
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --no-install-recommends --download-only {{ item }}"
-      with_items:
-        - "{{ kernel_packages | default([]) }}"
+        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-image-{{ latest_kernel_version.stdout }}+bpo-amd64 linux-headers-{{ latest_kernel_version.stdout }}+bpo-amd64"
+      when: upgrade_kernel
       tags:
         - online
 
@@ -55,10 +63,8 @@
       tags:
         - online
 
-    - name: Install backported packages directly
-      ansible.builtin.shell:
-        cmd: "dpkg -i /var/cache/apt/archives/{{ item }}*deb"
-      with_items:
-        - "{{ kernel_packages | default([]) }}"
+    - name: Remove unused kernel(s)
+      ansible.builtin.command:
+        cmd: "apt -y autoremove"
       tags:
-        - offline
+        - online
