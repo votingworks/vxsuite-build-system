@@ -65,6 +65,12 @@ fi
 echo "Enabling live USB support..."
 sudo /usr/sbin/grub-install --target=x86_64-efi --efi-directory=/boot/efi --removable
 
+echo "Setting up autologin for ${local_user}..."
+sudo sed -i "/\[daemon\]/a AutomaticLoginEnable = true\nAutomaticLogin = ${local_user}" /etc/gdm3/daemon.conf
+
+echo "Enabling passwordless sudo for ${local_user}..."
+echo "${local_user} ALL=NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${local_user} > /dev/null
+
 echo "VxDev set up is complete." 
 
 exit 0
