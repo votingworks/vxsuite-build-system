@@ -46,7 +46,12 @@ if [ $PRESERVE_POLLBOOK -eq 1 ]; then
   cp /tmp/pollbook-package.zip libs/usb-drive/dev-workspace/mock-usb-data/pollbook-package.zip
 fi
 pnpm install
-cd apps/pollbook/frontend && pnpm type-check
+
+## ensure cargo is in the path when called as part of the build
+export PATH="$HOME/.cargo/bin:$PATH"
+
+## ensure rust dependencies are rebuilt
+cd apps/pollbook/frontend && pnpm build
 
 # install kiosk-browser if it hasn't been installed
 if ! which kiosk-browser > /dev/null 2>&1
