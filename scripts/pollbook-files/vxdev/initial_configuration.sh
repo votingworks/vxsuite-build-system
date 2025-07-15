@@ -1,6 +1,7 @@
 #!/bin/bash
 VXDEV_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASE_SCRIPT_DIR="$VXDEV_SCRIPT_DIR/../"
+BASE_DIR="$(pwd)/$(git rev-parse --show-cdup)"
 
 echo "This script will set up a VxDev machine for VxPollbook development."
 echo "This assumes you are able to use a wifi card that supports mesh networking."
@@ -8,8 +9,11 @@ echo "Ctrl+C to cancel."
 sleep 5
 echo "Proceeding..."
 
-ansible-playbook -i vxpollbook packages.yaml
-ansible-playbook -i vxpollbook pollbook_label_printer.yaml
+pushd $BASE_DIR
+ansible-playbook -i inventories/vxpollbook-latest playbooks/trusted_build/packages.yaml
+ansible-playbook -i inventories/vxpollbook-latest playbooks/trusted_build/pollbook_label_printer.yaml
+popd 
+
 sudo usermod -aG dialout vx-services
 sudo usermod -aG plugdev vx-services
 # # Strongswan config and apparmor profile
