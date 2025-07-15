@@ -36,7 +36,7 @@
     - name: Get the latest linux-base version available in bookworm-backports
       ansible.builtin.shell:
         cmd: "apt-cache madison linux-base | grep backports | sort -k 3 -r | awk '{print $3}' | cut -d'-' -f1 | head -1"
-      register: latest_linux-base_version
+      register: latest_linux_base_version
       tags:
         - online
 
@@ -49,7 +49,7 @@
 
     - name: Upgrade the kernel packages and dependencies
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base-{{ latest_linux-base-version.stdout }} linux-image-{{ latest_kernel_version.stdout }}+bpo-amd64 linux-headers-{{ latest_kernel_version.stdout }}+bpo-amd64"
+        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base-{{ latest_linux_base_version.stdout }} linux-image-{{ latest_kernel_version.stdout }}+bpo-amd64 linux-headers-{{ latest_kernel_version.stdout }}+bpo-amd64"
       when: upgrade_kernel
       tags:
         - online
