@@ -8,13 +8,25 @@ echo "Ctrl+C to cancel."
 sleep 5
 echo "Proceeding..."
 
-sudo apt install avahi-daemon avahi-utils avahi-autoipd strongswan -y
+ansible-playbook -i vxpollbook packages.yaml
+ansible-playbook -i vxpollbook pollbook_label_printer.yaml
+sudo usermod -aG dialout vx-services
+sudo usermod -aG plugdev vx-services
+# # Strongswan config and apparmor profile
+sudo cp "$BASE_SCRIPT_DIR/swanmesh.conf" /etc/swanctl/conf.d/.
+sudo cp "$BASE_SCRIPT_DIR/apparmor.d/usr.sbin.swanctl" /etc/apparmor.d/.
+
+# Move mesh network configuration files
+sudo cp "$BASE_SCRIPT_DIR/setup_basic_mesh.sh" /vx/scripts/.
+sudo cp "$BASE_SCRIPT_DIR/join-mesh-network.service" /etc/systemd/system/.
+sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.service" /etc/systemd/system/.
+sudo cp "$BASE_SCRIPT_DIR/99-mesh-network.rules" /etc/udev/rules.d/.
+
+# Barcode scanner udev rules
+sudo cp "$BASE_SCRIPT_DIR/70-ts100-plugdev-usb.rules" /etc/udev/rules.d/.
+sudo cp "$BASE_SCRIPT_DIR/99-ts100-dialout-tty.rules" /etc/udev/rules.d/.
 
 cd "$VXDEV_SCRIPT_DIR"
-
-sudo cp "$BASE_SCRIPT_DIR/mesh-ipsec.conf" /etc/ipsec.conf
-sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
-sudo cp "$BASE_SCRIPT_DIR/update-ipsec.sh" /vx/scripts/.
 
 sudo cp "$VXDEV_SCRIPT_DIR/run-vxpollbook.sh" /vx/scripts/.
 sudo cp "$VXDEV_SCRIPT_DIR/update-vxpollbook.sh" /vx/scripts/.
@@ -27,16 +39,6 @@ sudo systemctl disable NetworkManager
 sudo systemctl disable firewalld
 sudo systemctl stop NetworkManager
 sudo systemctl stop firewalld
-
-sudo cp "$BASE_SCRIPT_DIR/setup_basic_mesh.sh" /vx/scripts/.
-sudo cp "$BASE_SCRIPT_DIR/join-mesh-network.service" /etc/systemd/system/.
-sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.service" /etc/systemd/system/.
-sudo cp "$BASE_SCRIPT_DIR/99-mesh-network.rules" /etc/udev/rules.d/.
-
-read -s -p "Enter IPSec Secret Passphrase (leave empty to keep unchanged): " IPSecSecret
-if [ -n "$IPSecSecret" ]; then
-    echo ": PSK \"$IPSecSecret\"" | sudo tee /etc/ipsec.secrets > /dev/null
-fi
 
 read -p "Enter Machine ID (leave empty to keep unchanged): " MACHINE_ID
 if [ -n "$MACHINE_ID" ]; then
