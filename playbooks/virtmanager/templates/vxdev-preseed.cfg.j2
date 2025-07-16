@@ -466,6 +466,7 @@ d-i debian-installer/exit/poweroff boolean true
 d-i preseed/late_command string \
     in-target mkdir -p /home/vx/code; \
     in-target git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system; \
+    in-target chown -R vx:vx /home/vx/code; \
     in-target mkdir -p /home/vx/.config; \
     in-target chown vx:vx /home/vx/.config; \
     in-target touch /home/vx/.config/gnome-initial-setup-done;
