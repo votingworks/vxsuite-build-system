@@ -39,9 +39,9 @@ sudo cp "$VXDEV_SCRIPT_DIR/update-vxpollbook.desktop" /usr/share/applications/.
 
 gsettings set org.gnome.shell favorite-apps "['run-vxpollbook.desktop', 'update-vxpollbook.desktop', 'org.gnome.Screenshot.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']"
 
-sudo systemctl disable NetworkManager
+#sudo systemctl disable NetworkManager
 sudo systemctl disable firewalld
-sudo systemctl stop NetworkManager
+#sudo systemctl stop NetworkManager
 sudo systemctl stop firewalld
 
 read -p "Enter Machine ID (leave empty to keep unchanged): " MACHINE_ID
