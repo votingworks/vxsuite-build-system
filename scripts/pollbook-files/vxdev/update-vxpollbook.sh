@@ -5,6 +5,8 @@ echo "Restarting network and checking for connection"
 # Turn on the network
 sudo systemctl start NetworkManager
 
+export PATH="/home/vx/.cargo/bin:$PATH"
+
 IS_CONNECTED=0
 # Test every second for 15 seconds if we are connected to the internet.
 for i in {1..15}; do
