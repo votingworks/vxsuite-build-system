@@ -17,7 +17,11 @@ popd
 sudo usermod -aG dialout vx-services
 sudo usermod -aG plugdev vx-services
 # # Strongswan config and apparmor profile
-sudo cp "$BASE_SCRIPT_DIR/swanmesh.conf" /etc/swanctl/conf.d/.
+sudo cp "$BASE_SCRIPT_DIR/vxdev-swanmesh.conf" /etc/swanctl/conf.d/swanmesh.conf
+sudo cp "$BASE_SCRIPT_DIR/cert-authority.pem" /etc/swanctl/x509ca/cert-authority.pem
+sudo cp "$BASE_SCRIPT_DIR/rsa-cert.pem" /etc/swanctl/x509/rsa-cert.pem
+sudo cp "$BASE_SCRIPT_DIR/private-key.pem" /etc/swanctl/private/private-key.pem
+
 sudo cp "$BASE_SCRIPT_DIR/apparmor.d/usr.sbin.swanctl" /etc/apparmor.d/.
 
 # Move mesh network configuration files
@@ -39,9 +43,9 @@ sudo cp "$VXDEV_SCRIPT_DIR/update-vxpollbook.desktop" /usr/share/applications/.
 
 gsettings set org.gnome.shell favorite-apps "['run-vxpollbook.desktop', 'update-vxpollbook.desktop', 'org.gnome.Screenshot.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop']"
 
-#sudo systemctl disable NetworkManager
+sudo systemctl disable NetworkManager
 sudo systemctl disable firewalld
-#sudo systemctl stop NetworkManager
+sudo systemctl stop NetworkManager
 sudo systemctl stop firewalld
 
 read -p "Enter Machine ID (leave empty to keep unchanged): " MACHINE_ID
