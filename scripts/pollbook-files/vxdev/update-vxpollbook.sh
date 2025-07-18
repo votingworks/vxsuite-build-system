@@ -45,8 +45,9 @@ if [ $PRESERVE_POLLBOOK -eq 1 ]; then
   mkdir -p libs/usb-drive/dev-workspace/mock-usb-data
   cp /tmp/pollbook-package.zip libs/usb-drive/dev-workspace/mock-usb-data/pollbook-package.zip
 fi
+cd apps/pollbook
 pnpm install
-cd apps/pollbook/frontend && pnpm type-check
+cd frontend && pnpm build
 
 # install kiosk-browser if it hasn't been installed
 if ! which kiosk-browser > /dev/null 2>&1
