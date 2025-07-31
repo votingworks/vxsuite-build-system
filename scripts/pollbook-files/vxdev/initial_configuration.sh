@@ -16,6 +16,8 @@ popd
 
 sudo usermod -aG dialout vx-services
 sudo usermod -aG plugdev vx-services
+sudo usermod -aG dialout vx
+sudo usermod -aG plugdev vx
 # # Strongswan config and apparmor profile
 sudo cp "$BASE_SCRIPT_DIR/vxdev-swanmesh.conf" /etc/swanctl/conf.d/swanmesh.conf
 sudo cp "$BASE_SCRIPT_DIR/cert-authority.pem" /etc/swanctl/x509ca/cert-authority.pem
