@@ -467,11 +467,12 @@ fi
 sudo cp /vx/code/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
 
-# TODO: we should eventually have a prod vs dev sudoers like complete-system
-# copy in our sudoers file, which removes sudo privileges except for very specific circumstances
-# where needed
 # NOTE: you cannot use sudo commands after this runs
-sudo cp ${pollbook_config_files_dir}/sudoers-for-dev /etc/sudoers
+if [[ "${IS_QA_IMAGE}" == 1 ]]; then
+  sudo cp ${pollbook_config_files_dir}/sudoers-for-dev /etc/sudoers
+else
+  sudo cp ${pollbook_config_files_dir}/sudoers /etc/sudoers
+fi
 
 # NOTE AGAIN: no more sudo commands below this line. Privileges have been removed.
 
