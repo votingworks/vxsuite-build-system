@@ -450,6 +450,9 @@ sudo sh -c 'echo "\n127.0.1.1\tVotingWorks" >> /etc/hosts'
 sudo sh -c 'echo "VotingWorks" > /etc/hostname'
 sudo hostname VotingWorks
 
+# Copy firewalld config to log denied connection attempts
+sudo cp ${pollbook_config_files_dir}/firewalld.conf /etc/firewalld/.
+
 # The symlink approach results in a hostname of localhost
 # because it's not available early enough in the boot process
 # This simple service sets the hostname from the symlink
