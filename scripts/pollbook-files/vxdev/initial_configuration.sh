@@ -1,6 +1,7 @@
 #!/bin/bash
 VXDEV_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASE_SCRIPT_DIR="$VXDEV_SCRIPT_DIR/../"
+BASE_DIR="$(pwd)/$(git rev-parse --show-cdup)"
 
 echo "This script will set up a VxDev machine for VxPollbook development."
 echo "This assumes you are able to use a wifi card that supports mesh networking."
@@ -8,13 +9,34 @@ echo "Ctrl+C to cancel."
 sleep 5
 echo "Proceeding..."
 
-sudo apt install avahi-daemon avahi-utils avahi-autoipd strongswan -y
+pushd $BASE_DIR
+ansible-playbook -i inventories/vxpollbook-latest playbooks/trusted_build/packages.yaml
+ansible-playbook -i inventories/vxpollbook-latest playbooks/trusted_build/pollbook_label_printer.yaml
+popd 
+
+sudo usermod -aG dialout vx-services
+sudo usermod -aG plugdev vx-services
+sudo usermod -aG dialout vx
+sudo usermod -aG plugdev vx
+# # Strongswan config and apparmor profile
+sudo cp "$BASE_SCRIPT_DIR/vxdev-swanmesh.conf" /etc/swanctl/conf.d/swanmesh.conf
+sudo cp "$BASE_SCRIPT_DIR/cert-authority.pem" /etc/swanctl/x509ca/cert-authority.pem
+sudo cp "$BASE_SCRIPT_DIR/rsa-cert.pem" /etc/swanctl/x509/rsa-cert.pem
+sudo cp "$BASE_SCRIPT_DIR/private-key.pem" /etc/swanctl/private/private-key.pem
+
+sudo cp "$BASE_SCRIPT_DIR/apparmor.d/usr.sbin.swanctl" /etc/apparmor.d/.
+
+# Move mesh network configuration files
+sudo cp "$BASE_SCRIPT_DIR/setup_basic_mesh.sh" /vx/scripts/.
+sudo cp "$BASE_SCRIPT_DIR/join-mesh-network.service" /etc/systemd/system/.
+sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.service" /etc/systemd/system/.
+sudo cp "$BASE_SCRIPT_DIR/99-mesh-network.rules" /etc/udev/rules.d/.
+
+# Barcode scanner udev rules
+sudo cp "$BASE_SCRIPT_DIR/70-ts100-plugdev-usb.rules" /etc/udev/rules.d/.
+sudo cp "$BASE_SCRIPT_DIR/99-ts100-dialout-tty.rules" /etc/udev/rules.d/.
 
 cd "$VXDEV_SCRIPT_DIR"
-
-sudo cp "$BASE_SCRIPT_DIR/mesh-ipsec.conf" /etc/ipsec.conf
-sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.action" /etc/avahi/avahi-autoipd.action
-sudo cp "$BASE_SCRIPT_DIR/update-ipsec.sh" /vx/scripts/.
 
 sudo cp "$VXDEV_SCRIPT_DIR/run-vxpollbook.sh" /vx/scripts/.
 sudo cp "$VXDEV_SCRIPT_DIR/update-vxpollbook.sh" /vx/scripts/.
@@ -27,16 +49,6 @@ sudo systemctl disable NetworkManager
 sudo systemctl disable firewalld
 sudo systemctl stop NetworkManager
 sudo systemctl stop firewalld
-
-sudo cp "$BASE_SCRIPT_DIR/setup_basic_mesh.sh" /vx/scripts/.
-sudo cp "$BASE_SCRIPT_DIR/join-mesh-network.service" /etc/systemd/system/.
-sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.service" /etc/systemd/system/.
-sudo cp "$BASE_SCRIPT_DIR/99-mesh-network.rules" /etc/udev/rules.d/.
-
-read -s -p "Enter IPSec Secret Passphrase (leave empty to keep unchanged): " IPSecSecret
-if [ -n "$IPSecSecret" ]; then
-    echo ": PSK \"$IPSecSecret\"" | sudo tee /etc/ipsec.secrets > /dev/null
-fi
 
 read -p "Enter Machine ID (leave empty to keep unchanged): " MACHINE_ID
 if [ -n "$MACHINE_ID" ]; then
