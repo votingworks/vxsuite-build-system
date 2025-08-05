@@ -49,6 +49,7 @@ if [ $PRESERVE_POLLBOOK -eq 1 ]; then
 fi
 cd apps/pollbook
 pnpm install
+
 cd frontend && pnpm build
 
 # install kiosk-browser if it hasn't been installed
