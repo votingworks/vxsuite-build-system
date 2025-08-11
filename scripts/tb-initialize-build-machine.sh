@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ $EUID -eq 0 ]]; then
+  echo "ERROR: This script should not be run via sudo."
+  exit 1
+fi
+
 set -euo pipefail
 
 ansible_inventory=$1
