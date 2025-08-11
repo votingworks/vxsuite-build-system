@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ $EUID -ne 0 ]]; then
+  echo "Please run this script as root via: sudo $0"
+  exit 1
+fi
+
 debian_version=$(cat /etc/debian_version | cut -d'.' -f1)
 
 # Update apt sources

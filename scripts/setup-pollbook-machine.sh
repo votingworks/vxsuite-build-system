@@ -1,4 +1,10 @@
 #!/bin/bash
+
+if [[ $EUID -eq 0 ]]; then
+  echo "ERROR: This script should not be run via sudo."
+  exit 1
+fi
+
 local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
