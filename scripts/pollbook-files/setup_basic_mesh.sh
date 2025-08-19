@@ -36,4 +36,5 @@ echo "Bringing up the network and joining pollbook_mesh"
 sudo ip link set mesh0 up
 sudo iw dev mesh0 mesh join pollbook_mesh
 
+sudo systemctl restart strongswan
 echo "Successfully joined the network."
