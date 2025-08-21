@@ -26,6 +26,7 @@
         url: "{{ prebuilt_pkg_url }}"
         dest: "{{ downloads_directory }}/"
       register: openssl_download
+      ignore_errors: true
       tags:
         - online
 
