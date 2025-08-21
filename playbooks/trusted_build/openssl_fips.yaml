@@ -72,7 +72,7 @@
             chdir: "{{ downloads_directory }}"
             cmd: "fpm -s dir -t deb -n openssl-fips -v {{ openssl_version }} --description \"FIPS-Enabled OpenSSL {{ openssl_version }}\" -C /tmp/openssl-build"
 
-      when: openssl_download.rc != 0
+      when: openssl_download is not failed
 
     - name: Install via the newly created package
       ansible.builtin.shell:
