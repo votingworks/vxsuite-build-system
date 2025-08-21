@@ -17,39 +17,67 @@
       set_fact:
         downloads_directory: "{{ well_known_paths['tools']['system_path'] }}"
 
-    - name: Download OpenSSL {{ openssl_version }} source code
+    - name: Prebuilt package download path
+      set_fact:
+        prebuilt_pkg_url: "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/openssl-fips_{{ openssl_version }}_amd64.deb"
+
+    - name: Try to download a prebuilt package
       ansible.builtin.get_url:
-        url: "https://www.openssl.org/source/openssl-{{ openssl_version }}.tar.gz"
+        url: "{{ prebuilt_pkg_uurl }}"
         dest: "{{ downloads_directory }}/"
+      register: openssl_download
       tags:
         - online
 
-    - name: Extract OpenSSL {{ openssl_version }} source code
-      ansible.builtin.unarchive:
-        src: "{{ downloads_directory }}/openssl-{{ openssl_version }}.tar.gz"
-        dest: "{{ downloads_directory }}"
-        remote_src: yes
-      tags:
-        - offline
+    - name: Build OpenSSL with FIPS enabled when prebuilt package is unavailable
+      block:
+        - name: Download OpenSSL {{ openssl_version }} source code
+          ansible.builtin.get_url:
+            url: "https://www.openssl.org/source/openssl-{{ openssl_version }}.tar.gz"
+            dest: "{{ downloads_directory }}/"
+          tags:
+            - online
 
-    - name: Configure OpenSSL {{ openssl_version }} with FIPS support
-      ansible.builtin.shell:
-        chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
-        cmd: "./Configure enable-fips"
-      tags:
-        - offline
+        - name: Extract OpenSSL {{ openssl_version }} source code
+          ansible.builtin.unarchive:
+            src: "{{ downloads_directory }}/openssl-{{ openssl_version }}.tar.gz"
+            dest: "{{ downloads_directory }}"
+            remote_src: yes
+          tags:
+            - offline
 
-    - name: Build the OpenSSL {{ openssl_version }} binaries
-      ansible.builtin.shell:
-        chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
-        cmd: "make"
-      tags:
-        - offline
+        - name: Configure OpenSSL {{ openssl_version }} with FIPS support
+          ansible.builtin.shell:
+            chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
+            cmd: "./Configure enable-fips"
+          tags:
+            - offline
 
-    - name: Install the OpenSSL {{ openssl_version }} binaries
+        - name: Build the OpenSSL {{ openssl_version }} binaries
+          ansible.builtin.shell:
+            chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
+            cmd: "make"
+          tags:
+            - offline
+
+        - name: Create a temporary install to build a package for installation
+          ansible.builtin.shell:
+            chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
+            cmd: "make install DESTDIR=/tmp/openssl-build"
+          tags:
+            - offline
+
+        - name: Create a Debian package via FPM
+          ansible.builtin.shell:
+            chdir: "{{ downloads_directory }}"
+            cmd: "fpm -s dir -t deb -n openssl-fips -v {{ openssl_version }} --description \"FIPS-Enabled OpenSSL {{ openssl_version }}\" -C /tmp/openssl-build"
+
+      when: openssl_download.rc != 0
+
+    - name: Install via the newly created package
       ansible.builtin.shell:
-        chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
-        cmd: "make install"
+        chdir: "{{ downloads_directory }}"
+        cmd: "dpkg -i openssl-fips_{{ openssl_version }}_amd64.deb"
       tags:
         - offline
 
