@@ -23,7 +23,7 @@
 
     - name: Try to download a prebuilt package
       ansible.builtin.get_url:
-        url: "{{ prebuilt_pkg_uurl }}"
+        url: "{{ prebuilt_pkg_url }}"
         dest: "{{ downloads_directory }}/"
       register: openssl_download
       tags:
