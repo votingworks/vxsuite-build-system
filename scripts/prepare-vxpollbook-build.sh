@@ -16,7 +16,13 @@ complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 vxsuite_dir="${local_user_home_dir}/code/vxsuite"
 pollbook_dir="${vxsuite_dir}/apps/pollbook"
 
-ansible_inventory='vxpollbook-latest'
+if [[ $# -ge 1 ]]; then
+  ansible_inventory="$1"
+else
+  echo "No inventory specified, using vxpollbook-latest, if this is not correct, exit now by using Ctrl+c..."
+  sleep 3
+  ansible_inventory='vxpollbook-latest'
+fi
 
 if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
   echo "ERROR: The $ansible_inventory inventory could not be found."
