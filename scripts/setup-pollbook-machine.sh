@@ -479,6 +479,10 @@ fi
 sudo cp /vx/code/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
 
+# Set up a one-time run to wipe the vx user directory
+sudo cp /vx/code/config/vx-cleanup.service /etc/systemd/system/
+sudo systemctl enable vx-cleanup.service
+
 # NOTE: you cannot use sudo commands after this runs
 if [[ "${IS_QA_IMAGE}" == 1 ]]; then
   sudo cp ${pollbook_config_files_dir}/sudoers-for-dev /etc/sudoers
@@ -487,11 +491,6 @@ else
 fi
 
 # NOTE AGAIN: no more sudo commands below this line. Privileges have been removed.
-
-# remove everything from this bootstrap user's home directory
-cd ${local_user_home_dir}
-rm -rf *
-rm -rf .*
 
 echo "Machine setup is complete. Please wait for the VM to reboot."
 
