@@ -19,7 +19,7 @@
 
     - name: Prebuilt package download path
       set_fact:
-        prebuilt_pkg_url: "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/openssl-fips_{{ openssl_version }}_amd64.deb"
+        prebuilt_pkg_url: "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/openssl-fips/openssl-fips_{{ openssl_version }}_amd64.deb"
 
     - name: Try to download a prebuilt package
       ansible.builtin.get_url:
