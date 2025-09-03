@@ -42,7 +42,7 @@
 
     - name: Get the latest kernel version available in bookworm-backports or apt snapshot
       ansible.builtin.shell:
-        cmd: "apt-cache madison linux-image-amd64 | grep -E \"backports|{{ apt_snapshot_date | default('')\" | sort -k 3 -r | awk '{print $3}' | cut -d'-' -f1 | head -1"
+        cmd: "apt-cache madison linux-image-amd64 | grep -E \"backports|{{ apt_snapshot_date | default('') }}\" | sort -k 3 -r | awk '{print $3}' | cut -d'-' -f1 | head -1"
       register: latest_kernel_version
       tags:
         - online
