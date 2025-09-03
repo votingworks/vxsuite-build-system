@@ -49,7 +49,7 @@
 
     - name: Upgrade the kernel packages and dependencies
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version.stdout }} 'linux-image-{{ latest_kernel_version.stdout }}*deb12-amd64' 'linux-headers-{{ latest_kernel_version.stdout }}*deb12-amd64'"
+        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version.stdout }} linux-image-amd64={{ latest_kernel_version.stdout }} 'linux-headers-{{ latest_kernel_version.stdout }}*deb12-amd64'"
       when: upgrade_kernel
       tags:
         - online
