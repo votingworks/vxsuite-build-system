@@ -69,7 +69,7 @@
         - name: Create a temporary install to build a package for installation
           ansible.builtin.shell:
             chdir: "{{ downloads_directory }}/openssl-{{ openssl_version }}"
-            cmd: "make install DESTDIR=/tmp/openssl-build"
+            cmd: "rm -rf /tmp/openssl-build && make install DESTDIR=/tmp/openssl-build"
           tags:
             - offline
 
