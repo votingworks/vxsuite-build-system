@@ -71,5 +71,8 @@ function pip_install ()
 apt_install $phase
 pip_install $phase
 
+# Ansible 2.19 is a trip, breaks long-standing sudo inheritance behaviors
+echo "Defaults !tty_tickets" | sudo tee /etc/sudoers.d/vx
+
 echo "Done"
 exit 0
