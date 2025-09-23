@@ -8,7 +8,7 @@
     - name: Create groups
       ansible.builtin.group:
         name: "{{ item.key }}"
-        gid: "{{ item.value.gid | default('') }}"
+        gid: "{{ item.value.gid | default(omit) }}"
         state: "{{ item.value.state | default('present') }}"
       with_dict:
         - "{{ system_groups }}"
