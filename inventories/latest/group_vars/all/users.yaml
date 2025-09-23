@@ -1,0 +1,44 @@
+---
+system_groups:
+  vx-group:
+    gid: 800
+  adm:
+  audio:
+  lpadmin:
+  scanner:
+  plugdev:
+  uinput:
+  dialout:
+  gpio:
+  fai100:
+
+system_users:
+  vx-services:
+    uid: 1750
+    homedir: /var/vx/services
+    groups: 
+      - adm
+      - audio
+      - dialout
+      - fai100
+      - gpio
+      - lpadmin
+      - plugdev
+      - scanner
+      - uinput
+      - vx-group
+  vx-ui:
+    uid: 1751
+    homedir: /var/vx/ui
+    groups: 
+      - adm
+      - audio
+      - video
+      - vx-group
+  vx-vendor:
+    uid: 1752
+    homedir: /var/vx/vendor
+    groups:
+      - adm
+      - vx-group
+
