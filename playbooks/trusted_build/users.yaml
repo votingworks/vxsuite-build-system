@@ -11,7 +11,7 @@
         gid: "{{ item.value.gid | default(omit) }}"
         state: "{{ item.value.state | default('present') }}"
       with_dict:
-        - "{{ system_groups }}"
+        - "{{ system_groups | default({}) }}"
 
     - name: Create users
       ansible.builtin.user:
@@ -23,5 +23,5 @@
         home: "{{ item.value.homedir | default('/home/item.key') }}"
         state: "{{ item.value.state | default('present') }}"
       with_dict:
-        - "{{ system_users }}"
+        - "{{ system_users | default({}) }}"
 
