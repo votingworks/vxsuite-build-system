@@ -1,0 +1,27 @@
+---
+- name: Create Vx users and groups
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - name: Create groups
+      ansible.builtin.group:
+        name: "{{ item.key }}"
+        gid: "{{ item.value.gid | default(omit) }}"
+        state: "{{ item.value.state | default('present') }}"
+      with_dict:
+        - "{{ system_groups | default({}) }}"
+
+    - name: Create users
+      ansible.builtin.user:
+        name: "{{ item.key }}"
+        comment: "{{ item.value.comment | default('No Comment') }}"
+        uid: "{{ item.value.uid }}"
+        groups: "{{ item.value.groups | join(',') }}"
+        shell: "{{ item.value.shell | default('/bin/bash') }}"
+        home: "{{ item.value.homedir | default('/home/item.key') }}"
+        state: "{{ item.value.state | default('present') }}"
+      with_dict:
+        - "{{ system_users | default({}) }}"
+
