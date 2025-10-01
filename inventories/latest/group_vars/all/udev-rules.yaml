@@ -1,0 +1,18 @@
+---
+udev_rules:
+  49-sane-missing-scanner:
+    rules: ATTRS{idVendor}=="04c5", MODE="0664", GROUP="scanner", ENV{libsane_matched}="yes"
+  50-custom-scanner:
+    rules: ATTRS{idVendor}=="0dd4", MODE="0664", GROUP="scanner"
+  50-gpio:
+    rules: |
+      SUBSYSTEM=="gpio", ACTION=="add", PROGRAM="/bin/sh -c 'chown -R root:gpio /sys/class/gpio && chmod -R g+rw /sys/class/gpio'"
+      SUBSYSTEM=="gpio", KERNEL=="gpio*", ACTION=="add", PROGRAM="/bin/sh -c 'chown -R root:gpio /sys/devices/platform/INT33FF:00/gpiochip0/gpio/* && chmod -R g+rw /sys/devices/platform/INT33FF:00/gpiochip0/gpio/*'"
+  50-pdi-scanner:
+    rule: SUBSYSTEM=="usb", ATTR{idVendor}=="0bd7", ATTR{idProduct}=="a002", MODE="0660", GROUP="scanner"
+  50-uinput:
+    rules: KERNEL=="uinput", MODE="0660", GROUP="uinput"
+  55-fai100:
+    rules: ATTRS{idVendor}=="28cd", ATTRS{idProduct}=="4002", MODE="0664", GROUP="fai100"
+  60-fujitsu-printer:
+    rules: SUBSYSTEM=="usb", ATTR{idVendor}=="0430", ATTR{idProduct}=="0626", MODE="0660", GROUP="plugdev"

@@ -1,0 +1,14 @@
+---
+- name: Manage udev rules
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - name: Create udev rule files
+      ansible.builtin.copy:
+        dest: "/etc/udev/rules.d/{{ item.key }}.rules"
+        content: "{{ item.value.rules }}"
+      with_dict:
+        - "{{ udev_rules }}"
+
