@@ -10,5 +10,5 @@
         dest: "/etc/udev/rules.d/{{ item.key }}.rules"
         content: "{{ item.value.rules }}"
       with_dict:
-        - "{{ udev_rules }}"
+        - "{{ udev_rules | default({}) }}"
 
