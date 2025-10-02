@@ -59,35 +59,23 @@
         latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
       when: apt_snapshot_date is defined and tmp_latest_linux_base_version is not skipped
 
-    - name: Get the latest kernel version available in bookworm-backports
+    - name: Get the latest kernel image available
       ansible.builtin.shell:
-        cmd: "apt-cache madison linux-image-amd64 | grep backports | sort -k 3 -r | awk '{print $3}' | cut -d'|' -f1 | head -1"
-      register: tmp_latest_kernel_version
-      when: apt_snapshot_date is not defined
+        cmd: "apt-cache search --names-only linux-image-[0-9] | sort -V | tail -1 | awk '{print $1}'"
+      register: latest_kernel_image
       tags:
         - online
 
-    - name: Set the latest_kernel_version variable
-      ansible.builtin.set_fact:
-        latest_kernel_version: "{{ tmp_latest_kernel_version.stdout }}"
-      when: apt_snapshot_date is not defined and tmp_latest_kernel_version is not skipped
-
-    - name: Get the latest kernel version available in VotingWorks apt repo
+    - name: Get the latest kernel headers available
       ansible.builtin.shell:
-        cmd: "apt-cache madison linux-image-amd64 | sort -k 3 -r | awk '{print $3}' | cut -d'|' -f1 | head -1"
-      register: tmp_latest_kernel_version
-      when: apt_snapshot_date is defined
+        cmd: "apt-cache search --names-only linux-headers-[0-9] | sort -V | tail -1 | awk '{print $1}'"
+      register: latest_kernel_headers
       tags:
         - online
-
-    - name: Set the latest_kernel_version variable
-      ansible.builtin.set_fact:
-        latest_kernel_version: "{{ tmp_latest_kernel_version.stdout }}"
-      when: apt_snapshot_date is defined and tmp_latest_kernel_version is not skipped
 
     - name: Upgrade the kernel packages and dependencies
       ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version }} linux-image-amd64={{ latest_kernel_version }} 'linux-headers-*deb12-amd64'"
+        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version }} {{ latest_kernel_image.stdout }} {{ latest_kernel_headers.stdout }}"
       when: upgrade_kernel
       tags:
         - online
