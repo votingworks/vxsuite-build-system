@@ -42,3 +42,47 @@ system_users:
       - adm
       - vx-group
 
+system_dirs:
+  /vx:
+    user: root
+    group: root
+  /var/vx:
+    user: root
+    group: root
+  /var/vx/config:
+    user: vx-vendor
+    group: vx-group
+  /var/vx/config/app-flags:
+    user: vx-vendor
+    group: vx-group
+  /var/vx/data:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-mark:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-scan:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-sems-converter:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/admin-service:
+    user: vx-services
+    group: vx-services
+  /var/vx/ui:
+    user: vx-ui
+    group: vx-ui
+  /var/vx/services:
+    user: vx-services
+    group: vx-services
+  /var/vx/vendor:
+    user: vx-vendor
+    group: vx-vendor
+  /media/vx:
+    user: vx-ui
+    group: vx-group
+  /media/vx/usb-drive:
+    user: vx-ui
+    group: vx-group
+
