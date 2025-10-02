@@ -52,6 +52,9 @@ system_dirs:
   /var/vx/config:
     user: vx-vendor
     group: vx-group
+  /var/vx/config/app-flags:
+    user: vx-vendor
+    group: vx-group
   /var/vx/data:
     user: vx-services
     group: vx-services
