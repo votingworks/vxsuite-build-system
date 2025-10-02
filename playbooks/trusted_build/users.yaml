@@ -25,3 +25,11 @@
       with_dict:
         - "{{ system_users | default({}) }}"
 
+    - name: Ensure directories exist with correct user/group ownership
+      ansible.builtin.file:
+        path: "{{ item.key }}"
+        state: directory
+        owner: "{{ item.value.user }}"
+        group: "{{ item.value.group }}"
+      with_dict:
+        - "{{ system_dirs | default({}) }}"
