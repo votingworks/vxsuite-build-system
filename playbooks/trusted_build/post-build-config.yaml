@@ -1,0 +1,97 @@
+---
+- name: Perform post-build configuration tasks
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+    - name: Add /sbin to system default bashrc
+      ansible.builtin.lineinfile:
+        path: /etc/bash.bashrc
+        line: 'export PATH=$PATH:/sbin'
+
+    - name: Disable automatic apt upgrades
+      ansible.builtin.copy:
+        src: "files/20auto-upgrades"
+        dest: "/etc/apt/apt.conf.d/20auto-upgrades"
+        mode: 0644
+
+    - name: Configure logind to not idle and to ignore lid idle behaviors
+      ansible.builtin.copy:
+        src: "files/logind.conf"
+        dest: "/etc/systemd/logind.conf"
+        mode: 0644
+
+    - name: Automatically load the i2c-dev module used by ddcutil
+      ansible.builtin.copy:
+        src: "files/ddcutil.conf"
+        dest: "/etc/modules-load.d/ddcutil.conf"
+        mode: 0644
+
+    - name: Load the i915 display module early in the boot process
+      ansible.builtin.lineinfile:
+        path: /etc/modules-load.d/modules.conf
+        line: 'i915'
+
+    - name: Configure dm-verity initramfs hook
+      ansible.builtin.copy:
+        src: "files/dmverity-root.hook"
+        dest: "/etc/initramfs-tools/hooks/dmverity-root"
+        mode: 0755
+
+    - name: Configure dm-verity local-premount script
+      ansible.builtin.copy:
+        src: "files/dmverity-root.script"
+        dest: "/etc/initramfs-tools/scripts/local-premount/dmverity-root"
+        mode: 0755
+
+    - name: Default to a multi-user.target (non-graphical login)
+      ansible.builtin.command: "systemctl set-default multi-user.target"
+
+    - name: Create the tty1 auto login directory
+      ansible.builtin.file:
+        state: directory
+        path: "/etc/systemd/system/getty@tty1.service.d"
+
+    - name: Configure the tty1 auto login behavior
+      ansible.builtin.copy:
+        src: "files/auto-login-override.conf"
+        dest: "/etc/systemd/system/getty@tty1.service.d/override.conf"
+
+    - name: Explicit package removals
+      ansible.builtin.package:
+        name: "{{ item }}"  
+        state: absent
+      loop:
+        - git
+        - firefox
+        - snapd
+
+    - name: Let apt autoremove unused packages and configs
+      ansible.builtin.apt:
+        autoremove: yes
+        purge: yes
+
+    # Note: we do not use the apt module since there can
+    # be deb packages in this directory that apt is not aware of
+    - name: Delete all deb packages from the cache
+      ansible.builtin.shell:
+        cmd: "rm -f /var/cache/apt/archives/*.deb"
+
+    - name: Delete temporary files and directories used during the build
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/tmp/code
+        - /var/tmp/downloads
+
+    # Note: May make sense to move this to the rust playbook
+    # with an offline tag
+    - name: Delete temporary Rust install directories
+      ansible.builtin.shell:
+        cmd: "rm -rf /var/tmp/rust*"
+
+    - name: Ensure a systemctl daemon-reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
