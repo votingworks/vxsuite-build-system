@@ -95,3 +95,6 @@
     - name: Ensure a systemctl daemon-reload
       ansible.builtin.systemd_service:
         daemon_reload: true
+
+    - name: Release cached VM disk space to minimize VM size
+      ansible.builtin.command: "/sbin/fstrim -av"
