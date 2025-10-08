@@ -66,6 +66,7 @@ cd $vxsuite_complete_system_dir
 sudo chown -R ${local_user}:${local_user} ${local_user_home_dir}/.*
 
 # Run shared post build config steps
+cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml
 
 echo "The offline build phase is complete."
