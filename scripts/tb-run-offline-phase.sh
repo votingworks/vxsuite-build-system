@@ -65,6 +65,9 @@ cd $vxsuite_complete_system_dir
 # Reset them so they can later be deleted during final image creation
 sudo chown -R ${local_user}:${local_user} ${local_user_home_dir}/.*
 
+# Run shared post build config steps
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml
+
 echo "The offline build phase is complete."
 echo "Depending on your needs, clone this VM and run setup-machine OR"
 echo "run setup-machine in this VM, understanding it is destructive."
