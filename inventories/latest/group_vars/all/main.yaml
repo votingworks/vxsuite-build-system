@@ -1,6 +1,7 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: adam/post-build-config
+    #version: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-latest"
 vm_disk_size_gb: 27
