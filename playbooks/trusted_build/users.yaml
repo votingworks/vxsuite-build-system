@@ -36,8 +36,8 @@
 
     - name: Create symlinks for user home directories
       ansible.builtin.file:
-        src: "{{ item.homedir }}"
-        dest: "{{ item.symlink }}"
+        src: "{{ item.value.homedir }}"
+        dest: "{{ item.value.symlink }}"
         force: true
         state: link
       with_dict:
