@@ -33,3 +33,12 @@
         group: "{{ item.value.group }}"
       with_dict:
         - "{{ system_dirs | default({}) }}"
+
+    - name: Create symlinks for user home directories
+      ansible.builtin.file:
+        src: "{{ item.homedir }}"
+        dest: "{{ item.symlink }}"
+        force: true
+        state: link
+      with_dict:
+        - "{{ system_users | default({}) }}"

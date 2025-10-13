@@ -27,6 +27,7 @@ system_users:
       - scanner
       - uinput
       - vx-group
+    symlink: /vx/services
   vx-ui:
     uid: 1751
     homedir: /var/vx/ui
@@ -35,12 +36,14 @@ system_users:
       - audio
       - video
       - vx-group
+    symlink: /vx/ui
   vx-vendor:
     uid: 1752
     homedir: /var/vx/vendor
     groups:
       - adm
       - vx-group
+    symlink: /vx/vendor
 
 system_dirs:
   /vx:
