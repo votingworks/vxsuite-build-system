@@ -6,9 +6,7 @@
 
   tasks:
 
-    # Might be worth exploring a different approach, but this is
-    # simple and straightforward for now
-    - import_tasks: logrotate.yaml
+    - import_tasks: shared_tasks/setup_logging.yaml
 
     - name: Copy the VotingWorks rsyslog template into place
       ansible.builtin.copy:
