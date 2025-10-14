@@ -1,0 +1,29 @@
+---
+- name: Manage rsyslog/syslog configs
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - import_tasks: shared_tasks/setup_logging.yaml
+
+    - name: Copy the VotingWorks rsyslog template into place
+      ansible.builtin.copy:
+        src: "files/votingworks-rsyslog-template.conf"
+        dest: "/etc/rsyslog.d/30-votingworks.conf"
+
+    - name: Copy the main VotingWorks rsyslog config into place
+      ansible.builtin.copy:
+        src: "files/rsyslog.conf"
+        dest: "/etc/rsyslog.conf"
+
+    - name: Copy the main VotingWorks journald config into place
+      ansible.builtin.copy:
+        src: "files/journald.conf"
+        dest: "/etc/systemd/journald.conf"
+
+    - name: Restart the rsyslog service
+      ansible.builtin.service:
+        name: rsyslog
+        state: restarted

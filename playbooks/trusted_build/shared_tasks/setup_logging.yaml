@@ -1,0 +1,22 @@
+---
+- name: Create syslog user
+  ansible.builtin.user:
+    name: syslog
+    groups: adm,tty
+    append: yes
+
+- name: Chown /var/spool/rsyslog
+  ansible.builtin.file:
+    path: '/var/spool/rsyslog'
+    state: directory
+    owner: syslog
+    group: adm
+
+- name: Create votingworks log directory
+  ansible.builtin.file:
+    path: '/var/log/votingworks'
+    state: directory
+    owner: syslog
+    group: adm
+    mode: 0755
+
