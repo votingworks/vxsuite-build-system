@@ -1,0 +1,14 @@
+[Unit]
+Description=Run sensors-detect on first boot to physical hardware
+DefaultDependencies=no
+ConditionVirtualization=no
+ConditionPathExists=!/home/lm-sensors-detected
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/sensors-detect --auto
+ExecStartPost=/home/lm-sensors-detected
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
