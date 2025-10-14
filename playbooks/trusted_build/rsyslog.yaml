@@ -6,6 +6,10 @@
 
   tasks:
 
+    # Might be worth exploring a different approach, but this is
+    # simple and straightforward for now
+    - import_tasks: logrotate.yaml
+
     - name: Copy the VotingWorks rsyslog template into place
       ansible.builtin.copy:
         src: "files/votingworks-rsyslog-template.conf"
@@ -20,16 +24,6 @@
       ansible.builtin.copy:
         src: "files/journald.conf"
         dest: "/etc/systemd/journald.conf"
-
-    # This should be taken care of in the logrotate playbook
-    # but it's included here in case this runs before/without that
-    - name: Create votingworks log directory
-      ansible.builtin.file:
-        path: '/var/log/votingworks'
-        state: directory
-        owner: syslog
-        group: adm
-        mode: 0755
 
     - name: Restart the rsyslog service
       ansible.builtin.service:
