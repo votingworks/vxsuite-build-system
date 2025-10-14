@@ -9,14 +9,14 @@
 
     - name: Copy the one-shot systemd service into place
       ansible.builtin.copy:
-        src: "files/systemd-lm-sensors.conf"
-        dest: "/etc/systemd/system/lm-sensors.conf"
+        src: "files/oneshot-lm-sensors.conf"
+        dest: "/etc/systemd/system/oneshot-lm-sensors.conf"
 
     # Note: This is a one-shot service that should only run once
     # when on physical hardware (will not run in a VM). After it has
     # run successfully, it will not run again
     - name: Start and enable the one-shot service to configure lm-sensors
       ansible.builtin.service:
-        name: lm-sensors
+        name: oneshot-lm-sensors
         state: started
         enabled: yes
