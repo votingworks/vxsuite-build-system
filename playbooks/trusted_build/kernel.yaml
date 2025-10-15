@@ -61,14 +61,14 @@
 
     - name: Get the latest kernel image available
       ansible.builtin.shell:
-        cmd: "apt-cache search --names-only linux-image-[0-9] | sort -V | tail -1 | awk '{print $1}'"
+        cmd: "apt-cache search --names-only linux-image-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
       register: latest_kernel_image
       tags:
         - online
 
     - name: Get the latest kernel headers available
       ansible.builtin.shell:
-        cmd: "apt-cache search --names-only linux-headers-[0-9] | sort -V | tail -1 | awk '{print $1}'"
+        cmd: "apt-cache search --names-only linux-headers-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
       register: latest_kernel_headers
       tags:
         - online
