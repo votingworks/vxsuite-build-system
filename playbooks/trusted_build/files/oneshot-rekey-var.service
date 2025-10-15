@@ -1,0 +1,14 @@
+[Unit]
+Description=Re-encrypt the /var partition via the TPM
+DefaultDependencies=no
+ConditionVirtualization=no
+ConditionPathExists=!/var/opt/REKEY_VIA_TPM_COMPLETE
+
+[Service]
+Type=oneshot
+ExecStart=/vx/vendor/vendor-functions/rekey-via-tpm.sh
+ExecStartPost=/usr/bin/touch /var/opt/REKEY_VIA_TPM_COMPLETE
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
