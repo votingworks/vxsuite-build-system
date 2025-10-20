@@ -64,6 +64,9 @@ system_dirs:
   /var/vx/data/module-mark:
     user: vx-services
     group: vx-services
+  /var/vx/data/module-mark-scan:
+    user: vx-services
+    group: vx-services
   /var/vx/data/module-scan:
     user: vx-services
     group: vx-services
