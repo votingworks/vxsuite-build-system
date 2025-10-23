@@ -16,6 +16,7 @@
 - import_playbook: firewalld.yaml
 - import_playbook: logrotate.yaml
 - import_playbook: rsyslog.yaml
+- import_playbook: rekey_var_service.yaml
 - import_playbook: lm-sensors.yaml
 - import_playbook: expand_var_service.yaml
 - import_playbook: disable_services.yaml
