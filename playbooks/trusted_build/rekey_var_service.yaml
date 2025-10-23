@@ -1,0 +1,22 @@
+---
+
+- name: Configure a system to rekey the var partition on first boot
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Copy the one-shot systemd service into place
+      ansible.builtin.copy:
+        src: "files/oneshot-rekey-var.service"
+        dest: "/etc/systemd/system/oneshot-rekey-var.service"
+
+    # Note: This is a one-shot service that should only run once
+    # when on physical hardware (will not run in a VM). After it has
+    # run successfully, it will not run again
+    - name: Start and enable the one-shot service to rekey var
+      ansible.builtin.service:
+        name: oneshot-rekey-var
+        state: started
+        enabled: yes
