@@ -2,7 +2,7 @@
 Description=Expand the /var filesystem
 DefaultDependencies=no
 After=var.mount oneshot-rekey-var.service
-Requires=var.mount
+Requires=var.mount oneshot-fips-install.service
 Wants=oneshot-rekey-var.service
 ConditionVirtualization=no
 ConditionPathExists=!/var/opt/EXPAND_VAR_COMPLETE
