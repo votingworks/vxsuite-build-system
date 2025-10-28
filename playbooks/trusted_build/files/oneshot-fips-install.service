@@ -1,17 +1,17 @@
 [Unit]
-Description=Re-encrypt the /var partition via the TPM
+Description=Run the fips install process
 DefaultDependencies=no
-After=var.mount oneshot-fips-install.service
+After=var.mount
 Requires=var.mount
 ConditionVirtualization=no
-ConditionPathExists=!/var/opt/REKEY_VIA_TPM_COMPLETE
+ConditionPathExists=!/var/opt/FIPS_INSTALL_COMPLETE
 ConditionPathIsMountPoint=/var
 Before=sysinit.target
 
 [Service]
 Type=oneshot
-ExecStart=/vx/vendor/vendor-functions/rekey-via-tpm.sh
-ExecStartPost=/usr/bin/touch /var/opt/REKEY_VIA_TPM_COMPLETE
+ExecStart=/vx/vendor/vendor-functions/fipsinstall.sh
+ExecStartPost=/usr/bin/touch /var/opt/FIPS_INSTALL_COMPLETE
 RemainAfterExit=yes
 StandardOutput=journal+console
 StandardError=journal+console
