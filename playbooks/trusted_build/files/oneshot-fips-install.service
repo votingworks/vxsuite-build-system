@@ -1,0 +1,20 @@
+[Unit]
+Description=Run the fips install process
+DefaultDependencies=no
+After=var.mount
+Requires=var.mount
+ConditionVirtualization=no
+ConditionPathExists=!/var/opt/FIPS_INSTALL_COMPLETE
+ConditionPathIsMountPoint=/var
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+ExecStart=/vx/vendor/vendor-functions/fipsinstall.sh
+ExecStartPost=/usr/bin/touch /var/opt/FIPS_INSTALL_COMPLETE
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=sysinit.target

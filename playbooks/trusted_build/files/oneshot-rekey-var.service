@@ -1,8 +1,8 @@
 [Unit]
 Description=Re-encrypt the /var partition via the TPM
 DefaultDependencies=no
-After=var.mount
-Requires=var.mount
+After=var.mount oneshot-fips-install.service
+Requires=var.mount oneshot-fips-install.service
 ConditionVirtualization=no
 ConditionPathExists=!/var/opt/REKEY_VIA_TPM_COMPLETE
 ConditionPathIsMountPoint=/var
