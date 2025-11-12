@@ -79,6 +79,7 @@ all_packages:
   - trash-cli
   - unclutter
   - unzip
+  - usbguard
   - wget
   - x11-common
   - xdg-utils
