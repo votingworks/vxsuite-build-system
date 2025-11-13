@@ -26,30 +26,21 @@
         group: vx
         mode: 0755
 
-    - name: Ensure vx etc dir exists
-      ansible.builtin.file:
-        path: "/var/vx/config/etc"
-        state: directory
-        owner: root
-        group: root
-
-    - name: Create the /vx/config link
-      ansible.builtin.command: "ln -fs /var/vx/config /vx/config"
-
-    - name: Move usbguard config to vx etc config
-      ansible.builtin.command: "mv /etc/usbguard/ /var/vx/config/etc/"
-
-    - name: Create the usbguard config link
-      ansible.builtin.command: "ln -fs /vx/config/etc/usbguard /etc/usbguard"
-
     - name: Create a default rules.conf that enables all devices
       ansible.builtin.copy: 
         content: |
           allow *:*
-        dest: "/etc/usbguard/rules.conf"
+        dest: "/var/etc/usbguard-rules.conf"
         owner: root
         group: root
         mode: 0600
+
+    - name: Update the usbguard daemon config to use a different rule path
+      ansible.builtin.lineinfile:
+        path: /etc/usbguard/usbguard-daemon.conf
+        regexp: '^RuleFile='
+        line: 'RuleFile=/var/etc/usbguard-rules.conf'
+        state: present
 
     - name: usbguard is enabled and started with the initial default allow
       ansible.builtin.service:
