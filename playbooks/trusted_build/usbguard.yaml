@@ -18,6 +18,14 @@
         owner: vx
         group: vx
 
+    - name: Ensure /var/etc exists
+      ansible.builtin.file:
+        path: "/var/etc"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
     - name: Copy the set-usb-port-status script into place
       ansible.builtin.copy:
         src: "files/set-usb-port-status.sh"
