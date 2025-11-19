@@ -20,4 +20,5 @@
 - import_playbook: rekey_var_service.yaml
 - import_playbook: lm-sensors.yaml
 - import_playbook: expand_var_service.yaml
+- import_playbook: usbguard.yaml
 - import_playbook: disable_services.yaml

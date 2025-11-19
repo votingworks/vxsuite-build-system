@@ -1,0 +1,58 @@
+---
+
+#TODO: First attempt at a playbook that also does system config
+# that was historically handled during setup-machine steps. We should probably
+# create a shared task file that can simply be imported by any playbook
+
+- name: Initialize usbguard to allow mass storage, keyboard, and mice
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Ensure /vx/code/app-scripts exists
+      ansible.builtin.file:
+        path: "/vx/code/app-scripts"
+        state: directory
+        owner: vx
+        group: vx
+
+    - name: Ensure /var/etc exists
+      ansible.builtin.file:
+        path: "/var/etc"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Copy the set-usb-port-status script into place
+      ansible.builtin.copy:
+        src: "files/set-usb-port-status.sh"
+        dest: "/vx/code/app-scripts/set-usb-port-status.sh"
+        owner: vx
+        group: vx
+        mode: 0755
+
+    - name: Create a default rules.conf that enables all devices
+      ansible.builtin.copy: 
+        content: |
+          allow *:*
+        dest: "/var/etc/usbguard-rules.conf"
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Update the usbguard daemon config to use a different rule path
+      ansible.builtin.lineinfile:
+        path: /etc/usbguard/usbguard-daemon.conf
+        regexp: '^RuleFile='
+        line: 'RuleFile=/var/etc/usbguard-rules.conf'
+        state: present
+
+    - name: usbguard is enabled and started with the initial default allow
+      ansible.builtin.service:
+        name: usbguard
+        state: started
+        enabled: yes
+
