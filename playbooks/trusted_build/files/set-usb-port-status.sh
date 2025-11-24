@@ -3,16 +3,17 @@
 
 set -euo pipefail
 
+action="${1:-status}"
+
 MASS_STORAGE="08:*:*"
 KEYBOARD="03:01:*"
 MOUSE="03:02:*"
 
 rules_path="/var/etc/usbguard-rules.conf"
 
-# generate list of initial allowed devices
-usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} > ${rules_path}
-
-if [[ $1 == "block" ]]; then
+if [[ $action == "block" ]]; then
+  # generate list of always allowed devices
+  usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} > ${rules_path}
   BLOCK_RULES=$(cat <<EOF
 # Block external USB storage, keyboards, and mice
 block with-interface one-of { ${MASS_STORAGE} }
@@ -22,7 +23,9 @@ EOF
 )
   echo "$BLOCK_RULES" >> ${rules_path}
   systemctl restart usbguard
-elif [[ $1 == "allow" ]]; then
+elif [[ $action == "allow" ]]; then
+  # generate list of always allowed devices
+  usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} > ${rules_path}
   ALLOW_RULES=$(cat <<EOF
 # Allow external USB storage, keyboards, and mice
 allow with-interface one-of { ${MASS_STORAGE} }
