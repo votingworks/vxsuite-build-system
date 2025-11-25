@@ -24,16 +24,16 @@ EOF
   echo "$BLOCK_RULES" >> ${rules_path}
   systemctl restart usbguard
 elif [[ $action == "allow" ]]; then
+  # Possible TODO: consider a more restrictive policy, but for now we 
+  # allow everything so this policy generation is unnecessary
   # generate list of always allowed devices
-  usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} > ${rules_path}
+  #usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} > ${rules_path}
   ALLOW_RULES=$(cat <<EOF
-# Allow external USB storage, keyboards, and mice
-allow with-interface one-of { ${MASS_STORAGE} }
-allow with-interface one-of { ${KEYBOARD} }
-allow with-interface one-of { ${MOUSE} }
+# Allow everything
+allow *:*
 EOF
 )
-  echo "$ALLOW_RULES" >> ${rules_path}
+  echo "$ALLOW_RULES" > ${rules_path}
   systemctl restart usbguard
 else
   if grep -q "block with-interface" ${rules_path}; then
