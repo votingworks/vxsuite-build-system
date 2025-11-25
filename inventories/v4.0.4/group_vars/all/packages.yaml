@@ -1,6 +1,8 @@
 ---
 batch_package_install: true
 upgrade_kernel: true
+apt_snapshot_date: "20251125"
+release_name: "bookworm"
 
 all_packages:
   - alsa-utils
