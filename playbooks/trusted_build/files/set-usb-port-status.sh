@@ -36,10 +36,10 @@ EOF
   echo "$ALLOW_RULES" >> ${rules_path}
   systemctl restart usbguard
 else
-  if grep -q "allow with-interface" ${rules_path}; then
-    echo "usb allowed"
-  else
+  if grep -q "block with-interface" ${rules_path}; then
     echo "usb blocked"
+  else
+    echo "usb allowed"
   fi
 fi
 
