@@ -1,0 +1,94 @@
+---
+system_groups:
+  vx-group:
+    gid: 800
+  adm:
+  audio:
+  lpadmin:
+  scanner:
+  plugdev:
+  uinput:
+  dialout:
+  gpio:
+  fai100:
+
+system_users:
+  vx-services:
+    uid: 1750
+    homedir: /var/vx/services
+    groups: 
+      - adm
+      - audio
+      - dialout
+      - fai100
+      - gpio
+      - lpadmin
+      - plugdev
+      - scanner
+      - uinput
+      - vx-group
+    symlink: /vx/services
+  vx-ui:
+    uid: 1751
+    homedir: /var/vx/ui
+    groups: 
+      - adm
+      - audio
+      - video
+      - vx-group
+    symlink: /vx/ui
+  vx-vendor:
+    uid: 1752
+    homedir: /var/vx/vendor
+    groups:
+      - adm
+      - vx-group
+    symlink: /vx/vendor
+
+system_dirs:
+  /vx:
+    user: root
+    group: root
+  /var/vx:
+    user: root
+    group: root
+  /var/vx/config:
+    user: vx-vendor
+    group: vx-group
+  /var/vx/config/app-flags:
+    user: vx-vendor
+    group: vx-group
+  /var/vx/data:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-mark:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-mark-scan:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-scan:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/module-sems-converter:
+    user: vx-services
+    group: vx-services
+  /var/vx/data/admin-service:
+    user: vx-services
+    group: vx-services
+  /var/vx/ui:
+    user: vx-ui
+    group: vx-ui
+  /var/vx/services:
+    user: vx-services
+    group: vx-services
+  /var/vx/vendor:
+    user: vx-vendor
+    group: vx-vendor
+  /media/vx:
+    user: vx-ui
+    group: vx-group
+  /media/vx/usb-drive:
+    user: vx-ui
+    group: vx-group
+
