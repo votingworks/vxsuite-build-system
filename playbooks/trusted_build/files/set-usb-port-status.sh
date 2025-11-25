@@ -26,8 +26,6 @@ EOF
 elif [[ $action == "allow" ]]; then
   # Possible TODO: consider a more restrictive policy, but for now we 
   # allow everything so this policy generation is unnecessary
-  # generate list of always allowed devices
-  #usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} > ${rules_path}
   ALLOW_RULES=$(cat <<EOF
 # Allow everything
 allow *:*
