@@ -50,6 +50,13 @@
         line: 'RuleFile=/var/etc/usbguard-rules.conf'
         state: present
 
+    - name: Update the usbguard daemon config to implicitly allow unidentified devices
+      ansible.builtin.lineinfile:
+        path: /etc/usbguard/usbguard-daemon.conf
+        regexp: '^ImplictPolicyTarget='
+        line: 'ImplicitPolicyTarget=allow'
+        state: present
+
     - name: usbguard is enabled and started with the initial default allow
       ansible.builtin.service:
         name: usbguard
