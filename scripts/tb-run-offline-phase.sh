@@ -59,7 +59,11 @@ make offline-kiosk-browser
 echo "Run build.sh in complete-system. This will take several minutes."
 sleep 5
 cd $vxsuite_complete_system_dir
-./build.sh
+if [[ "${2:-}" == "--include-new-machines" ]]; then
+  ./build.sh admin central-scan mark-scan scan mark print
+else
+  ./build.sh admin central-scan mark-scan scan
+fi
 
 # Node20 upgrade has modified the permissions on some cached build dirs
 # Reset them so they can later be deleted during final image creation
