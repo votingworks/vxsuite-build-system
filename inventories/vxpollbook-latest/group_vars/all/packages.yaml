@@ -20,6 +20,7 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
+  - firmware-ath9k-htc
   - firmware-amd-graphics
   - firmware-iwlwifi
   - firmware-linux
