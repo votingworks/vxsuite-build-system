@@ -160,8 +160,8 @@ sudo cp "$pollbook_config_files_dir/avahi-autoipd.service" /etc/systemd/system/.
 sudo cp "$pollbook_config_files_dir/99-mesh-network.rules" /etc/udev/rules.d/.
 
 # Barcode scanner udev rules
-sudo cp "$pollbook_config_files_dir/70-ts100-plugdev-usb.rules" /etc/udev/rules.d/.
-sudo cp "$pollbook_config_files_dir/99-ts100-dialout-tty.rules" /etc/udev/rules.d/.
+sudo cp "$pollbook_config_files_dir/70-cino-s680-plugdev-usb.rules" /etc/udev/rules.d/.
+sudo cp "$pollbook_config_files_dir/99-cino-s680-dialout-tty.rules" /etc/udev/rules.d/.
 
 ### set up CUPS to read/write all config out of /var to be compatible with read-only root filesystem
 

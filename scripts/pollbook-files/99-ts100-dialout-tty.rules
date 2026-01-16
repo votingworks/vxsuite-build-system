@@ -1,1 +1,0 @@
-SUBSYSTEM=="tty", ACTION=="add", KERNEL=="ttyACM[0-9]*", ATTRS{idVendor}=="2745", ATTRS{idProduct}=="300a", MODE="0660", GROUP="dialout", SYMLINK+="barcode_scanner"
