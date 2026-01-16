@@ -33,8 +33,8 @@ sudo cp "$BASE_SCRIPT_DIR/avahi-autoipd.service" /etc/systemd/system/.
 sudo cp "$BASE_SCRIPT_DIR/99-mesh-network.rules" /etc/udev/rules.d/.
 
 # Barcode scanner udev rules
-sudo cp "$BASE_SCRIPT_DIR/70-ts100-plugdev-usb.rules" /etc/udev/rules.d/.
-sudo cp "$BASE_SCRIPT_DIR/99-ts100-dialout-tty.rules" /etc/udev/rules.d/.
+sudo cp "$BASE_SCRIPT_DIR/70-cino-s680-scanner-plugdev-usb.rules" /etc/udev/rules.d/.
+sudo cp "$BASE_SCRIPT_DIR/99-cino-s680-dialout-tty.rules" /etc/udev/rules.d/.
 
 cd "$VXDEV_SCRIPT_DIR"
 
