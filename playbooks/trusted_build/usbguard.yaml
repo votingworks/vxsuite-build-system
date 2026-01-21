@@ -53,7 +53,7 @@
     - name: Update the usbguard daemon config to implicitly allow unidentified devices
       ansible.builtin.lineinfile:
         path: /etc/usbguard/usbguard-daemon.conf
-        regexp: '^ImplictPolicyTarget='
+        regexp: '^ImplicitPolicyTarget='
         line: 'ImplicitPolicyTarget=allow'
         state: present
 
