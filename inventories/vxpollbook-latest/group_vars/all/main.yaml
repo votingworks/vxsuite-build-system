@@ -6,7 +6,7 @@ repos:
   vxsuite-complete-system:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian12-2-pollbook-base"
+vm_name: "debian-pollbook-latest"
 vm_disk_size_gb: 35
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
@@ -14,5 +14,7 @@ iso_url: "https://cdimage.debian.org/cdimage/archive/{{ iso_version }}/amd64/iso
 vm_preseed_path: "/home/{{ ansible_env.SUDO_USER }}/code/vxsuite-build-system/preseeds"
 vm_preseed_file: "pollbook-preseed.cfg"
 secure_boot: true
+rust_version: "1.86.0"
+qa_image: true
 cloned_images:
   - pollbook
