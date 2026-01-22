@@ -6,7 +6,7 @@ repos:
   vxsuite-complete-system:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian-pollbook-latest"
+vm_name: "debian-vxpollbook-latest"
 vm_disk_size_gb: 35
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
