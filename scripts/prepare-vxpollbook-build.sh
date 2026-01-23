@@ -60,7 +60,7 @@ sudo -v
 cd $kiosk_browser_dir
 make install
 make build
-sudo dpkg -i dist/kiosk-browser_1.0.0_*.deb
+sudo dpkg -i dist/kiosk-browser_*.deb
 
 echo "Build VxPollbook"
 sleep 5
