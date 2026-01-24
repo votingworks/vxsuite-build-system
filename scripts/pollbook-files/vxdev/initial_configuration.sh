@@ -36,6 +36,9 @@ sudo cp "$BASE_SCRIPT_DIR/99-mesh-network.rules" /etc/udev/rules.d/.
 sudo cp "$BASE_SCRIPT_DIR/70-cino-s680-scanner-plugdev-usb.rules" /etc/udev/rules.d/.
 sudo cp "$BASE_SCRIPT_DIR/99-cino-s680-dialout-tty.rules" /etc/udev/rules.d/.
 
+# Printer udev rules
+sudo cp "$BASE_SCRIPT_DIR/99-citizen-driver.rules" /etc/udev/rules.d/.
+
 cd "$VXDEV_SCRIPT_DIR"
 
 sudo cp "$VXDEV_SCRIPT_DIR/run-vxpollbook.sh" /vx/scripts/.
