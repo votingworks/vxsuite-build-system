@@ -1,0 +1,3 @@
+# Prevent usblp kernel driver from claiming CITIZEN receipt printer
+# Let CUPS handle it via libusb (usbfs) like the HP printer
+SUBSYSTEM=="usb", DRIVER=="usblp", ATTRS{idVendor}=="1d90", ATTRS{idProduct}=="20f0", RUN+="/bin/sh -c 'echo -n %k > /sys/bus/usb/drivers/usblp/unbind 2>/dev/null || true'"
