@@ -484,6 +484,8 @@ sudo systemctl enable vm-fstrim.service
 
 # Set up a one-time run to wipe the vx user directory
 sudo cp /vx/code/config/vx-cleanup.service /etc/systemd/system/
+sudo cp /vx/code/config/vx-cleanup.sh /var/opt/vx-cleanup.sh
+sudo systemctl daemon-reload
 sudo systemctl enable vx-cleanup.service
 
 # NOTE: you cannot use sudo commands after this runs
