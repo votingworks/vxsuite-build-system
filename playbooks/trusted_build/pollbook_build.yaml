@@ -4,6 +4,7 @@
   connection: local
   become: yes
 
+- import_playbook: kernel.yaml
 - import_playbook: packages.yaml
 - import_playbook: initialize_encrypted_volumes.yaml
 - import_playbook: node.yaml
@@ -16,4 +17,6 @@
 - import_playbook: logrotate.yaml
 - import_playbook: tpm.yaml
 - import_playbook: openssl_fips.yaml
-- import_playbook: kernel.yaml
+- import_playbook: fips_install_service.yaml
+- import_playbook: rekey_var_service.yaml
+- import_playbook: expand_var_service.yaml
