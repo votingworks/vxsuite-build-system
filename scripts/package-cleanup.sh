@@ -8,8 +8,8 @@ if [[ "$debian_version" == "11" ]]; then
   DEBIAN_FRONTEND=noninteractive sudo python3.9 -m pip uninstall -y --break-system-packages ansible passlib
 fi
 
-DEBIAN_FRONTEND=noninteractive sudo apt autoremove -y
-DEBIAN_FRONTEND=noninteractive sudo apt clean
+DEBIAN_FRONTEND=noninteractive sudo apt-get autoremove -y
+DEBIAN_FRONTEND=noninteractive sudo apt-get clean
 DEBIAN_FRONTEND=noninteractive sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 exit 0
