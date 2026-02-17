@@ -58,7 +58,6 @@ all_packages:
   - libx11-dev
   - libxss1
   - libxtst6
-  - libzbar-dev
   - make
   - mingetty
   - openbox
