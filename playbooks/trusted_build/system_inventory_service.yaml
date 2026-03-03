@@ -1,0 +1,36 @@
+---
+
+- name: Run low level system diagnostics related to hardware inventory
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Ensure /vx/code/app-scripts exists
+      ansible.builtin.file:
+        path: "/vx/code/app-scripts"
+        state: directory
+        owner: vx
+        group: vx
+
+    - name: Copy the system-inventory.sh script into place
+      ansible.builtin.copy:
+        src: "files/system-inventory.sh"
+        dest: "/vx/code/app-scripts/system-inventory.sh"
+        owner: vx
+        group: vx
+        mode: 0755
+
+    - name: Copy the one-shot systemd service into place
+      ansible.builtin.copy:
+        src: "files/oneshot-system-inventory.service"
+        dest: "/etc/systemd/system/oneshot-system-inventory.service"
+
+    # This is a one-shot service that runs on every boot after the system
+    # has loaded
+    - name: Start and enable the one-shot service to capture inventory info
+      ansible.builtin.service:
+        name: oneshot-system-inventory
+        state: started
+        enabled: yes
