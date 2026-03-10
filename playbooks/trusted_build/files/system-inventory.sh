@@ -35,6 +35,7 @@ fi
 # Display
 if ddcutil getvcp 10 --brief > /dev/null 2>&1; then
   DATA["screen_brightness"]=$(ddcutil getvcp 10 --brief | awk '{print $4}' || echo "NA")
+  DATA["screen_firmware"]=$(ddcutil getvcp c9 | cut -d':' -f2 | xargs || echo "NA")
 fi
 
 # Card Reader
@@ -72,12 +73,17 @@ else
   DATA["printer_model"]=$( lsusb -v -s "${printer_dev}" | grep idProduct | xargs | cut -d" " -f2- || echo "NA")
 fi
 
+# Sort keys for consistent output
+# This also supports keys that might contain spaces
+# even though we do not use spaces by default
+mapfile -t sorted_keys < <(printf '%s\n' "${!DATA[@]}" | sort)
+
 # Text based log
 {
     echo "=========================================="
     echo " SYSTEM INVENTORY: $(date)"
     echo "=========================================="
-    for key in "${!DATA[@]}"; do
+    for key in "${sorted_keys[@]}"; do
         printf "%-30s : %s\n" "$key" "${DATA[$key]}"
     done
     echo "=========================================="
@@ -86,7 +92,7 @@ fi
 # JSON log
 echo "{" > "$JSON_FILE"
 FIRST=true
-for key in "${!DATA[@]}"; do
+for key in "${sorted_keys[@]}"; do
     if [ "$FIRST" = true ]; then
         FIRST=false
     else
