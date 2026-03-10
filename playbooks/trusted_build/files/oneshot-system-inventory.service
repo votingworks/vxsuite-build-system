@@ -1,0 +1,13 @@
+[Unit]
+Description=Run diagnostics to generate a system inventory
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/vx/code/app-scripts/system-inventory.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target
