@@ -15,14 +15,16 @@
     - name: Set the default zone to "drop" so all traffic is dropped by default
       ansible.builtin.command: "firewall-cmd --set-default-zone=drop"
 
-    - name: Create a new zone for local ethernet on 192.168.1.0/24
+    - name: Create a new zone for local ethernet 
       ansible.builtin.command: "firewall-cmd --permanent --new-zone=vxnet"
 
     - name: Accept all traffic in the vxnet zone
       ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --set-target=ACCEPT"
 
-    - name: Add the 192.168.1.0/24 range to the vxnet zone
-      ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --add-source=192.168.1.0/24"
+    # Note: We're using avahi-autopid for IP assignment
+    # That uses 169.254.0.0/16
+    - name: Add the 169.254.0.0/16 range to the vxnet zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --add-source=169.254.0.0/16"
 
     - name: Add the loopback interface to the trusted zone
       ansible.builtin.command: "firewall-cmd --permanent --zone=trusted --add-interface=lo"
