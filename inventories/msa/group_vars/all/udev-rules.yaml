@@ -3,9 +3,7 @@
 #       see 50-gpio for an example
 udev_rules:
   10-ifup-ethernet:
-    rules: |
-      SUBSYSTEM=="net", ACTION=="add", KERNEL!="lo", KERNEL!="wl*", RUN+="/sbin/avahi-autoipd --daemonize %k"
-      SUBSYSTEM=="net", ACTION=="remove", KERNEL!="lo", KERNEL!="wl*", RUN+="/sbin/avahi-autoipd --kill %k"
+    rules: SUBSYSTEM=="net", ACTION=="add", KERNEL!="lo", KERNEL!="wl*", TAG+="systemd", ENV{SYSTEMD_WANTS}="avahi-autoipd@%k.service"
   49-sane-missing-scanner:
     rules: ATTRS{idVendor}=="04c5", MODE="0664", GROUP="scanner", ENV{libsane_matched}="yes"
   50-custom-scanner:
