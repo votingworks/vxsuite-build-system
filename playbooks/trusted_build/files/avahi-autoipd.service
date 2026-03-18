@@ -1,0 +1,8 @@
+[Unit]
+Description=Avahi auto ip assignment on %i
+After=sys-subsystem-net-devices-%i.device
+
+[Service]
+Type=simple
+ExecStart=/sbin/avahi-autoipd %I
+ExecStop=/sbin/avahi-autoipd --kill %I
