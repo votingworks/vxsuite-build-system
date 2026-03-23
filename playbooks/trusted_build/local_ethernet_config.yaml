@@ -1,0 +1,22 @@
+---
+
+- name: Configure local ethernet but default to disabled
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Copy the local ethernet config in place
+      ansible.builtin.copy:
+        src: "files/10-ethernet.network"
+        dest: "/etc/systemd/network/10-ethernet.network"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Configure the systemd-networkd service default state
+      ansible.builtin.service:
+        name: systemd-networkd
+        state: stopped
+        enabled: no
