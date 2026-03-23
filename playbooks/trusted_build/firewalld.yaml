@@ -21,7 +21,7 @@
     - name: Accept all traffic in the vxnet zone
       ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --set-target=ACCEPT"
 
-    # Note: We're using avahi-autopid for IP assignment
+    # Note: We're using systemd-networkd with local addressing for IP assignment
     # That uses 169.254.0.0/16
     - name: Add the 169.254.0.0/16 range to the vxnet zone
       ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --add-source=169.254.0.0/16"
