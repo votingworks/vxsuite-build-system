@@ -108,8 +108,4 @@ chown syslog:adm $JSON_FILE
 chmod 640 $LOG_FILE
 chmod 640 $JSON_FILE
 
-echo "Files created:"
-echo "Log:  $LOG_FILE"
-echo "JSON: $JSON_FILE"
-
 exit 0
