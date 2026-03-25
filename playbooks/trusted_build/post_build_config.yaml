@@ -91,6 +91,17 @@
       ansible.builtin.shell:
         cmd: "rm -rf /var/tmp/rust*"
 
+    - name: Install media-vx tmpfs mount unit
+      ansible.builtin.copy:
+        src: "files/media-vx.mount"
+        dest: "/etc/systemd/system/media-vx.mount"
+        mode: 0644
+
+    - name: Enable media-vx tmpfs mount
+      ansible.builtin.systemd_service:
+        name: media-vx.mount
+        enabled: true
+
     - name: Ensure a systemctl daemon-reload
       ansible.builtin.systemd_service:
         daemon_reload: true

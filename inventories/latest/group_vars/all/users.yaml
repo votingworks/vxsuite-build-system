@@ -88,7 +88,4 @@ system_dirs:
   /media/vx:
     user: vx-ui
     group: vx-group
-  /media/vx/usb-drive:
-    user: vx-ui
-    group: vx-group
 

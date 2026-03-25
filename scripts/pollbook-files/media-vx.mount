@@ -1,0 +1,11 @@
+[Unit]
+Description=Tmpfs for USB drive mount points
+
+[Mount]
+What=tmpfs
+Where=/media/vx
+Type=tmpfs
+Options=mode=0755,nosuid,nodev,noexec
+
+[Install]
+WantedBy=local-fs.target

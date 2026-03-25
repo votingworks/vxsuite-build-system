@@ -142,9 +142,12 @@ sudo usermod -aG plugdev vx-services
 # Set up log config
 (cd $complete_system_dir && sudo bash setup-scripts/setup-logging.sh)
 
-# set up mount point ahead of time because read-only later
-sudo mkdir -p /media/vx/usb-drive
-sudo chown -R vx-ui:vx-group /media/vx
+# create the /media/vx anchor directory; a tmpfs is mounted over it at boot
+# to allow dynamic USB drive mount points on the read-only root filesystem
+sudo mkdir -p /media/vx
+sudo cp $pollbook_config_files_dir/media-vx.mount /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable media-vx.mount
 
 # let vx-services manage printers
 sudo usermod -aG lpadmin vx-services
