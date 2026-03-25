@@ -529,9 +529,13 @@ d-i debian-installer/exit/poweroff boolean true
 # still a usable /target directory. You can chroot to /target and use it
 # directly, or use the apt-install and in-target commands to easily install
 # packages and run commands in the target system.
-{% if apt_snapshot_date is defined and release_name is defined %}
 d-i preseed/late_command string \
+{% if apt_snapshot_date is defined and release_name is defined %}
 	wget -O "/target/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc" "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/votingworks-apt-{{ apt_snapshot_date }}.pub"; \
 	echo "deb [check-valid-until=no signed-by=/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc] http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/{{ apt_snapshot_date }}/ {{ release_name }} main" > /target/etc/apt/sources.list; \
-	in-target apt-get -y update;
+	in-target apt-get -y update; \
 {% endif %}
+	mkdir -p /target/var/home/vx; \
+	in-target usermod -m -d /var/home/vx vx; \
+	rmdir /target/home/vx; \
+	ln -s /var/home/vx /target/home/vx;
