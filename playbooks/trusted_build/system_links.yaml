@@ -1,0 +1,22 @@
+---
+- name: Create system symlinks 
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  #TODO: This currently assumes the dest directory already exists
+  #      and that's fine for this initial playbook, but worth 
+  #      reviewing as we use the pattern more to consider handling
+  #      dest directory creation and ownership
+  #      We primarily create directories in users.yaml right now
+  #      and that could become a bit clunky over time
+  # Note: system_links is currently defined in users.yaml in each inventory
+  tasks:
+    - name: Create symlinks for user home directories
+      ansible.builtin.file:
+        src: "{{ item.value.src }}"
+        dest: "{{ item.value.dest }}"
+        force: "{{ item.value.force | default('false') }}"
+        state: link
+      with_dict:
+        - "{{ system_links | default({}) }}"
