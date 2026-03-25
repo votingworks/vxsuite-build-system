@@ -537,5 +537,8 @@ d-i preseed/late_command string \
 {% endif %}
 	mkdir -p /target/var/home/vx; \
 	in-target usermod -m -d /var/home/vx vx; \
-	rmdir /target/home/vx; \
-	ln -s /var/home/vx /target/home/vx;
+	cp -a /target/home/vx/. /target/var/home/vx/; \
+	rm -rf /target/home/vx; \
+	ln -s /var/home/vx /target/home/vx; \
+	in-target su - vx -c "mkdir -p /home/vx/code"; \
+	in-target su - vx -c "git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system";
