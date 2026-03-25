@@ -99,5 +99,11 @@
             owner: "{{ user_to_configure }}"
             group: "{{ user_to_configure }}"
 
+        - name: Remove the tmp copy
+          ansible.builtin.file:
+            path: "{{ tmp_code_directory }}"
+            state: absent
+          when: (tmp_code_directory is defined) and (tmp_code_directory|length > 0)
+
       tags:
         - offline
