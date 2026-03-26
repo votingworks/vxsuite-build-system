@@ -263,7 +263,7 @@ d-i partman-auto/expert_recipe string     \
     filesystem{ ext2 }                     \
     mountpoint{ /boot }                   \
     .                                     \
-    8000 800 8000 ext4                    \
+    11000 800 11000 ext4                    \
     \$lvmok{ }                            \
     method{ format }                      \
     format{ }                             \
@@ -535,10 +535,10 @@ d-i preseed/late_command string \
 	echo "deb [check-valid-until=no signed-by=/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc] http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/{{ apt_snapshot_date }}/ {{ release_name }} main" > /target/etc/apt/sources.list; \
 	in-target apt-get -y update; \
 {% endif %}
-	mkdir -p /target/var/home/vx; \
-	in-target usermod -m -d /var/home/vx vx; \
-	cp -a /target/home/vx/. /target/var/home/vx/; \
+	mkdir -p /target/vxbuild; \
+	in-target usermod -m -d /vxbuild vx; \
+	cp -a /target/home/vx/. /target/vxbuild/; \
 	rm -rf /target/home/vx; \
-	ln -s /var/home/vx /target/home/vx; \
+	ln -s /vxbuild /target/home/vx; \
 	in-target su - vx -c "mkdir -p /home/vx/code"; \
 	in-target su - vx -c "git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system";
