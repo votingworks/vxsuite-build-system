@@ -5,7 +5,7 @@
   become: yes
 
   vars:
-    tmp_code_directory: "/var/tmp/code"
+    download_code_directory: "/var/opt/code"
     user_to_configure: "{{ ansible_env.SUDO_USER | default('root') }}"
     code_directory: "~{{ user_to_configure }}/code"
 
@@ -26,22 +26,26 @@
     - name: Online tasks for git repos
       block:
 
-      - name: Make sure the {{ tmp_code_directory }} directory does not exist from a previous build
+      - name: Make sure the {{ download_code_directory }} directory does not exist from a previous build
         ansible.builtin.file:
-          path: "{{ tmp_code_directory }}"
+          path: "{{ download_code_directory }}"
           state: absent
-        when: (tmp_code_directory is defined) and (tmp_code_directory|length > 0)
+        when: (download_code_directory is defined) and (download_code_directory|length > 0)
 
       - name: Create the code subdir
         ansible.builtin.file:
-          path: "{{ tmp_code_directory }}"
+          path: "{{ download_code_directory }}"
           state: directory
+          owner: "{{ user_to_configure }}"
+          group: "{{ user_to_configure }}"
           mode: '0755'
   
       - name: Create the repo subdirs in the code dir
         ansible.builtin.file:
-          path: "{{ tmp_code_directory }}/{{ item.key }}"
+          path: "{{ download_code_directory }}/{{ item.key }}"
           state: directory
+          owner: "{{ user_to_configure }}"
+          group: "{{ user_to_configure }}"
           mode: '0755'
         with_dict: "{{ repos }}"
     
@@ -51,9 +55,11 @@
       - name: Clone the votingworks repos
         ansible.builtin.git:
           repo: "https://github.com/votingworks/{{ item.key }}.git"
-          dest: "{{ tmp_code_directory }}/{{ item.key }}"
+          dest: "{{ download_code_directory }}/{{ item.key }}"
           version: "{{ item.value.version | default('main') }}"
         with_dict: "{{ repos }}"
+        become: true
+        become_user: "{{ user_to_configure }}"
 
       tags:
         - online
@@ -61,14 +67,14 @@
     #-- TODO: Should this just be part of an initial script copy instead?
     - name: Offline tasks for git repos
       block:
-        - name: Check that the expected {{ tmp_code_directory }} directory exists
+        - name: Check that the expected {{ download_code_directory }} directory exists
           ansible.builtin.stat:
-            path: "{{ tmp_code_directory }}"
+            path: "{{ download_code_directory }}"
           register: code_dir_info
 
-        - name: Error if {{ tmp_code_directory }} does not exist
+        - name: Error if {{ download_code_directory }} does not exist
           ansible.builtin.fail:
-            msg: "Error: The expected {{ tmp_code_directory }} directory does not exist."
+            msg: "Error: The expected {{ download_code_directory }} directory does not exist."
           when: not code_dir_info.stat.exists or not code_dir_info.stat.isdir
 
         - name: Create the {{ code_directory }} directory
@@ -91,19 +97,13 @@
           when: item.stat.exists
           with_items: "{{ repos_info.results }}"
 
-        - name: Copy {{ tmp_code_directory }} to {{ code_directory }}
-          ansible.builtin.copy:
-            src: "{{ tmp_code_directory }}/"
-            dest: "{{ code_directory }}"
-            remote_src: yes
-            owner: "{{ user_to_configure }}"
-            group: "{{ user_to_configure }}"
-
-        - name: Remove the tmp copy
+        - name: Link to {{ download_code_directory }} from home directory
           ansible.builtin.file:
-            path: "{{ tmp_code_directory }}"
-            state: absent
-          when: (tmp_code_directory is defined) and (tmp_code_directory|length > 0)
+            src: "{{ download_code_directory }}/{{ item }}"
+            dest: "{{ code_directory }}/{{ item }}"
+            force: true
+            state: link
+          with_items: "{{ repos | list }}"
 
       tags:
         - offline
