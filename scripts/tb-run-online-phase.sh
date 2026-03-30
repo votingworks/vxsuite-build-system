@@ -66,12 +66,6 @@ cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml --skip-tags offline
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/openssl_fips.yaml --skip-tags offline
 
-echo "Download Brother printer drivers."
-sleep 5
-cd $vxsuite_build_system_dir
-ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/brother_printers.yaml --skip-tags offline
-
-
 echo "The online phase is complete."
 
 exit 0
