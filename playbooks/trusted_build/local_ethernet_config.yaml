@@ -1,0 +1,42 @@
+---
+
+- name: Configure local ethernet but default to disabled
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Copy the local ethernet config in place
+      ansible.builtin.copy:
+        src: "files/10-ethernet.network"
+        dest: "/etc/systemd/network/10-ethernet.network"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Copy the local ethernet oneshot service in place
+      ansible.builtin.copy:
+        src: "files/oneshot-local-ethernet.service"
+        dest: "/etc/systemd/system/oneshot-local-ethernet.service"
+        owner: root
+        group: root
+        mode: 0644
+
+    # Default to off, configure during config wizard
+    - name: Configure the local ethernet oneshot service default state
+      ansible.builtin.service:
+        name: oneshot-local-ethernet
+        state: stopped
+        enabled: no
+
+    # Default to off, this uses a runtime config managed by
+    # the oneshot-local-ethernet service (if enabled)
+    - name: Configure the systemd-networkd service default state
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - systemd-networkd.socket
+        - systemd-networkd

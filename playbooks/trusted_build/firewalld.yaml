@@ -12,17 +12,36 @@
         state: started
         enabled: yes
 
-    - name: Allow localhost/loopback traffic
-      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o lo -j ACCEPT"
+    - name: Set the default zone to "drop" so all traffic is dropped by default
+      ansible.builtin.command: "firewall-cmd --set-default-zone=drop"
 
-    - name: Deny all other outgoing traffic
-      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 9 -j DROP"
+    - name: Create a new zone for local ethernet 
+      ansible.builtin.command: "firewall-cmd --permanent --new-zone=vxnet"
 
-    - name: Block incoming services enabled by default
-      ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
-      with_items:
-        - ssh
-        - dhcpv6-client
+    - name: Accept all traffic in the vxnet zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --set-target=ACCEPT"
+
+    # Note: We're using systemd-networkd with local addressing for IP assignment
+    # That uses 169.254.0.0/16
+    - name: Add the 169.254.0.0/16 range to the vxnet zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --add-source=169.254.0.0/16"
+
+    - name: Add the loopback interface to the trusted zone
+      ansible.builtin.command: "firewall-cmd --permanent --zone=trusted --add-interface=lo"
 
     - name: Reload to save and apply changes
       ansible.builtin.command: "firewall-cmd --reload"
+
+          # Old firewall config for reference
+          #- name: Allow localhost/loopback traffic
+          #ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o lo -j ACCEPT"
+          #
+          #- name: Deny all other outgoing traffic
+          #ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 9 -j DROP"
+
+          #- name: Block incoming services enabled by default
+          #ansible.builtin.command: "firewall-cmd --remove-service={{ item }} --permanent"
+          #with_items:
+          #- ssh
+          #- dhcpv6-client
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=Manage the local ethernet state
+DefaultDependencies=no
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/vx/vendor/vendor-functions/manage-local-ethernet.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

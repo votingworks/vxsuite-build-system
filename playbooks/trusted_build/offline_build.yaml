@@ -21,4 +21,6 @@
 - import_playbook: expand_var_service.yaml
 - import_playbook: usbguard.yaml
 - import_playbook: system_inventory_service.yaml
+- import_playbook: local_ethernet_config.yaml
+- import_playbook: strongswan.yaml
 - import_playbook: disable_services.yaml

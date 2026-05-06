@@ -1,0 +1,36 @@
+---
+- name: Strongswan configuration
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - name: Copy the strongswan config into place
+      ansible.builtin.copy:
+        src: "files/vxswan.conf"
+        dest: "/etc/swanctl/conf.d/vxswan.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Update the strongswan openssl config to enable fips
+      ansible.builtin.lineinfile:
+        path: /etc/strongswan.d/charon/openssl.conf
+        regexp: 'fips_mode = 0'
+        line: 'fips_mode = 1'
+        state: present
+
+    - name: Update the strongswan openssl config to disable legacy providers
+      ansible.builtin.lineinfile:
+        path: /etc/strongswan.d/charon/openssl.conf
+        regexp: 'load_legacy = yes'
+        line: 'load_legacy = no'
+        state: present
+
+    - name: Ensure strongswan is enabled and started on boot
+      ansible.builtin.service:
+        name: strongswan
+        state: started
+        enabled: yes
+
