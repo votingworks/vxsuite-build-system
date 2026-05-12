@@ -11,7 +11,7 @@ Before=sysinit.target
 
 [Service]
 Type=oneshot
-ExecStart=/vx/vendor/vendor-functions/expand-var-filesystem.sh
+ExecStart=/vx/code/config/vendor-functions/expand-var-filesystem.sh
 ExecStartPost=/usr/bin/touch /var/opt/EXPAND_VAR_COMPLETE
 RemainAfterExit=yes
 StandardOutput=journal+console
