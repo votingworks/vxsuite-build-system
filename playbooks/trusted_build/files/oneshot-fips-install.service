@@ -10,7 +10,7 @@ Before=sysinit.target
 
 [Service]
 Type=oneshot
-ExecStart=/vx/vendor/vendor-functions/fipsinstall.sh
+ExecStart=/vx/code/config/vendor-functions/fipsinstall.sh
 ExecStartPost=/usr/bin/touch /var/opt/FIPS_INSTALL_COMPLETE
 RemainAfterExit=yes
 StandardOutput=journal+console
