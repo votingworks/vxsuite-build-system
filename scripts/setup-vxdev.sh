@@ -42,6 +42,7 @@ fi
 
 echo "Run setup_vxdev playbook. This will take several minutes."
 sleep 5
+sudo -v
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/setup_vxdev.yaml
 
 if [[ ! -d $vxsuite_complete_system_dir ]]; then

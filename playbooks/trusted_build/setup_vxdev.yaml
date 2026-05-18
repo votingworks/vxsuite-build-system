@@ -6,11 +6,11 @@
 
 - import_playbook: kernel.yaml
 - import_playbook: packages.yaml
+- import_playbook: udev-rules.yaml
 - import_playbook: node.yaml
 - import_playbook: rust.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: logrotate.yaml
-- import_playbook: ../manage-udev-rules.yaml
 - import_playbook: ../manage-cups.yaml
 - import_playbook: repos.yaml
 - import_playbook: tpm.yaml
