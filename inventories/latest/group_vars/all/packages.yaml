@@ -92,6 +92,8 @@ all_packages:
   - xserver-xorg-video-all
   - xxd
   - zip
+
+networking_packages:
   - avahi-daemon
   - avahi-utils
   - strongswan-swanctl
