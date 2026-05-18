@@ -85,10 +85,12 @@ system_dirs:
   /var/vx/vendor:
     user: vx-vendor
     group: vx-vendor
-  /media/vx:
-    user: vx-ui
-    group: vx-group
-  /media/vx/usb-drive:
+  /var/vx/usb-drives:
     user: vx-ui
     group: vx-group
 
+system_links:
+  /media/vx:
+    symlink_path: /media/vx
+    dir_path: /var/vx/usb-drives
+    force: true
