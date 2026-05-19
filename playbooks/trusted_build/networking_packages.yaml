@@ -1,0 +1,32 @@
+---
+
+- name: Install packages required for local networking
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - block:
+
+      - name: Clear package list
+        set_fact:
+          all_packages: []
+
+      - name: Create a list of all the networking packages we need
+        set_fact:
+          all_packages: "{{ all_packages | default([]) + [ item ] }}"
+        with_items:
+          - "{{ networking_packages | default([]) }}"
+
+      - name: De-dupe the list for efficiency
+        set_fact:
+          all_packages: "{{ all_packages | unique | select | list }}"
+
+      - name: Import the apt role which supports online and offline builds
+        ansible.builtin.import_role:
+          name: apt
+        tags:
+          - online
+
+      when: enable_networking is defined and enable_networking is true
