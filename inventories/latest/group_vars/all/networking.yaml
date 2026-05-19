@@ -1,5 +1,5 @@
 ---
-enable_networking: false
+enable_networking: true
 
 networking_packages:
   - avahi-daemon
