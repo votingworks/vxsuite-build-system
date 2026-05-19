@@ -44,5 +44,3 @@
           - systemd-networkd
 
       when: enable_networking is defined and enable_networking is true
-      tags:
-        - online
