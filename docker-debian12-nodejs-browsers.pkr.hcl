@@ -4,12 +4,16 @@ packer {
       version = ">= 0.0.7"
       source = "github.com/hashicorp/docker"
     }
+    ansible = {
+      version = "~> 1"
+      source = "github.com/hashicorp/ansible"
+    }
   }
 }
 
 variable "version" {
   type = string
-  default = "4.4.0"
+  default = "4.5.0"
 }
 
 source "docker" "debian12-browsers" {
