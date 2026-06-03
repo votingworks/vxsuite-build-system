@@ -64,6 +64,10 @@ To change the name of the VM being built, use the `vm_name` variable (default is
 For example, to name your VM "MyVM":
 `packer build -var "vm_name=MyVM" parallels-debian12.pkr.hcl`
 
+## Development
+
+View our contribution guidelines [here](https://github.com/votingworks/contribution-guidelines).
+
 ## License
 
 All files are licensed under GNU GPL v3.0 only. Refer to the [license file](./LICENSE) for
