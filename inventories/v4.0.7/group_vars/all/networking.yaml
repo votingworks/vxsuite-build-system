@@ -1,0 +1,13 @@
+---
+enable_networking: false
+
+networking_packages:
+  - avahi-daemon
+  - avahi-utils
+  - strongswan-swanctl
+  - libstrongswan-extra-plugins
+  - libstrongswan-standard-plugins
+  - charon-systemd
+  - strongswan-pki
+  - avahi-autoipd
+  - iw
