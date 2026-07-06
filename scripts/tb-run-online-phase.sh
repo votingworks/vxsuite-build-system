@@ -54,11 +54,7 @@ fi
 echo "Run prepare_build.sh in complete-system. This will take several minutes."
 sleep 5
 cd $vxsuite_complete_system_dir
-if [[ "${2:-}" == "--include-new-machines" ]]; then
-  ./prepare_build.sh admin central-scan mark-scan scan mark print
-else
-  ./prepare_build.sh admin central-scan mark-scan scan
-fi
+./prepare_build.sh admin central-scan mark mark-scan print scan
 
 echo "Download necessary tools for TPM."
 sleep 5
