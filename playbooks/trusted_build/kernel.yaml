@@ -33,9 +33,9 @@
       tags:
         - online
 
-    - name: Get the latest linux-base version available in bookworm-backports
+    - name: Get the latest linux-base version available
       ansible.builtin.shell:
-        cmd: "apt-cache madison linux-base | grep backports | sort -k 3 -r | awk '{print $3}' | cut -d'|' -f1 | head -1"
+        cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
       register: tmp_latest_linux_base_version
       when: apt_snapshot_date is not defined
       tags:
@@ -48,7 +48,7 @@
 
     - name: Get the latest linux-base version available in VotingWorks apt repo
       ansible.builtin.shell:
-        cmd: "apt-cache madison linux-base | sort -k 3 -r | awk '{print $3}' | cut -d'|' -f1 | head -1"
+        cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
       register: tmp_latest_linux_base_version
       when: apt_snapshot_date is defined
       tags:
