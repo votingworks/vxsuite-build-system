@@ -27,6 +27,7 @@ all_packages:
   - firmware-linux-free
   - firmware-misc-nonfree
   - firmware-sof-signed
+  - fonts-noto-core
   - fonts-wqy-zenhei
   - git
   - gvfs
