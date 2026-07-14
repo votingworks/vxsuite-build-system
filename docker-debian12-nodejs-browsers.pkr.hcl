@@ -13,7 +13,7 @@ packer {
 
 variable "version" {
   type = string
-  default = "4.5.0"
+  default = "4.6.0"
 }
 
 source "docker" "debian12-browsers" {
