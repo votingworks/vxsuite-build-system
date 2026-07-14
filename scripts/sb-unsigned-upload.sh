@@ -2,14 +2,23 @@
 
 set -euo pipefail
 
-vm_name=$1
+vm_name=${1:-""}
+vm_version=${2:-"temp"}
 vm_img_path="/var/lib/libvirt/images/${vm_name}.img"
 vm_img_zip_path="${vm_img_path}.lz4"
 vm_vars_path="/var/lib/libvirt/qemu/nvram/${vm_name}_VARS.fd"
 vm_xml_path="/tmp/${vm_name}-unsigned.xml"
 hash_ref_path="/tmp/${vm_name}-unsigned-hashes.txt"
-s3_path="s3://votingworks-trusted-build/unsigned/"
+s3_path="s3://votingworks-trusted-build/unsigned/${vm_version}/"
 s3_accelerate="https://s3-accelerate.amazonaws.com"
+
+if [[ -z "${vm_name}" ]]; then
+  echo "Usage: $0 vm_name [vm_version]"
+  echo ""
+  echo "Example: $0 vxadmin v1.2.3"
+  echo "Note: If no vm_version is specified, a temp folder will be used."
+  exit 1
+fi
 
 # Verify the image exists
 if [[ ! -f $vm_img_path ]]; then

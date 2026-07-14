@@ -2,26 +2,36 @@
 
 set -euo pipefail
 
-vm_name=$1
+vm_name=${1:-""}
+vm_version=${2:-"temp"}
 vm_img_path="/var/lib/libvirt/images/${vm_name}.img"
 vm_img_zip_path="${vm_img_path}.lz4"
 vm_vars_path="/var/lib/libvirt/qemu/nvram/${vm_name}_VARS.fd"
 vm_xml_path="/tmp/${vm_name}-unsigned.xml"
 hash_ref_path="/tmp/${vm_name}-unsigned-hashes.txt"
 verify_hash_ref_path="/tmp/${vm_name}-verification-hashes.txt"
-s3_path="s3://votingworks-trusted-build/unsigned"
+s3_path="s3://votingworks-trusted-build/unsigned/${vm_version}"
 s3_hash_ref_path="${s3_path}/${vm_name}-unsigned-hashes.txt"
 s3_vars_path="${s3_path}/${vm_name}_VARS.fd"
 s3_xml_path="${s3_path}/${vm_name}-unsigned.xml"
 s3_img_zip_path="${s3_path}/${vm_name}.img.lz4"
+s3_accelerate="https://s3-accelerate.amazonaws.com"
+
+if [[ -z "${vm_name}" ]]; then
+  echo "Usage: $0 vm_name [vm_version]"
+  echo ""
+  echo "Example: $0 vxadmin v1.2.3"
+  echo "Note: If no vm_version is specified, a temp folder will be used."
+  exit 1
+fi
 
 # Download all files from S3
 echo ""
 echo "Downloading unsigned files from ${s3_path}. This will take a few minutes."
-aws s3 cp $s3_hash_ref_path $hash_ref_path
-aws s3 cp $s3_vars_path $vm_vars_path
-aws s3 cp $s3_xml_path $vm_xml_path
-aws s3 cp $s3_img_zip_path $vm_img_zip_path
+aws s3 cp $s3_hash_ref_path $hash_ref_path --endpoint-url $s3_accelerate
+aws s3 cp $s3_vars_path $vm_vars_path --endpoint-url $s3_accelerate
+aws s3 cp $s3_xml_path $vm_xml_path --endpoint-url $s3_accelerate
+aws s3 cp $s3_img_zip_path $vm_img_zip_path --endpoint-url $s3_accelerate
 
 # Verify the image exists
 if [[ ! -f $vm_img_zip_path ]]; then
