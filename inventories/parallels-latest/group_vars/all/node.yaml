@@ -4,5 +4,5 @@ npm_packages:
     version: "1.22.22"
     checksum: "ac34549e6aa8e7ead463a7407e1c7390f61a6610"
   pnpm:
-    version: "9.15.9"
-    checksum: "acafe6003ef0e6b24e01c24245a840f659cca155"
+    version: "10.34.5"
+    checksum: "6a91127a7f2ca72fe53bb9ff54883e0c75b22f17"
