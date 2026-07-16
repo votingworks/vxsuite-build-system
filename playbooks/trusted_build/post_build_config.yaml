@@ -14,11 +14,11 @@
 
     - name: Ensure {{ user_to_configure }} directory ownership is correct
       ansible.builtin.file:
-        path: "~{{ user_to_configure }}"
+        path: "~{{ user_to_configure }}/"
         owner: "{{ user_to_configure }}"
         group: "{{ user_to_configure }}"
         recurse: yes
-        state: directory
+        follow: no
 
     - name: Add /sbin to system default bashrc
       ansible.builtin.lineinfile:
