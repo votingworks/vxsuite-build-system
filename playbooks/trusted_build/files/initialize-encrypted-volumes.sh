@@ -50,7 +50,7 @@ mount ${decrypted_dev_path} ${partition_path}
 
 echo "Updating /etc/crypttab and /etc/fstab..."
 echo "${decrypted_map_name} ${encrypted_dev_path} ${insecure_key} try-empty-password,luks" >> /etc/crypttab
-echo "${decrypted_dev_path} ${partition_path} ext4 defaults 0 2" >> /etc/fstab 
+echo "${decrypted_dev_path} ${partition_path} ext4 defaults,data=journal 0 2" >> /etc/fstab 
 
 echo "${partition_path} encryption has been initialized."
 
