@@ -61,10 +61,6 @@ sleep 5
 cd $vxsuite_complete_system_dir
 ./build.sh admin central-scan mark mark-scan print scan
 
-# Node20 upgrade has modified the permissions on some cached build dirs
-# Reset them so they can later be deleted during final image creation
-sudo chown -R ${local_user}:${local_user} ${local_user_home_dir}/.*
-
 # Run shared post build config steps
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml

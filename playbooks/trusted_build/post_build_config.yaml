@@ -5,6 +5,21 @@
   become: true
 
   tasks:
+    - import_tasks: shared_tasks/user_to_configure.yaml
+
+    - name: Override user if local_user is defined
+      set_fact:
+        user_to_configure: "{{ local_user }}"
+      when: (local_user is defined) and (local_user|length > 0)
+
+    - name: Ensure {{ user_to_configure }} directory ownership is correct
+      ansible.builtin.file:
+        path: "~{{ user_to_configure }}/"
+        owner: "{{ user_to_configure }}"
+        group: "{{ user_to_configure }}"
+        recurse: yes
+        follow: no
+
     - name: Add /sbin to system default bashrc
       ansible.builtin.lineinfile:
         path: /etc/bash.bashrc
