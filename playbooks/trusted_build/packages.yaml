@@ -6,9 +6,14 @@
   become: true
 
   tasks:
-    - name: De-dupe the list for efficiency
+    - name: Reload inventory from {{ inventory_dir }}
+      include_vars:
+        file: "{{ inventory_dir }}/group_vars/all/packages.yaml"
+        name: original_package_list
+
+    - name: Reload the package list
       set_fact:
-        all_packages: "{{ all_packages | unique | select | list }}"
+        all_packages: "{{ original_package_list.all_packages | unique | select | list }}"
 
     - name: Import the apt role which supports online and offline builds
       ansible.builtin.import_role:
