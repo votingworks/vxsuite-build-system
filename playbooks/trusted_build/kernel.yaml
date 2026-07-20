@@ -80,6 +80,24 @@
       tags:
         - online
 
+    - name: Clear package list
+      set_fact:
+        all_packages: []
+
+    - name: Define list of firmware packages (if present)
+      set_fact:
+        all_packages:  "{{ all_packages | default([]) + [ item ] }}"
+        with_items:
+          - "{{ firmware_packages | default([]) }}"
+
+    - name: De-dupe the list for efficiency
+      set_fact:
+        all_packages: "{{ all_packages | unique | select | list }}"
+
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
+
     - name: Remove bookworm-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
