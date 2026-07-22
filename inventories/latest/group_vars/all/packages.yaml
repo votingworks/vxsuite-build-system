@@ -6,6 +6,7 @@ kernel_and_firmware_packages:
   - firmware-amd-graphics
   - firmware-linux
   - firmware-linux-free
+  - firmware-linux-nonfree
   - firmware-misc-nonfree
   - firmware-sof-signed
   - linux-base
