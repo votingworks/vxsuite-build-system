@@ -2,6 +2,16 @@
 batch_package_install: true
 upgrade_kernel: true
 
+kernel_and_firmware_packages:
+  - firmware-amd-graphics
+  - firmware-linux
+  - firmware-linux-free
+  - firmware-misc-nonfree
+  - firmware-sof-signed
+  - linux-base
+  - linux-image-amd64
+  - linux-headers-amd64
+
 all_packages:
   - alsa-utils
   - brightnessctl
@@ -20,11 +30,6 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
-  - firmware-amd-graphics
-  - firmware-linux
-  - firmware-linux-free
-  - firmware-misc-nonfree
-  - firmware-sof-signed
   - fonts-noto-core
   - fonts-wqy-zenhei
   - git
