@@ -14,7 +14,6 @@ kernel_and_firmware_packages:
   - linux-base
   - linux-image-amd64
   - linux-headers-amd64
-  - linux-kbuild
 
 all_packages:
   - alsa-utils
