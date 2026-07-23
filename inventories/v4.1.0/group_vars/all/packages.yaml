@@ -4,6 +4,18 @@ upgrade_kernel: true
 apt_snapshot_date: "20260709"
 release_name: "bookworm"
 
+kernel_and_firmware_packages:
+  - firmware-amd-graphics
+  - firmware-linux
+  - firmware-linux-free
+  - firmware-linux-nonfree
+  - firmware-misc-nonfree
+  - firmware-sof-signed
+  - linux-base
+  - linux-image-amd64
+  - linux-headers-amd64
+  - linux-kbuild
+
 all_packages:
   - alsa-utils
   - brightnessctl
