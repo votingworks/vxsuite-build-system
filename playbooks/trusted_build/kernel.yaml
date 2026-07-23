@@ -1,8 +1,6 @@
 ---
 
-# TODO: install linux-kbuild based on the latest kernel installed
-#
-- name: Install an updated kernel
+- name: Install an updated kernel and related firmware packages from backports
   hosts: 127.0.0.1
   connection: local
   become: true
