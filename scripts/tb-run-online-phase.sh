@@ -54,7 +54,7 @@ fi
 echo "Run prepare_build.sh in complete-system. This will take several minutes."
 sleep 5
 cd $vxsuite_complete_system_dir
-./prepare_build.sh admin central-scan mark mark-scan print scan
+./prepare_build.sh admin mark scan
 
 echo "Download necessary tools for TPM."
 sleep 5
