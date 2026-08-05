@@ -39,7 +39,7 @@ if [[ "$debian_major_version" == "12" ]]; then
 fi
 
 # Ensure sudo credentials haven't expired
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 
 echo "Set up localdev tools"
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/setup_localdev.yaml

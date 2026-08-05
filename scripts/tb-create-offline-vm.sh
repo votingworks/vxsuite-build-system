@@ -35,7 +35,7 @@ if [[ "$debian_major_version" == "12" ]]; then
 fi
 
 # Ensure sudo credentials haven't expired
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 
 sleep 5
 ansible-playbook playbooks/virtmanager/create-offline-clone.yaml -e "vm_to_clone=${vm_to_clone}"

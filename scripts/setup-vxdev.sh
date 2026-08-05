@@ -42,7 +42,7 @@ fi
 
 echo "Run setup_vxdev playbook. This will take several minutes."
 sleep 5
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/setup_vxdev.yaml
 
 if [[ ! -d $vxsuite_complete_system_dir ]]; then
@@ -53,7 +53,7 @@ fi
 echo "Run vxdev/setup-vxdev-base-machine.sh in complete-system. This will take several minutes."
 sleep 5
 cd $vxsuite_complete_system_dir
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 ./vxdev/setup-vxdev-base-machine.sh
 
 # If in an interactive session, help set up the dock
