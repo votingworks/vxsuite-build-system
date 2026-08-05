@@ -63,6 +63,7 @@
 
       - name: Shallow clone repo(s)
         ansible.builtin.command: "git clone --branch {{ item.value.version | default('main') }} --depth 1 --recurse-submodules --shallow-submodules https://github.com/votingworks/{{ item.key }}.git {{ download_code_directory }}/{{ item.key }}"
+        with_dict: "{{ repos }}"
         become: true
         become_user: "{{ user_to_configure }}"
 
