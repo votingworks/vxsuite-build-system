@@ -17,6 +17,9 @@
 
     - name: Create a new zone for local ethernet 
       ansible.builtin.command: "firewall-cmd --permanent --new-zone=vxnet"
+      register: new_zone_result
+      # Idempotency for build reruns: the zone already existing is fine.
+      failed_when: new_zone_result.rc != 0 and 'NAME_CONFLICT' not in new_zone_result.stderr
 
     - name: Accept all traffic in the vxnet zone
       ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --set-target=ACCEPT"
