@@ -1,6 +1,26 @@
 ---
 
-# TODO: install linux-kbuild based on the latest kernel installed
+# This playbook has two approaches to kernel upgrades
+# The older approach adds the bookworm-backports repo and explicitly pulls
+# the latest kernel packages and dependencies. Those would typically come
+# from the backports repo, but it is possible for some to come from the
+# security repo, so lots of extra work has gone into making that work. This
+# approach did not include firmware packages which led to increasing version
+# drift and lacked support for newer hardware models.
+#
+# The new approach adds in firmware packages. Rather than continuing to
+# manage everything manually/explicitly (which will be increasingly complex),
+# apt preferences are now used. A preference config is defined for the list
+# of kernel and firmware packages to upgrade, and the backports repo is
+# given the same weight as stable and security. Apt then makes the necessary
+# decisions to pull the latest versions and related dependencies. After the
+# upgrades are completed, backports is removed so later package installs do
+# not use that repo.
+#
+# The determining factor for which approach is used is the existence of
+# the "kernel_and_firmware_packages" list variable. If it's defined, the
+# new approach is used. If not, the old approach will be used to support
+# older builds.
 #
 - name: Install an updated kernel
   hosts: 127.0.0.1
@@ -20,8 +40,16 @@
     - name: Add bookworm-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
-        line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+        line: 'deb http://http.us.debian.org/debian bookworm-backports main non-free-firmware'
         insertbefore: "BOF"
+      when: apt_snapshot_date is not defined
+      tags:
+        - online
+
+    - name: Add bookworm-backports preference config
+      ansible.builtin.template:
+        src: "templates/bookworm-backports-kernel-pref.j2"
+        dest: "/etc/apt/preferences.d/bookworm-backports-kernel-pref"
       when: apt_snapshot_date is not defined
       tags:
         - online
@@ -33,57 +61,91 @@
       tags:
         - online
 
-    - name: Get the latest linux-base version available
-      ansible.builtin.shell:
-        cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
-      register: tmp_latest_linux_base_version
-      when: apt_snapshot_date is not defined
-      tags:
-        - online
+    # Old approach
+    - name: Kernel upgrade
+      block:
+        - name: Get the latest linux-base version available
+          ansible.builtin.shell:
+            cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
+          register: tmp_latest_linux_base_version
+          when: apt_snapshot_date is not defined
+          tags:
+            - online
 
-    - name: Set the linux_base_version variable
-      ansible.builtin.set_fact:
-        latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
-      when: apt_snapshot_date is not defined and tmp_latest_linux_base_version is not skipped
+        - name: Set the linux_base_version variable
+          ansible.builtin.set_fact:
+            latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
+          when: apt_snapshot_date is not defined and tmp_latest_linux_base_version is not skipped
 
-    - name: Get the latest linux-base version available in VotingWorks apt repo
-      ansible.builtin.shell:
-        cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
-      register: tmp_latest_linux_base_version
-      when: apt_snapshot_date is defined
-      tags:
-        - online
+        - name: Get the latest linux-base version available in VotingWorks apt repo
+          ansible.builtin.shell:
+            cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
+          register: tmp_latest_linux_base_version
+          when: apt_snapshot_date is defined
+          tags:
+            - online
 
-    - name: Set the linux_base_version variable
-      ansible.builtin.set_fact:
-        latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
-      when: apt_snapshot_date is defined and tmp_latest_linux_base_version is not skipped
+        - name: Set the linux_base_version variable
+          ansible.builtin.set_fact:
+            latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
+          when: apt_snapshot_date is defined and tmp_latest_linux_base_version is not skipped
 
-    - name: Get the latest kernel image available
-      ansible.builtin.shell:
-        cmd: "apt-cache search --names-only linux-image-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
-      register: latest_kernel_image
-      tags:
-        - online
+        - name: Get the latest kernel image available
+          ansible.builtin.shell:
+            cmd: "apt-cache search --names-only linux-image-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
+          register: latest_kernel_image
+          tags:
+            - online
 
-    - name: Get the latest kernel headers available
-      ansible.builtin.shell:
-        cmd: "apt-cache search --names-only linux-headers-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
-      register: latest_kernel_headers
-      tags:
-        - online
+        - name: Get the latest kernel headers available
+          ansible.builtin.shell:
+            cmd: "apt-cache search --names-only linux-headers-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
+          register: latest_kernel_headers
+          tags:
+            - online
 
-    - name: Upgrade the kernel packages and dependencies
-      ansible.builtin.command:
-        cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version }} {{ latest_kernel_image.stdout }} {{ latest_kernel_headers.stdout }}"
-      when: upgrade_kernel
-      tags:
-        - online
+        - name: Upgrade the kernel packages and dependencies
+          ansible.builtin.command:
+            cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version }} {{ latest_kernel_image.stdout }} {{ latest_kernel_headers.stdout }}"
+          when: upgrade_kernel
+          tags:
+            - online
+      when: kernel_and_firmware_packages is not defined
+    # End old approach
+
+    # New approach
+    - name: Kernel and firmware upgrades
+      block:
+        - name: Clear out any existing package list
+          set_fact:
+            all_packages: []
+
+        - name: Add kernel and firmware packages to be installed
+          set_fact:
+            all_packages: "{{ all_packages | default([]) + [ item ] }}"
+          with_items:
+            - "{{ kernel_and_firmware_packages | default([]) }}"
+
+        - name: Use the apt role to download or install as required
+          ansible.builtin.import_role:
+            name: apt
+          tags:
+            - online
+      when: kernel_and_firmware_packages is defined
+    # End new approach
 
     - name: Remove bookworm-backports as an apt source
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
-        line: 'deb http://http.us.debian.org/debian bookworm-backports main'
+        line: 'deb http://http.us.debian.org/debian bookworm-backports main non-free-firmware'
+        state: absent
+      when: apt_snapshot_date is not defined
+      tags:
+        - online
+
+    - name: Remove bookworm-backports preferences config
+      ansible.builtin.file:
+        path: /etc/apt/preferences.d/bookworm-backports-kernel-pref
         state: absent
       when: apt_snapshot_date is not defined
       tags:
