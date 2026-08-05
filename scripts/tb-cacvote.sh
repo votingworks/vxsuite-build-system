@@ -35,7 +35,7 @@ if [[ "$debian_major_version" == "12" ]]; then
 fi
 
 # Ensure sudo credentials haven't expired
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 
 echo "Run cacvote_build playbook. This will take several minutes."
 sleep 5
