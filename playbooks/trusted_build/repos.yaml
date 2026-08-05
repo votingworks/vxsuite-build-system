@@ -49,19 +49,7 @@
           mode: '0755'
         with_dict: "{{ repos }}"
     
-      #-- Note: this defaults to main AND automatically updates submodules
-      #-- You need to specify the branch/tag/commit in the repos dictionary
-      #-- if you want anything other than main
-      #- name: Clone the votingworks repos
-      #ansible.builtin.git:
-      #repo: "https://github.com/votingworks/{{ item.key }}.git"
-      #dest: "{{ download_code_directory }}/{{ item.key }}"
-      #version: "{{ item.value.version | default('main') }}"
-      #with_dict: "{{ repos }}"
-      #become: true
-      #become_user: "{{ user_to_configure }}"
-
-      - name: Shallow clone repo(s)
+      - name: Clone repos
         ansible.builtin.command: "git clone --branch {{ item.value.version | default('main') }} --depth 1 --recurse-submodules --shallow-submodules https://github.com/votingworks/{{ item.key }}.git {{ download_code_directory }}/{{ item.key }}"
         with_dict: "{{ repos }}"
         become: true
