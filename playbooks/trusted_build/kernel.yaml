@@ -63,74 +63,13 @@
 
     # Old approach
     - name: Kernel upgrade
-      block:
-        - name: Get the latest linux-base version available
-          ansible.builtin.shell:
-            cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
-          register: tmp_latest_linux_base_version
-          when: apt_snapshot_date is not defined
-          tags:
-            - online
-
-        - name: Set the linux_base_version variable
-          ansible.builtin.set_fact:
-            latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
-          when: apt_snapshot_date is not defined and tmp_latest_linux_base_version is not skipped
-
-        - name: Get the latest linux-base version available in VotingWorks apt repo
-          ansible.builtin.shell:
-            cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
-          register: tmp_latest_linux_base_version
-          when: apt_snapshot_date is defined
-          tags:
-            - online
-
-        - name: Set the linux_base_version variable
-          ansible.builtin.set_fact:
-            latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
-          when: apt_snapshot_date is defined and tmp_latest_linux_base_version is not skipped
-
-        - name: Get the latest kernel image available
-          ansible.builtin.shell:
-            cmd: "apt-cache search --names-only linux-image-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
-          register: latest_kernel_image
-          tags:
-            - online
-
-        - name: Get the latest kernel headers available
-          ansible.builtin.shell:
-            cmd: "apt-cache search --names-only linux-headers-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
-          register: latest_kernel_headers
-          tags:
-            - online
-
-        - name: Upgrade the kernel packages and dependencies
-          ansible.builtin.command:
-            cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version }} {{ latest_kernel_image.stdout }} {{ latest_kernel_headers.stdout }}"
-          when: upgrade_kernel
-          tags:
-            - online
+      ansible.builtin.include_tasks: kernel_upgrade.yaml
       when: kernel_and_firmware_packages is not defined
     # End old approach
 
     # New approach
     - name: Kernel and firmware upgrades
-      block:
-        - name: Clear out any existing package list
-          set_fact:
-            all_packages: []
-
-        - name: Add kernel and firmware packages to be installed
-          set_fact:
-            all_packages: "{{ all_packages | default([]) + [ item ] }}"
-          with_items:
-            - "{{ kernel_and_firmware_packages | default([]) }}"
-
-        - name: Use the apt role to download or install as required
-          ansible.builtin.import_role:
-            name: apt
-          tags:
-            - online
+      ansible.builtin.include_tasks: kernel_and_firmware_upgrade.yaml
       when: kernel_and_firmware_packages is defined
     # End new approach
 
