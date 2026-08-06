@@ -65,6 +65,15 @@ cd $vxsuite_complete_system_dir
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml
 
+# Configure the firewall last. Its default "drop" zone ends all inbound
+# network access to this VM, so anything that wants to reach the VM over the
+# network during a build (e.g. an automated build driving it over ssh) can do
+# so right up until this point. The rules are --permanent, so the built image
+# is identical regardless of when during the build they are applied.
+echo "Configure the firewall. This ends inbound network access to this VM."
+sleep 5
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/firewalld.yaml --skip-tags online
+
 echo "The offline build phase is complete."
 echo "Depending on your needs, clone this VM and run setup-machine OR"
 echo "run setup-machine in this VM, understanding it is destructive."
