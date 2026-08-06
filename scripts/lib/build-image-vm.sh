@@ -176,7 +176,7 @@ vm_wait_for_ssh() { # $1=ip  $2=VM name (for the error message)
 
 # Install the build-remainder script (offline phase + setup-machine +
 # build-bootstrap cleanup + self-power-off) into the VM. Expects the
-# VM_FINALIZE_* / VM_BUILD_MARKER / VM_NEXT_BOOT_FLAG / VM_SUDOERS_FILE /
+# VM_FINALIZE_* / VM_BUILD_MARKER / VM_SUDOERS_FILE /
 # VM_BUILD_SYSTEM_DIR / VM_COMPLETE_SYSTEM_DIR / VM_HOME globals from the
 # caller. Configuration values (inventory, machine type, qa flag, vendor
 # password) are NOT baked into the file — they arrive via systemd-run
@@ -238,13 +238,17 @@ if runuser -u ${VM_USER} -- env PATH="\$SHIM:\$PATH" \\
   # schedule its +1 minute reboot (which could otherwise fire before this
   # cleanup finishes), but cancel any scheduled shutdown just in case.
   shutdown -c 2>/dev/null || true
-  # The vx-cleanup console drop-in is removed from disk but stays in effect
-  # for the imminent shutdown (no daemon-reload), so its output is still
-  # captured while the file never ships in the image.
+  # Only what vx-cleanup cannot do runs here: the package purge (dpkg during
+  # shutdown is unsafe) and this VM's console drop-in for vx-cleanup itself
+  # (removed without a daemon-reload so the loaded config still captures the
+  # shutdown it is about to run). vx-cleanup removes the build marker, the
+  # logname shim, the sudoers drop-in, and everything under /home/vx during
+  # that shutdown, so those are not repeated here.
+  #
+  # The first-boot config wizard flag is not set: vx-iso's flash-image.sh
+  # creates it on the target machine at flash time.
   if apt-get -y purge openssh-server openssh-sftp-server >> "\$LOG" 2>&1 \\
-      && rm -rf ${VM_HOME}/.ssh "\$SHIM" /etc/systemd/system/vx-cleanup.service.d \\
-      && rm -f ${VM_SUDOERS_FILE} ${VM_BUILD_MARKER} \\
-      && touch ${VM_NEXT_BOOT_FLAG}; then
+      && rm -rf /etc/systemd/system/vx-cleanup.service.d; then
     mark halting
     rm -f ${VM_FINALIZE_SCRIPT} "\$LOG" "\$STATUS"
     sync
