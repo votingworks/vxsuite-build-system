@@ -218,7 +218,7 @@ chmod 755 "\$SHIM/logname"
 mark offline-running
 if ! runuser -u ${VM_USER} -- env PATH="\$SHIM:\$PATH" VX_INVENTORY="\${VX_INVENTORY}" bash -c \\
     'cd ${VM_BUILD_SYSTEM_DIR} && ./scripts/tb-run-offline-phase.sh "\$VX_INVENTORY"' \\
-    >> "\$LOG" 2>&1; then
+    2>&1 | tee -a "\$LOG" > /dev/ttyS0; then
   mark offline-failed
   exit 1
 fi
