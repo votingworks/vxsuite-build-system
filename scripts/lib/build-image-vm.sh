@@ -215,13 +215,14 @@ fi
 
 mark setup-machine-running
 cd ${VM_COMPLETE_SYSTEM_DIR} || { mark setup-machine-failed; exit 1; }
+# Translate the unit's configuration (delivered via systemd-run --setenv)
+# into setup-machine command line arguments.
+SM_ARGS=(--machine-type "\${VX_MACHINE_TYPE}" --skip-scheduled-reboot)
+if [[ "\${VX_IS_QA_IMAGE}" == "y" ]]; then SM_ARGS+=(--qa-image); else SM_ARGS+=(--prod-image); fi
+[[ "\${VX_IS_RELEASE_IMAGE}" == "y" ]] && SM_ARGS+=(--release-image)
+[[ -n "\${VX_VENDOR_PASSWORD:-}" ]] && SM_ARGS+=(--vendor-password "\$VX_VENDOR_PASSWORD")
 if runuser -u ${VM_USER} -- env PATH="\$SHIM:\$PATH" \\
-    VX_MACHINE_TYPE="\${VX_MACHINE_TYPE}" \\
-    VX_IS_QA_IMAGE="\${VX_IS_QA_IMAGE}" \\
-    VX_IS_RELEASE_IMAGE="\${VX_IS_RELEASE_IMAGE}" \\
-    VX_SKIP_SCHEDULED_REBOOT=1 \\
-    \${VX_VENDOR_PASSWORD:+VX_VENDOR_PASSWORD="\$VX_VENDOR_PASSWORD"} \\
-    ./setup-machine.sh 2>&1 | tee -a "\$LOG" > /dev/ttyS0; then
+    ./setup-machine.sh "\${SM_ARGS[@]}" 2>&1 | tee -a "\$LOG" > /dev/ttyS0; then
   mark cleanup
   # Belt and suspenders: VX_SKIP_SCHEDULED_REBOOT means setup-machine did not
   # schedule its +1 minute reboot (which could otherwise fire before this
