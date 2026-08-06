@@ -49,11 +49,24 @@
           mode: '0755'
         with_dict: "{{ repos }}"
     
-      - name: Clone repos
+      # Note: a shallow clone is the default unless full_git_clone is
+      # set to true in the inventory being used
+      - name: Clone repos (full)
+        ansible.builtin.git:
+          repo: "https://github.com/votingworks/{{ item.key }}.git"
+          dest: "{{ download_code_directory }}/{{ item.key }}"
+          version: "{{ item.value.version | default('main') }}"
+        with_dict: "{{ repos }}"
+        become: true
+        become_user: "{{ user_to_configure }}"
+        when: full_git_clone | default(false) | bool 
+
+      - name: Clone repos (shallow)
         ansible.builtin.command: "git clone --branch {{ item.value.version | default('main') }} --depth 1 --recurse-submodules --shallow-submodules https://github.com/votingworks/{{ item.key }}.git {{ download_code_directory }}/{{ item.key }}"
         with_dict: "{{ repos }}"
         become: true
         become_user: "{{ user_to_configure }}"
+        when: not ( full_git_clone | default(false) | bool )
 
       tags:
         - online
