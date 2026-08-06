@@ -67,23 +67,13 @@ vm_bootstrap_disk() { # $1=VM name
   local disk
   disk="$(vm_disk_path "$1")"
   [[ -n "$disk" ]] || die "could not determine disk path for $1"
-  # APT-snapshot base images (debian-v*-<date>-bookworm) point at a frozen
-  # aptly repo that does NOT carry openssh-server, so temporarily add the
-  # upstream Debian archive for the install (ops run in argument order; the
-  # extra source is removed again before the image ever boots).
-  #
-  # Base images created since the preseed change already ship the
-  # ${VM_SUDOERS_FILE} NOPASSWD drop-in; write it here only when missing so
-  # older bases (e.g. a pre-change debian-latest) keep working. NOPASSWD
-  # covers command execution (last matching sudoers rule wins); the tb-*
-  # scripts use \`sudo -n true || sudo -v\` so no bare \`sudo -v\` prompts.
+  # Base images ship openssh-server and the ${VM_SUDOERS_FILE} NOPASSWD
+  # drop-in (both from the preseed), so nothing is installed here — this only
+  # injects the build key and this build's own markers. Keeping apt out of
+  # the bootstrap also avoids the package-source juggling that APT-snapshot
+  # bases would otherwise need: their frozen repos do not carry openssh.
   sudo virt-customize -a "${disk}" \
-    --write "/etc/apt/sources.list.d/vxbuild-bootstrap.list:deb http://deb.debian.org/debian bookworm main
-" \
-    --install openssh-server \
-    --delete /etc/apt/sources.list.d/vxbuild-bootstrap.list \
     --ssh-inject "${VM_USER}:file:${VM_KEY}.pub" \
-    --run-command "test -f ${VM_SUDOERS_FILE} || { echo '${VM_USER} ALL=(ALL) NOPASSWD:ALL' > ${VM_SUDOERS_FILE} && chmod 0440 ${VM_SUDOERS_FILE}; }" \
     --mkdir /etc/systemd/system/vx-cleanup.service.d \
     --write "/etc/systemd/system/vx-cleanup.service.d/zz-vxbuild-console.conf:[Service]
 StandardOutput=tty
