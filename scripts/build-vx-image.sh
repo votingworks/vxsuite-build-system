@@ -1,20 +1,29 @@
 #!/usr/bin/env bash
 
-# build-vx-image.sh — orchestrates a VxSuite machine-image build.
+# build-vx-image.sh — orchestrates VxSuite machine-image builds.
 #
-# Runs on the build server. Clones a base Debian VM, bootstraps SSH access
-# into the clone, points the chosen inventory at the requested
-# vxsuite-complete-system / vxsuite branches, then runs the trusted-build
-# phases inside the VM: online, offline, and setup-machine (with build
-# bootstrap cleanup), ending with the VM powered off.
+# Runs on the build server. Optionally creates a base Debian VM, then:
+#   1. clones the base into a BUILDER VM (vx-<name>), bootstraps it (ssh +
+#      passwordless sudo + build marker), points the chosen inventory at the
+#      requested vxsuite-complete-system / vxsuite branches, and runs the
+#      online phase in it;
+#   2. shuts the builder down and clones it once per requested app
+#      (vxadmin-<name>, vxmark-<name>, ...) — the clone point must be before
+#      the offline phase, whose firewall makes VMs permanently unreachable
+#      over the network;
+#   3. hands each app VM a detached systemd unit that runs the offline
+#      phase, setup-machine, build-bootstrap cleanup, and self-power-off —
+#      all app VMs proceed in PARALLEL;
+#   4. with --upload, lz4-compresses each finished image and uploads it
+#      to S3.
 #
-# Ends with the finished machine VM shut off; with --upload it also
-# lz4-compresses the image and uploads it to S3.
+# The builder VM is kept (shut off) so more app types can be cloned from it
+# later; remove it with cleanup-vx-build.sh when done.
 #
 # Every question — including all of setup-machine's prompts — is asked up
 # front, before any phase runs. QA images have defaults for everything.
-# setup-machine only ever executes inside the VM (see phase_finalize); no
-# build step runs on the build server itself.
+# setup-machine only ever executes inside app VMs; no build step runs on
+# the build server itself.
 
 set -euo pipefail
 
@@ -26,6 +35,7 @@ VM_KEY="${HOME}/.ssh/vxbuild_ed25519"
 LOG_DIR="${HOME}/build-logs"
 LIBVIRT_NETWORK="default"
 S3_BUCKET="s3://votingworks-machine-images/"
+SERIAL_LOG_DIR="/var/log/libvirt/qemu"
 
 # ----------------------------------------------------- VM-side configuration
 VM_USER="vx"
@@ -42,11 +52,11 @@ VM_NEXT_BOOT_FLAG="/vx/config/RUN_BASIC_CONFIGURATION_ON_NEXT_BOOT"
 # --------------------------------------------------------------- build config
 BUILD_SYSTEM_BRANCH="caro/one_script_builds"
 VALID_APPS=(admin central-scan mark mark-scan print scan)
-PHASES=(base clone start prep online offline finalize upload)
-IP_WAIT_TRIES=60        # x5s  = 5 minutes
-SSH_WAIT_TRIES=36       # x5s  = 3 minutes
-OFFLINE_WAIT_TRIES=360   # x20s = 2 hours of status polling (pre-firewall)
-FINALIZE_WAIT_TRIES=720  # x10s = 2 hours: offline tail + setup-machine + cleanup after ssh cutoff
+PHASES=(base clone start prep online appclone finalize upload)
+IP_WAIT_TRIES=60         # x5s  = 5 minutes
+SSH_WAIT_TRIES=36        # x5s  = 3 minutes
+SHUTOFF_WAIT_TRIES=60    # x5s  = 5 minutes for the builder to shut down
+FINALIZE_WAIT_TRIES=480  # x15s = 2 hours: offline + setup-machine + cleanup
 
 # ------------------------------------------------------------------- defaults
 INVENTORY="latest"
@@ -60,10 +70,10 @@ VENDOR_PASSWORD=""
 IS_RELEASE=0
 CREATE_BASE=0
 UPLOAD=0
-UPLOADED_TO=""
 START_AT=""
 ASSUME_YES=0
 VM_IP=""
+APPS=()
 
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 die() { echo "ERROR: $*" >&2; exit 1; }
@@ -109,25 +119,25 @@ validate_args
 if [[ "$IMAGE_TYPE" == "qa" ]]; then QA_YN="y"; else QA_YN="n"; fi
 if [[ "$IS_RELEASE" -eq 1 ]]; then RELEASE_YN="y"; else RELEASE_YN="n"; fi
 if [[ "$IMAGE_TYPE" == "qa" ]]; then QA_BOOL="true"; else QA_BOOL="false"; fi
-# Machine VM naming convention: lowercase, no hyphens in the machine part
-# (vxadmin, vxcentralscan, ...), suffixed with the user-provided image name.
-VX_NAME="vx${APP//-/}-${IMAGE_NAME}"
+
+# Naming: one builder VM per image name, one app VM per requested app
+# (lowercase, no hyphens in the machine part, per convention).
+BUILDER="vx-${IMAGE_NAME}"
+APP_VMS=()
+for _app in "${APPS[@]}"; do APP_VMS+=("vx${_app//-/}-${IMAGE_NAME}"); done
+declare -A APP_VM_IP=()
+
+serial_log_for() { echo "${SERIAL_LOG_DIR}/$1-serial.log"; }
 
 mkdir -p "${LOG_DIR}"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
-MAIN_LOG="${LOG_DIR}/${VX_NAME}-${TIMESTAMP}.log"
-BASE_LOG="${LOG_DIR}/${VX_NAME}-${TIMESTAMP}-create-base.log"
-CLONE_LOG="${LOG_DIR}/${VX_NAME}-${TIMESTAMP}-clone-bootstrap.log"
-ONLINE_LOG="${LOG_DIR}/${VX_NAME}-${TIMESTAMP}-online-phase.log"
-OFFLINE_LOG="${LOG_DIR}/${VX_NAME}-${TIMESTAMP}-offline-phase.log"
-UPLOAD_LOG="${LOG_DIR}/${VX_NAME}-${TIMESTAMP}-upload.log"
-STATE_FILE="${LOG_DIR}/${VX_NAME}.state"
-# Everything the guest writes to its serial console lands here (host-side,
-# written by qemu) — including boot messages, setup-machine output, and
-# vx-cleanup output at shutdown. Survives the offline firewall, the in-VM
-# log cleanup, and the final power-off. The path must be under
-# /var/log/libvirt/qemu/ for qemu's apparmor profile to allow the write.
-SERIAL_LOG="/var/log/libvirt/qemu/${VX_NAME}-serial.log"
+MAIN_LOG="${LOG_DIR}/${BUILDER}-${TIMESTAMP}.log"
+BASE_LOG="${LOG_DIR}/${BUILDER}-${TIMESTAMP}-create-base.log"
+CLONE_LOG="${LOG_DIR}/${BUILDER}-${TIMESTAMP}-clone-bootstrap.log"
+ONLINE_LOG="${LOG_DIR}/${BUILDER}-${TIMESTAMP}-online-phase.log"
+UPLOAD_LOG="${LOG_DIR}/${BUILDER}-${TIMESTAMP}-upload.log"
+STATE_FILE="${LOG_DIR}/${BUILDER}.state"
+remainder_log_for() { echo "${LOG_DIR}/$1-${TIMESTAMP}-remainder.log"; }
 # The main output (console + MAIN_LOG) carries only phase progression and
 # pointers to the per-phase logs above; verbose phase output goes to those
 # logs directly.
@@ -144,14 +154,15 @@ log "==================== build-vx-image ===================="
 log "inventory:                      ${INVENTORY}"
 log "vxsuite-complete-system branch: ${CS_BRANCH}"
 log "vxsuite branch override:        ${VX_BRANCH:-<none>}"
-log "app:                            ${APP}"
+log "apps:                           ${APPS[*]}"
 log "image type:                     ${IMAGE_TYPE} (release: ${RELEASE_YN})"
 if [[ "$CREATE_BASE" -eq 1 ]]; then
   log "base image:                     ${BASE_IMAGE} (will be created)"
 else
   log "base image:                     ${BASE_IMAGE}"
 fi
-log "VM name:                        ${VX_NAME}"
+log "builder VM:                     ${BUILDER}"
+log "app VMs:                        ${APP_VMS[*]}"
 log "compress + upload:              $([[ "$UPLOAD" -eq 1 ]] && echo "yes (${S3_BUCKET})" || echo no)"
 log "start at phase:                 ${START_AT:-clone (full run)}"
 log "log file:                       ${MAIN_LOG}"
@@ -163,9 +174,13 @@ if [[ "$ASSUME_YES" -ne 1 && -t 0 ]]; then
 fi
 
 init_vm_ssh
-for key in INVENTORY CS_BRANCH VX_BRANCH APP IMAGE_TYPE BASE_IMAGE BUILD_SYSTEM_BRANCH; do
-  record_state "$key" "${!key}"
-done
+record_state INVENTORY "${INVENTORY}"
+record_state CS_BRANCH "${CS_BRANCH}"
+record_state VX_BRANCH "${VX_BRANCH}"
+record_state APPS "${APPS[*]}"
+record_state IMAGE_TYPE "${IMAGE_TYPE}"
+record_state BASE_IMAGE "${BASE_IMAGE}"
+record_state BUILD_SYSTEM_BRANCH "${BUILD_SYSTEM_BRANCH}"
 
 # Returns success if the given phase should run under --start-at.
 should_run() {
@@ -176,6 +191,35 @@ should_run() {
     [[ "${PHASES[$i]}" == "$START_AT" ]] && start_idx=$i
   done
   ((idx >= start_idx))
+}
+
+# Interactive-or-die guard for deleting an existing VM.
+confirm_delete_vm() { # $1=VM name  $2=hint for the non-interactive error
+  vm_exists "$1" || return 0
+  echo "A VM named '$1' already exists."
+  if [[ "$ASSUME_YES" -eq 1 || ! -t 0 ]]; then
+    die "refusing to delete existing VM non-interactively; remove it first:
+  ./scripts/cleanup-vx-build.sh $1
+$2"
+  fi
+  read -rp "Delete it and its disk image? [y/N]: " confirm
+  [[ "$confirm" =~ ^[Yy]$ ]] || die "aborted; existing VM left in place"
+  vm_delete "$1"
+}
+
+# The systemd-run command that starts the build-remainder unit for one app.
+build_launch_cmd() { # $1=app
+  local cmd="sudo systemd-run --unit=vx-finalize" a
+  local setenv_args=(
+    "--setenv=VX_INVENTORY=${INVENTORY}"
+    "--setenv=VX_MACHINE_TYPE=$1"
+    "--setenv=VX_IS_QA_IMAGE=${QA_YN}"
+    "--setenv=VX_IS_RELEASE_IMAGE=${RELEASE_YN}"
+  )
+  [[ -n "$VENDOR_PASSWORD" ]] && setenv_args+=("--setenv=VX_VENDOR_PASSWORD=${VENDOR_PASSWORD}")
+  for a in "${setenv_args[@]}"; do cmd+=" $(printf '%q' "$a")"; done
+  cmd+=" ${VM_FINALIZE_SCRIPT}"
+  echo "$cmd"
 }
 
 # ------------------------------------------------------------------ phases
@@ -190,8 +234,7 @@ phase_base() {
   if vm_exists "$BASE_IMAGE"; then
     echo "A base VM named '${BASE_IMAGE}' already exists."
     if [[ "$ASSUME_YES" -eq 1 || ! -t 0 ]]; then
-      die "refusing to delete existing base VM non-interactively; remove it first:
-  sudo virsh undefine --nvram ${BASE_IMAGE}; sudo rm /var/lib/libvirt/images/${BASE_IMAGE}.img
+      die "refusing to delete existing base VM non-interactively; remove it first
 or drop --create-base-image to build from the existing one"
     fi
     read -rp "Delete it and its disk image? [y/N]: " confirm
@@ -213,45 +256,37 @@ or drop --create-base-image to build from the existing one"
 }
 
 phase_clone() {
-  if vm_exists "$VX_NAME"; then
-    echo "A VM named '${VX_NAME}' already exists."
-    if [[ "$ASSUME_YES" -eq 1 || ! -t 0 ]]; then
-      die "refusing to delete existing VM non-interactively; remove it first:
-  sudo virsh destroy ${VX_NAME}; sudo virsh undefine --nvram ${VX_NAME}
-or resume it with --start-at"
-    fi
-    read -rp "Delete it and its disk image? [y/N]: " confirm
-    [[ "$confirm" =~ ^[Yy]$ ]] || die "aborted; existing VM left in place"
-    vm_delete "$VX_NAME"
-  fi
-  log "Cloning ${BASE_IMAGE} -> ${VX_NAME} (disk copy; can take several minutes)..."
+  confirm_delete_vm "$BUILDER" "or resume it with --start-at"
+  log "Cloning ${BASE_IMAGE} -> ${BUILDER} (disk copy; can take several minutes)..."
   log "  log: ${CLONE_LOG}"
-  vm_clone >> "${CLONE_LOG}" 2>&1
-  log "Bootstrapping VM disk (sshd + key + sudoers + marker)..."
-  vm_bootstrap_disk >> "${CLONE_LOG}" 2>&1
+  vm_clone "${BASE_IMAGE}" "${BUILDER}" >> "${CLONE_LOG}" 2>&1
+  log "Bootstrapping builder disk (sshd + key + sudoers + marker)..."
+  vm_bootstrap_disk "${BUILDER}" >> "${CLONE_LOG}" 2>&1
   # Log the guest's serial console to a host-side file: this captures boot
-  # messages, setup-machine output, and vx-cleanup output at shutdown —
-  # even after the offline firewall blocks ssh. Non-fatal on failure; the
-  # build works without it, just with less visibility.
-  if vm_enable_serial_log "${SERIAL_LOG}" >> "${CLONE_LOG}" 2>&1; then
-    log "  serial console log: ${SERIAL_LOG}"
+  # messages and stage markers even after the offline firewall blocks ssh.
+  # Non-fatal on failure; the build works without it.
+  if vm_enable_serial_log "${BUILDER}" "$(serial_log_for "${BUILDER}")" >> "${CLONE_LOG}" 2>&1; then
+    log "  serial console log: $(serial_log_for "${BUILDER}")"
   else
-    log "WARNING: could not enable serial console logging (see ${CLONE_LOG}); continuing without it"
-    SERIAL_LOG=""
+    log "WARNING: could not enable serial console logging for ${BUILDER} (see ${CLONE_LOG})"
   fi
   record_state PHASE_clone "$(date +%s)"
 }
 
 phase_start() {
-  vm_start
-  vm_wait_for_ip
-  vm_wait_for_ssh
+  vm_start "${BUILDER}"
+  log "Waiting for builder IP address..."
+  VM_IP="$(vm_get_ip "${BUILDER}")"
+  log "Builder IP: ${VM_IP}"
+  log "Waiting for ssh..."
+  vm_wait_for_ssh "${VM_IP}" "${BUILDER}"
+  log "ssh is up."
   record_state PHASE_start "$(date +%s)"
-  record_state VM_IP "${VM_IP}"
+  record_state BUILDER_IP "${VM_IP}"
 }
 
 phase_prep() {
-  log "Updating vxsuite-build-system in the VM (branch: ${BUILD_SYSTEM_BRANCH})..."
+  log "Updating vxsuite-build-system in the builder (branch: ${BUILD_SYSTEM_BRANCH})..."
   vm_script <<EOF
 cd ${VM_BUILD_SYSTEM_DIR}
 git fetch origin
@@ -260,7 +295,7 @@ git pull --ff-only origin ${BUILD_SYSTEM_BRANCH}
 echo "build-system now at: \$(git rev-parse --short HEAD) (\$(git branch --show-current))"
 EOF
 
-  log "Updating inventory '${INVENTORY}' in the VM..."
+  log "Updating inventory '${INVENTORY}' in the builder..."
   vm_script <<EOF
 f="${VM_BUILD_SYSTEM_DIR}/inventories/${INVENTORY}/group_vars/all/main.yaml"
 [[ -f "\$f" ]] || { echo "ERROR: \$f not found in VM" >&2; exit 1; }
@@ -286,19 +321,18 @@ echo "--- ${INVENTORY} inventory main.yaml after edits ---"
 cat "\$f"
 EOF
 
-  # The finalize script must be installed BEFORE the offline phase: the
-  # offline firewalld playbook sets the default zone to drop, after which no
-  # NEW ssh connection to the VM can be opened (only the already-established
-  # offline session keeps working).
+  # The finalize script must be installed BEFORE the app clones are made:
+  # it rides the builder image into every clone, and the offline firewall
+  # each clone raises makes later installation impossible.
   vm_ssh "test -f ${VM_BUILD_MARKER}" \
     || die "refusing to stage finalize: ${VM_BUILD_MARKER} missing in VM — not a build VM this script created?"
-  log "Installing finalize script in the VM (must happen before the offline firewall)..."
+  log "Installing finalize script in the builder (inherited by all app clones)..."
   vm_install_finalize_script
   record_state PHASE_prep "$(date +%s)"
 }
 
 phase_online() {
-  log "Running the online phase in the VM (typically ~20 minutes)..."
+  log "Running the online phase in the builder (typically ~20 minutes)..."
   log "  log: ${ONLINE_LOG}  (tail -f to watch)"
   # -tt: the tb-* scripts use \`logname\`, which needs a login session.
   local started="$SECONDS"
@@ -309,128 +343,143 @@ phase_online() {
   record_state PHASE_online "$(date +%s)"
 }
 
-# Launch the build-remainder unit (offline phase + setup-machine + cleanup +
-# self-power-off) as the LAST ssh command the host ever sends, then poll its
-# status file while ssh still works. The offline firewalld playbook drops
-# all new inbound connections partway through, at which point polling stops
-# and phase_finalize falls back to watching the VM's power state. Running
-# the remainder detached (rather than through a held ssh session) means a
-# 60+ minute build can't be killed by an ssh hiccup.
-phase_offline() {
-  log "Launching build-remainder unit (offline phase + setup-machine + cleanup)..."
-  local launch_cmd a
-  launch_cmd="sudo systemd-run --unit=vx-finalize"
-  local setenv_args=(
-    "--setenv=VX_INVENTORY=${INVENTORY}"
-    "--setenv=VX_MACHINE_TYPE=${APP}"
-    "--setenv=VX_IS_QA_IMAGE=${QA_YN}"
-    "--setenv=VX_IS_RELEASE_IMAGE=${RELEASE_YN}"
-  )
-  [[ -n "$VENDOR_PASSWORD" ]] && setenv_args+=("--setenv=VX_VENDOR_PASSWORD=${VENDOR_PASSWORD}")
-  for a in "${setenv_args[@]}"; do launch_cmd+=" $(printf '%q' "$a")"; done
-  launch_cmd+=" ${VM_FINALIZE_SCRIPT}"
-  vm_ssh "$launch_cmd" >> "${OFFLINE_LOG}" 2>&1
-  record_state PHASE_offline "$(date +%s)"
-  log "  in-VM log (snapshotted while ssh lasts): ${OFFLINE_LOG}"
-  [[ -n "$SERIAL_LOG" ]] && log "  full record incl. post-firewall: ${SERIAL_LOG}"
-
-  local i ssh_dead=0 st last_st=""
-  for ((i = 0; i < OFFLINE_WAIT_TRIES; i++)); do
-    if st="$(vm_ssh "cat ${VM_FINALIZE_STATUS} 2>/dev/null || echo pending" 2>/dev/null)"; then
-      ssh_dead=0
-      if [[ "$st" != "$last_st" ]]; then
-        log "build-remainder stage: ${st}"
-        last_st="$st"
-      fi
-      # Snapshot the in-VM log so we keep a copy even after the VM wipes it.
-      vm_ssh "cat ${VM_FINALIZE_LOG} 2>/dev/null" > "${OFFLINE_LOG}" 2>/dev/null || true
-      case "$st" in
-        offline-failed|setup-machine-failed|cleanup-failed|REFUSING*)
-          die "build-remainder unit reported '${st}'; debug via: ssh -i ${VM_KEY} ${VM_USER}@${VM_IP} (if reachable) or sudo virsh console ${VX_NAME}  (see ${OFFLINE_LOG})" ;;
-      esac
-    else
-      ((++ssh_dead))
-      if ((ssh_dead >= 3)); then
-        log "ssh unreachable (offline firewall is up); switching to power-state watch."
-        return 0
-      fi
+# Shut the builder down and clone it once per app, launching each app's
+# detached build-remainder unit (offline phase + setup-machine + cleanup +
+# self-power-off) as soon as that clone is reachable. Clones are made
+# sequentially (disk copies contend for IO); the remainder units all run in
+# parallel.
+phase_appclone() {
+  if vm_is_running "${BUILDER}"; then
+    if [[ -z "${VM_IP}" ]]; then
+      VM_IP="$(vm_get_ip "${BUILDER}")"
+      vm_wait_for_ssh "${VM_IP}" "${BUILDER}"
     fi
-    sleep 20
-  done
-  die "build-remainder unit still in state '${st:-unknown}' after $((OFFLINE_WAIT_TRIES * 20 / 60)) minutes"
-}
-
-# Watch the finalize unit (launched at the end of phase_offline) run
-# setup-machine and the build-bootstrap cleanup, ending with the VM powering
-# itself off. The unit:
-#   1. runs setup-machine as the vx user, answers provided via environment
-#      variables (VX_MACHINE_TYPE et al., supported on the complete-system
-#      branch caro/one_script_builds)
-#   2. on success: cancels setup-machine's scheduled reboot, purges
-#      openssh-server, removes the injected key + sudoers drop-in + marker,
-#      sets the config-wizard-on-next-boot flag, and powers off. vm-fstrim
-#      runs during that shutdown (it is hooked to shutdown.target), and no
-#      further boot happens that could consume the config-wizard flag.
-#   3. on failure: leaves everything in place and the VM running.
-#
-# By this point the offline firewall drops all new inbound connections, so
-# the host can only observe the VM's power state: shut off = success;
-# still running past the timeout = failure (debug via virsh console).
-phase_finalize() {
-  log "Watching finalize (offline tail + setup-machine + cleanup); success = VM powers itself off..."
-  if [[ -n "$SERIAL_LOG" ]]; then
-    log "  stage markers and full output: ${SERIAL_LOG}  (sudo tail -f to watch)"
-  else
-    log "  (no serial log; progress only visible via: sudo virsh console ${VX_NAME})"
+    log "Shutting down the builder before cloning..."
+    vm_ssh "sudo shutdown -h now" 2>/dev/null || true
   fi
-  local i seen=0 total m markers
-  for ((i = 0; i < FINALIZE_WAIT_TRIES; i++)); do
-    # Relay any new stage markers the in-VM unit wrote to the serial console.
-    if [[ -n "$SERIAL_LOG" ]]; then
-      total="$(sudo grep -ac 'VX-BUILD:' "${SERIAL_LOG}" 2>/dev/null)" || total=0
-      if ((total > seen)); then
-        mapfile -t markers < <(sudo grep -a 'VX-BUILD:' "${SERIAL_LOG}" 2>/dev/null | tail -n "$((total - seen))")
-        for m in "${markers[@]}"; do log "  ${m#*VX-BUILD: }"; done
-        seen="$total"
-      fi
+  vm_wait_for_shutoff "${BUILDER}" "${SHUTOFF_WAIT_TRIES}" \
+    || die "builder ${BUILDER} did not shut down; check: sudo virsh console ${BUILDER}"
+  log "Builder is shut off."
+
+  local i app vm ip launch_cmd
+  for i in "${!APPS[@]}"; do
+    app="${APPS[$i]}"
+    vm="${APP_VMS[$i]}"
+    confirm_delete_vm "$vm" ""
+    log "Cloning ${BUILDER} -> ${vm}..."
+    vm_clone "${BUILDER}" "${vm}" >> "${CLONE_LOG}" 2>&1
+    if ! vm_enable_serial_log "${vm}" "$(serial_log_for "${vm}")" >> "${CLONE_LOG}" 2>&1; then
+      log "WARNING: could not enable serial console logging for ${vm}"
     fi
-    if ! vm_is_running "$VX_NAME"; then
-      log "VM has powered off — setup-machine and cleanup completed."
-      record_state PHASE_finalize "$(date +%s)"
-      return 0
-    fi
-    sleep 10
+    vm_start "${vm}"
+    ip="$(vm_get_ip "${vm}")"
+    vm_wait_for_ssh "${ip}" "${vm}"
+    APP_VM_IP["$vm"]="$ip"
+    record_state "APP_VM_IP_${vm}" "$ip"
+    launch_cmd="$(build_launch_cmd "$app")"
+    log "Launching build-remainder unit on ${vm} (${app}, ${IMAGE_TYPE})..."
+    vm_ssh_to "${ip}" "${launch_cmd}" >> "$(remainder_log_for "${vm}")" 2>&1
   done
-  die "VM did not power off within $((FINALIZE_WAIT_TRIES * 10 / 60)) minutes.
-setup-machine or the bootstrap cleanup likely failed; inspect via:
-  sudo virsh console ${VX_NAME}   (vx/votingworks; check ${VM_FINALIZE_STATUS} and ${VM_FINALIZE_LOG})
-  ${SERIAL_LOG:+or the serial log: ${SERIAL_LOG}}"
+  record_state PHASE_appclone "$(date +%s)"
+  log "All ${#APPS[@]} app VM(s) cloned and building in parallel."
 }
 
-# lz4-compress the finished image and upload it to S3, following the manual
-# process (image name prefixed with the date for bookkeeping). Only runs
-# with --upload; requires the VM to be shut off (i.e. finalize completed).
+# Watch every app VM run its remainder unit: status file over ssh while the
+# offline firewall allows it, serial-log stage markers after, power-off as
+# the success signal. One VM failing does not stop the others; failures are
+# reported together at the end.
+phase_finalize() {
+  log "Watching ${#APP_VMS[@]} app VM(s) (offline + setup-machine + cleanup); success = VM powers itself off..."
+  local vm
+  for vm in "${APP_VMS[@]}"; do
+    log "  ${vm}: serial log $(serial_log_for "${vm}")"
+  done
+
+  declare -A vm_done=() vm_failed=() last_status=() markers_seen=()
+  local i j ip st total m markers slog
+  for ((i = 0; i < FINALIZE_WAIT_TRIES; i++)); do
+    local all_done=1
+    for j in "${!APP_VMS[@]}"; do
+      vm="${APP_VMS[$j]}"
+      [[ -n "${vm_done[$vm]:-}" ]] && continue
+
+      # Relay any new stage markers from this VM's serial log.
+      slog="$(serial_log_for "${vm}")"
+      total="$(sudo grep -ac 'VX-BUILD:' "${slog}" 2>/dev/null)" || total=0
+      if ((total > ${markers_seen[$vm]:-0})); then
+        mapfile -t markers < <(sudo grep -a 'VX-BUILD:' "${slog}" 2>/dev/null | tail -n "$((total - ${markers_seen[$vm]:-0}))")
+        for m in "${markers[@]}"; do log "  [${vm}] ${m#*VX-BUILD: }"; done
+        markers_seen[$vm]="$total"
+      fi
+
+      if ! vm_is_running "$vm"; then
+        vm_done[$vm]=1
+        log "  [${vm}] powered off — build complete."
+        continue
+      fi
+      all_done=0
+
+      # Status file polling works until this VM's offline firewall comes up.
+      ip="${APP_VM_IP[$vm]:-}"
+      if [[ -n "$ip" ]]; then
+        if st="$(vm_ssh_to "$ip" "cat ${VM_FINALIZE_STATUS} 2>/dev/null || echo pending" 2>/dev/null)"; then
+          if [[ "$st" != "${last_status[$vm]:-}" ]]; then
+            log "  [${vm}] stage: ${st}"
+            last_status[$vm]="$st"
+          fi
+          vm_ssh_to "$ip" "cat ${VM_FINALIZE_LOG} 2>/dev/null" > "$(remainder_log_for "${vm}")" 2>/dev/null || true
+          case "$st" in
+            offline-failed|setup-machine-failed|cleanup-failed|REFUSING*)
+              vm_done[$vm]=1
+              vm_failed[$vm]="$st"
+              log "  [${vm}] FAILED: ${st} (VM left running for debugging)" ;;
+          esac
+        fi
+      fi
+    done
+    ((all_done)) && break
+    sleep 15
+  done
+
+  local failures=0 unfinished=0
+  for vm in "${APP_VMS[@]}"; do
+    [[ -n "${vm_failed[$vm]:-}" ]] && ((++failures))
+    [[ -z "${vm_done[$vm]:-}" ]] && ((++unfinished)) \
+      && log "  [${vm}] still running after $((FINALIZE_WAIT_TRIES * 15 / 60)) minutes"
+  done
+  ((unfinished == 0)) || die "some app VMs did not finish; inspect via sudo virsh console <vm>"
+  ((failures == 0)) || die "${failures} app VM(s) failed; see stages above and debug via sudo virsh console <vm> (or the serial logs)"
+  record_state PHASE_finalize "$(date +%s)"
+  log "All app VM(s) built and powered off."
+}
+
+# lz4-compress each finished image and upload it to S3, following the manual
+# process (image names prefixed with the date for bookkeeping). Only runs
+# with --upload; requires the app VMs to be shut off.
 phase_upload() {
   [[ "$UPLOAD" -eq 1 ]] || return 0
-  vm_is_running "$VX_NAME" \
-    && die "refusing to compress a running VM; wait for finalize to power it off"
-  local disk archive
-  disk="$(vm_disk_path "${VX_NAME}")"
-  [[ -n "$disk" ]] || die "could not determine disk path for ${VX_NAME}"
-  archive="${HOME}/$(date +%Y-%m-%d)-${IMAGE_NAME}-vx${APP//-/}.img.lz4"
-  [[ -e "$archive" ]] \
-    && die "archive ${archive} already exists; remove it or rename the image"
-  log "Compressing ${disk} -> ${archive} (this takes several minutes)..."
-  log "  log: ${UPLOAD_LOG}"
-  sudo lz4 "${disk}" "${archive}" >> "${UPLOAD_LOG}" 2>&1 \
-    || die "lz4 compression FAILED; see ${UPLOAD_LOG}"
-  log "Uploading $(basename "${archive}") to ${S3_BUCKET}..."
-  sudo aws s3 cp "${archive}" "${S3_BUCKET}" >> "${UPLOAD_LOG}" 2>&1 \
-    || die "S3 upload FAILED; see ${UPLOAD_LOG}. The local archive is kept at ${archive}"
-  UPLOADED_TO="${S3_BUCKET}$(basename "${archive}")"
-  log "Uploaded: ${UPLOADED_TO}"
+  local i app vm disk archive
+  for i in "${!APPS[@]}"; do
+    app="${APPS[$i]}"
+    vm="${APP_VMS[$i]}"
+    vm_is_running "$vm" \
+      && die "refusing to compress running VM ${vm}; wait for finalize to power it off"
+    disk="$(vm_disk_path "${vm}")"
+    [[ -n "$disk" ]] || die "could not determine disk path for ${vm}"
+    archive="${HOME}/$(date +%Y-%m-%d)-${IMAGE_NAME}-vx${app//-/}.img.lz4"
+    [[ -e "$archive" ]] \
+      && die "archive ${archive} already exists; remove it or rename the image"
+    log "Compressing ${disk} -> ${archive}..."
+    log "  log: ${UPLOAD_LOG}"
+    sudo lz4 "${disk}" "${archive}" >> "${UPLOAD_LOG}" 2>&1 \
+      || die "lz4 compression FAILED for ${vm}; see ${UPLOAD_LOG}"
+    log "Uploading $(basename "${archive}") to ${S3_BUCKET}..."
+    sudo aws s3 cp "${archive}" "${S3_BUCKET}" >> "${UPLOAD_LOG}" 2>&1 \
+      || die "S3 upload FAILED for ${vm}; see ${UPLOAD_LOG}. The local archive is kept at ${archive}"
+    log "Uploaded: ${S3_BUCKET}$(basename "${archive}")"
+    record_state "UPLOADED_${vm}" "${S3_BUCKET}$(basename "${archive}")"
+  done
   record_state PHASE_upload "$(date +%s)"
-  record_state UPLOADED_TO "${UPLOADED_TO}"
 }
 
 # --------------------------------------------------------------------- run
@@ -438,53 +487,47 @@ should_run base    && phase_base
 should_run clone   && phase_clone
 should_run start   && phase_start
 case "$START_AT" in
-  prep|online|offline)
-    # Resuming into a phase that needs a live ssh channel.
-    vm_ensure_running ;;
+  prep|online)
+    # Resuming into a phase that needs a live ssh channel to the builder.
+    vm_ensure_running "${BUILDER}" ;;
+  appclone)
+    vm_exists "${BUILDER}" || die "builder VM '${BUILDER}' does not exist" ;;
   finalize|upload)
-    # Resuming into watch-only or compress/upload (no ssh needed); the VM
-    # just needs to exist.
-    vm_exists "$VX_NAME" || die "VM '${VX_NAME}' does not exist" ;;
+    # Watch-only / compress-only; the app VMs just need to exist.
+    for _vm in "${APP_VMS[@]}"; do
+      vm_exists "$_vm" || die "app VM '$_vm' does not exist"
+    done ;;
 esac
 should_run prep     && phase_prep
 should_run online   && phase_online
-should_run offline  && phase_offline
+should_run appclone && phase_appclone
 should_run finalize && phase_finalize
 [[ "$START_AT" == "upload" ]] && UPLOAD=1   # resuming into upload implies it
 should_run upload   && phase_upload
 
-DISK_PATH="$(vm_disk_path "${VX_NAME}")"
 log "========================================================="
 if [[ "$UPLOAD" -eq 1 ]]; then
-  log "DONE — image built, compressed, and uploaded."
+  log "DONE — image(s) built, compressed, and uploaded."
 else
   log "DONE (compress/upload skipped; pass --upload to include them)."
 fi
 log ""
-log "Machine VM '${VX_NAME}' (${APP}, ${IMAGE_TYPE}) is built and shut off."
-log "  disk image:      ${DISK_PATH}"
-log "  state:           ${STATE_FILE}"
-log "  main log:        ${MAIN_LOG}"
-[[ "$CREATE_BASE" -eq 1 ]] \
-  && log "  base creation:   ${BASE_LOG}"
-log "  clone/bootstrap: ${CLONE_LOG}"
-log "  online phase:    ${ONLINE_LOG}"
-log "  offline phase:   ${OFFLINE_LOG} (in-VM snapshot until firewall)"
-[[ -n "$SERIAL_LOG" ]] \
-  && log "  serial console:  ${SERIAL_LOG} (boot + setup-machine + vx-cleanup output)"
+log "Built ${IMAGE_TYPE} image(s) for: ${APPS[*]}"
+for _i in "${!APPS[@]}"; do
+  log "  ${APP_VMS[$_i]}:  $(vm_disk_path "${APP_VMS[$_i]}")"
+done
+log "Builder VM '${BUILDER}' kept (shut off) for cloning more app types;"
+log "remove it with: ./scripts/cleanup-vx-build.sh ${BUILDER}"
 log ""
-log "Build bootstrap has been removed from the image:"
+log "Build bootstrap has been removed from each app image:"
 log "  - openssh-server purged"
 log "  - ${VM_HOME}/.ssh removed"
 log "  - ${VM_SUDOERS_FILE} removed"
 log "  - config wizard will run on first boot (${VM_NEXT_BOOT_FLAG})"
 log ""
-if [[ "$UPLOAD" -eq 1 ]]; then
-  log "Uploaded image: ${UPLOADED_TO}"
-  log "  upload log:   ${UPLOAD_LOG}"
-else
-  log "To compress and upload later:"
-  log "  rerun with:   --start-at upload  (plus the same --app/--name)"
-  log "  or manually:  sudo lz4 ${DISK_PATH} ~/$(date +%Y-%m-%d)-${IMAGE_NAME}-vx${APP//-/}.img.lz4"
-  log "                sudo aws s3 cp ~/$(date +%Y-%m-%d)-${IMAGE_NAME}-vx${APP//-/}.img.lz4 ${S3_BUCKET}"
+log "  state:    ${STATE_FILE}"
+log "  main log: ${MAIN_LOG}"
+if [[ "$UPLOAD" -ne 1 ]]; then
+  log ""
+  log "To compress and upload later:  rerun with --start-at upload (same --app/--name)"
 fi

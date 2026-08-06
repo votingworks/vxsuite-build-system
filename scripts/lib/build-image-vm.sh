@@ -1,7 +1,9 @@
 # shellcheck shell=bash
-# build-image-vm.sh — helpers for managing the build VM and sending commands
-# to it. Sourced, not executed; operates on the caller's globals (VX_NAME,
-# BASE_IMAGE, VM_USER, VM_KEY, VM_IP, LIBVIRT_NETWORK, wait-tries constants).
+# build-image-vm.sh — helpers for managing build VMs and sending commands
+# to them. Sourced, not executed; most helpers take the VM name (and IP where
+# needed) as arguments; vm_ssh/vm_script target the builder via the caller's
+# VM_IP global. Also expects VM_USER, VM_KEY, LIBVIRT_NETWORK, and the
+# wait-tries constants from the caller.
 #
 # All in-VM work goes through vm_ssh / vm_ssh_tty / vm_script so there is
 # exactly one way commands reach the VM — nothing here (or in the caller)
@@ -14,8 +16,11 @@ init_vm_ssh() {
     -o ConnectTimeout=5 -o BatchMode=yes -o LogLevel=ERROR)
 }
 
-# Run a single command in the VM: vm_ssh "command"
+# Run a single command in the builder VM (VM_IP global): vm_ssh "command"
 vm_ssh() { ssh "${SSH_OPTS[@]}" "${VM_USER}@${VM_IP}" "$@"; }
+
+# Run a single command in an arbitrary VM: vm_ssh_to <ip> "command"
+vm_ssh_to() { local _ip="$1"; shift; ssh "${SSH_OPTS[@]}" "${VM_USER}@${_ip}" "$@"; }
 
 # Run a command in the VM with a pty (for scripts that need a login session,
 # e.g. anything calling `logname`), streaming output.
@@ -50,18 +55,18 @@ vm_delete() { # $1=name — destroy, undefine, and remove disks
   done
 }
 
-vm_clone() {
-  sudo virt-clone -o "${BASE_IMAGE}" -n "${VX_NAME}" --auto-clone
+vm_clone() { # $1=source VM  $2=new VM name
+  sudo virt-clone -o "$1" -n "$2" --auto-clone
 }
 
 # Install openssh-server, inject our key, set up passwordless sudo, and write
 # the /etc/vx-build-vm marker — all on the disk image, before first boot.
 # Everything this installs MUST be removed before an image ships; the
 # finalize phase does that.
-vm_bootstrap_disk() {
+vm_bootstrap_disk() { # $1=VM name
   local disk
-  disk="$(vm_disk_path "${VX_NAME}")"
-  [[ -n "$disk" ]] || die "could not determine disk path for ${VX_NAME}"
+  disk="$(vm_disk_path "$1")"
+  [[ -n "$disk" ]] || die "could not determine disk path for $1"
   # APT-snapshot base images (debian-v*-<date>-bookworm) point at a frozen
   # aptly repo that does NOT carry openssh-server, so temporarily add the
   # upstream Debian archive for the install (ops run in argument order; the
@@ -94,11 +99,11 @@ TTYPath=/dev/ttyS0
 # virt-xml: its --edit path re-normalizes the whole domain (reassigning PCI
 # addresses), which invalidates the UEFI NVRAM boot entry's device path and
 # leaves the clone at the EFI shell instead of booting.
-vm_enable_serial_log() { # $1=log file path
+vm_enable_serial_log() { # $1=VM name  $2=log file path
   local xml_tmp rc=0
   xml_tmp="$(mktemp)"
-  sudo virsh dumpxml --inactive "${VX_NAME}" > "${xml_tmp}"
-  python3 - "${xml_tmp}" "$1" <<'PY' || rc=$?
+  sudo virsh dumpxml --inactive "$1" > "${xml_tmp}"
+  python3 - "${xml_tmp}" "$2" <<'PY' || rc=$?
 import sys, xml.etree.ElementTree as ET
 path, logfile = sys.argv[1], sys.argv[2]
 ET.register_namespace('qemu', 'http://libvirt.org/schemas/domain/qemu/1.0')
@@ -121,47 +126,52 @@ PY
   return "$rc"
 }
 
-vm_start() {
-  if vm_is_running "${VX_NAME}"; then
-    log "VM ${VX_NAME} is already running."
+vm_start() { # $1=VM name
+  if vm_is_running "$1"; then
+    log "VM $1 is already running."
     return 0
   fi
-  log "Starting ${VX_NAME}..."
-  sudo virsh start "${VX_NAME}"
+  log "Starting $1..."
+  sudo virsh start "$1"
 }
 
-# Resolve the VM's IPv4 address into VM_IP, waiting for DHCP.
-vm_wait_for_ip() {
-  log "Waiting for VM IP address..."
-  local mac i
-  mac="$(sudo virsh domiflist "${VX_NAME}" | awk 'NR > 2 && $5 ~ /:/ {print $5; exit}')"
-  VM_IP=""
+vm_wait_for_shutoff() { # $1=VM name  $2=tries (x5s)
+  local i
+  for ((i = 0; i < $2; i++)); do
+    vm_is_running "$1" || return 0
+    sleep 5
+  done
+  return 1
+}
+
+# Resolve a VM's IPv4 address, waiting for DHCP; echoes the IP (all
+# diagnostics go to stderr so command substitution stays clean).
+vm_get_ip() { # $1=VM name
+  local mac i ip=""
+  mac="$(sudo virsh domiflist "$1" | awk 'NR > 2 && $5 ~ /:/ {print $5; exit}')"
   for ((i = 0; i < IP_WAIT_TRIES; i++)); do
-    VM_IP="$(sudo virsh domifaddr "${VX_NAME}" 2>/dev/null \
+    ip="$(sudo virsh domifaddr "$1" 2>/dev/null \
       | awk '/ipv4/ {split($4, a, "/"); print a[1]; exit}')"
-    if [[ -z "$VM_IP" && -n "$mac" ]]; then
+    if [[ -z "$ip" && -n "$mac" ]]; then
       # domifaddr's lease lookup misses leases requested with a DUID client-id
       # (which these debian guests use); fall back to matching the domain MAC
       # in the libvirt network's lease table.
-      VM_IP="$(sudo virsh net-dhcp-leases "${LIBVIRT_NETWORK}" 2>/dev/null \
+      ip="$(sudo virsh net-dhcp-leases "${LIBVIRT_NETWORK}" 2>/dev/null \
         | awk -v mac="$mac" '$3 == mac && $4 == "ipv4" {split($5, a, "/"); print a[1]; exit}')"
     fi
-    [[ -n "$VM_IP" ]] && break
+    [[ -n "$ip" ]] && { echo "$ip"; return 0; }
     sleep 5
   done
-  [[ -n "$VM_IP" ]] \
-    || die "VM did not get an IP within $((IP_WAIT_TRIES * 5))s; check: sudo virsh console ${VX_NAME}"
-  log "VM IP: ${VM_IP}"
+  die "VM $1 did not get an IP within $((IP_WAIT_TRIES * 5))s; check: sudo virsh console $1"
 }
 
-vm_wait_for_ssh() {
-  log "Waiting for ssh..."
+vm_wait_for_ssh() { # $1=ip  $2=VM name (for the error message)
   local i
   for ((i = 0; i < SSH_WAIT_TRIES; i++)); do
-    if vm_ssh true 2>/dev/null; then log "ssh is up."; return 0; fi
+    if vm_ssh_to "$1" true 2>/dev/null; then return 0; fi
     sleep 5
   done
-  die "could not ssh to ${VM_USER}@${VM_IP}; check: sudo virsh console ${VX_NAME}"
+  die "could not ssh to ${VM_USER}@$1; check: sudo virsh console $2"
 }
 
 # Install the build-remainder script (offline phase + setup-machine +
@@ -254,11 +264,9 @@ EOF
 
 # For --start-at resumes: make sure the VM exists and is running, and set
 # VM_IP.
-vm_ensure_running() {
-  vm_exists "${VX_NAME}" || die "VM '${VX_NAME}' does not exist; run without --start-at to create it"
-  if ! vm_is_running "${VX_NAME}"; then
-    vm_start
-  fi
-  vm_wait_for_ip
-  vm_wait_for_ssh
+vm_ensure_running() { # $1=VM name — sets VM_IP
+  vm_exists "$1" || die "VM '$1' does not exist; run without --start-at to create it"
+  vm_start "$1"
+  VM_IP="$(vm_get_ip "$1")"
+  vm_wait_for_ssh "${VM_IP}" "$1"
 }

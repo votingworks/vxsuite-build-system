@@ -18,7 +18,8 @@ defaults for everything):
   --inventory NAME              vxsuite-build-system inventory (default: latest)
   --complete-system-branch B    vxsuite-complete-system branch (default: main)
   --vxsuite-branch B            vxsuite branch override (default: none)
-  --app APP                     one of: ${VALID_APPS[*]}
+  --app APP[,APP...]            one or more (comma-separated) of:
+                                ${VALID_APPS[*]}
   --type TYPE                   qa or prod (default: qa)
   --base-image NAME             base debian VM (from: sudo virsh list --all)
   --create-base-image           create a fresh base debian VM for the chosen
@@ -92,7 +93,18 @@ prompt_for_missing_args() {
     read -rp "vxsuite branch override (empty for none): " VX_BRANCH
   fi
   if [[ -z "$APP" ]]; then
-    choose_from "App to build:" "${VALID_APPS[@]}"; APP="$REPLY"
+    echo "App(s) to build:" >&2
+    local i
+    for i in "${!VALID_APPS[@]}"; do echo "  $((i + 1)). ${VALID_APPS[$i]}" >&2; done
+    local selection picks p
+    read -rp "Enter comma-separated numbers: " selection
+    IFS=',' read -ra picks <<< "$selection"
+    for p in "${picks[@]}"; do
+      p="${p// /}"
+      [[ "$p" =~ ^[0-9]+$ ]] && ((p >= 1 && p <= ${#VALID_APPS[@]})) \
+        || die "invalid selection: '$p'"
+      APP+="${APP:+,}${VALID_APPS[$((p - 1))]}"
+    done
   fi
   if [[ -z "$IMAGE_TYPE" ]]; then
     prompt_default "Image type (qa/prod)" "qa"; IMAGE_TYPE="$REPLY"
@@ -127,7 +139,7 @@ prompt_for_missing_args() {
     fi
   fi
   if [[ -z "$IMAGE_NAME" ]]; then
-    read -rp "Image name (suffix for VM name vx${APP:-<app>}-<name>): " IMAGE_NAME
+    read -rp "Image name (builder VM will be vx-<name>, app VMs vx<app>-<name>): " IMAGE_NAME
   fi
   if [[ "$UPLOAD" -ne 1 ]]; then
     local upload_answer
@@ -137,11 +149,22 @@ prompt_for_missing_args() {
 }
 
 validate_args() {
-  APP="${APP#vx}"   # accept vxadmin/vxmark/etc. as aliases
+  # Split the (possibly comma-separated) app list into APPS, accepting
+  # vxadmin/vxmark/etc. as aliases and dropping duplicates.
+  APPS=()
+  local _app _seen=","
+  IFS=',' read -ra _raw_apps <<< "$APP"
+  for _app in "${_raw_apps[@]}"; do
+    _app="${_app// /}"
+    _app="${_app#vx}"
+    [[ -n "$_app" ]] || continue
+    [[ " ${VALID_APPS[*]} " == *" ${_app} "* ]] \
+      || die "app must be one or more of: ${VALID_APPS[*]} (got '${_app}')"
+    [[ "$_seen" == *",${_app},"* ]] || { APPS+=("$_app"); _seen+="${_app},"; }
+  done
+  ((${#APPS[@]} > 0)) || die "at least one app is required"
   [[ -d "${REPO_DIR}/inventories/${INVENTORY}" ]] \
     || die "inventory '${INVENTORY}' not found in ${REPO_DIR}/inventories/"
-  [[ " ${VALID_APPS[*]} " == *" ${APP} "* ]] \
-    || die "app must be one of: ${VALID_APPS[*]} (got '${APP:-<empty>}')"
   [[ "$IMAGE_TYPE" == "qa" || "$IMAGE_TYPE" == "prod" ]] \
     || die "type must be qa or prod (got '${IMAGE_TYPE:-<empty>}')"
   [[ -n "$IMAGE_NAME" ]] || die "image name is required"
