@@ -1,0 +1,17 @@
+---
+
+- name: Clear out any existing package list
+  set_fact:
+    all_packages: []
+
+- name: Add kernel and firmware packages to be installed
+  set_fact:
+    all_packages: "{{ all_packages | default([]) + [ item ] }}"
+  with_items:
+    - "{{ kernel_and_firmware_packages | default([]) }}"
+
+- name: Use the apt role to download or install as required
+  ansible.builtin.import_role:
+    name: apt
+  tags:
+    - online

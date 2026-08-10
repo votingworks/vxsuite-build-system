@@ -1,0 +1,48 @@
+---
+
+- name: Get the latest linux-base version available
+  ansible.builtin.shell:
+    cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
+  register: tmp_latest_linux_base_version
+  when: apt_snapshot_date is not defined
+  tags:
+    - online
+
+- name: Set the linux_base_version variable
+  ansible.builtin.set_fact:
+    latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
+  when: apt_snapshot_date is not defined and tmp_latest_linux_base_version is not skipped
+
+- name: Get the latest linux-base version available in VotingWorks apt repo
+  ansible.builtin.shell:
+    cmd: "apt-cache madison linux-base | awk '{print $3}' | sort -Vr | head -1"
+  register: tmp_latest_linux_base_version
+  when: apt_snapshot_date is defined
+  tags:
+    - online
+
+- name: Set the linux_base_version variable
+  ansible.builtin.set_fact:
+    latest_linux_base_version: "{{ tmp_latest_linux_base_version.stdout }}"
+  when: apt_snapshot_date is defined and tmp_latest_linux_base_version is not skipped
+
+- name: Get the latest kernel image available
+  ansible.builtin.shell:
+    cmd: "apt-cache search --names-only linux-image-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
+  register: latest_kernel_image
+  tags:
+    - online
+
+- name: Get the latest kernel headers available
+  ansible.builtin.shell:
+    cmd: "apt-cache search --names-only linux-headers-[0-9].*deb12-amd64 | sort -V | tail -1 | awk '{print $1}'"
+  register: latest_kernel_headers
+  tags:
+    - online
+
+- name: Upgrade the kernel packages and dependencies
+  ansible.builtin.command:
+    cmd: "apt-get install -y --reinstall --install-suggests --no-install-recommends linux-base={{ latest_linux_base_version }} {{ latest_kernel_image.stdout }} {{ latest_kernel_headers.stdout }}"
+  when: upgrade_kernel
+  tags:
+    - online
