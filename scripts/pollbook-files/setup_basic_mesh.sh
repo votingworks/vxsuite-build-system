@@ -35,6 +35,7 @@ fi
 echo "Bringing up the network and joining pollbook_mesh"
 sudo ip link set mesh0 up
 sudo iw dev mesh0 mesh join pollbook_mesh
+sudo sysctl -w net.ipv6.conf.mesh0.disable_ipv6=1
 
 sudo systemctl restart strongswan
 echo "Successfully joined the network."
