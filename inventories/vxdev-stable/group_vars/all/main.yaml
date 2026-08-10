@@ -1,6 +1,7 @@
 repos:
   vxsuite-complete-system:
     version: main
+full_git_clone: true
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "vxdev-base"
 vm_disk_size_gb: 27
