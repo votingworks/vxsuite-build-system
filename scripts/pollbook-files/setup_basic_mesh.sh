@@ -10,7 +10,7 @@ if iw dev | grep -q "mesh0"; then
     sleep 1
 fi
 
-wireless_interface=$(iw dev | awk '/Interface/ {print $2}' | grep -v "wlp9s0")
+wireless_interface=$(iw dev | awk '/Interface/ {print $2}')
 if [ -z "$wireless_interface" ]; then
     echo "No wireless interface found."
     exit 1
@@ -25,7 +25,7 @@ echo "Creating mesh interface: mesh0"
 sudo iw dev "$wireless_interface" interface add mesh0 type mp
 
 sleep 0.1 # the interface gets renamed by udev rules wait for that to happen so we can fix the name
-new_interface=$(iw dev | awk '/Interface/ {print $2}' | grep -v "wlp9s0" | grep -v "$wireless_interface")
+new_interface=$(iw dev | awk '/Interface/ {print $2}' | grep -v "$wireless_interface")
 echo "New interface name: $new_interface"
 if [ -n "$new_interface" ] && [ "$new_interface" != "mesh0" ]; then
     echo "Renaming interface from: $new_interface to mesh0"
