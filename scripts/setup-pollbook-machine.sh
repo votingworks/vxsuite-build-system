@@ -17,6 +17,14 @@ app_scripts_dir="${build_dir}/app-scripts"
 
 set -euo pipefail
 
+ansible_inventory=$1
+
+if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
+  echo "ERROR: The $ansible_inventory inventory could not be found."
+  echo "You can find a list of inventories in: ${vxsuite_build_system_dir}/inventories"
+  exit 1
+fi
+
 echo "Welcome to the VxPollbook setup script."
 echo "THIS IS A DESTRUCTIVE SCRIPT. Ctrl+C now to cancel."
 sleep 5
