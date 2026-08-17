@@ -548,4 +548,6 @@ d-i preseed/late_command string \
 	cp -a /target/etc/skel/. /target/home/vx/; \
 	in-target "chown vx:vx /home/vx/.{profile,bashrc,bash_logout}"; \
 	in-target su - vx -c "mkdir -p /home/vx/code"; \
-	in-target su - vx -c "git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system";
+	in-target su - vx -c "git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system"; \
+	echo "vx ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/99-vxbuild; \
+	chmod 0440 /target/etc/sudoers.d/99-vxbuild;

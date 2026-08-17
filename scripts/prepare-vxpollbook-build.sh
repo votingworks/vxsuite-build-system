@@ -43,7 +43,7 @@ if [[ "$debian_major_version" == "12" ]]; then
 fi
 
 # Ensure sudo credentials haven't expired
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 
 echo "Run vxpollbook playbook. This will take several minutes."
 sleep 5
@@ -56,7 +56,7 @@ fi
 
 echo "Build kiosk-browser"
 sleep 5
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 cd $kiosk_browser_dir
 make install
 make build
@@ -64,7 +64,7 @@ sudo dpkg -i dist/kiosk-browser_*.deb
 
 echo "Build VxPollbook"
 sleep 5
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 # Make sure cargo is available in case it hasn't been sourced yet
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
 cd $pollbook_dir
@@ -108,7 +108,7 @@ cp -rp "${pollbook_dir}/barcode-scanner-daemon" "${BUILD_ROOT}/vxpollbook/apps/p
 # This runs as the very last step since it locks the network down
 # to only loopback and mesh traffic
 cd $vxsuite_build_system_dir
-sudo -v
+sudo -n true 2>/dev/null || sudo -v
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_firewalld.yaml
 
 exit 0
