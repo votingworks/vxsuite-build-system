@@ -64,6 +64,11 @@ all_packages:
   - libxtst6
   - lm-sensors
   - make
+  - mesa-utils
+  - mesa-utils-bin
+  - mesa-va-drivers
+  - mesa-vdpau-drivers
+  - mesa-vulkan-drivers
   - mingetty
   - openbox
   - pahole
