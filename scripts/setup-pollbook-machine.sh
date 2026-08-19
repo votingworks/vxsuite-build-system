@@ -220,7 +220,6 @@ sudo ln -s /vx/code/run-vxpollbook.sh /vx/services/run-vxpollbook.sh
 sudo ln -s /vx/code/vxpollbook /vx/code/vxsuite
 
 # symlink appropriate vx/ui files
-sudo ln -s /vx/code/config/ui_bash_profile /vx/ui/.bash_profile
 sudo ln -s /vx/code/config/Xresources /vx/ui/.Xresources
 sudo ln -s /vx/code/config/xinitrc /vx/ui/.xinitrc
 
@@ -229,7 +228,6 @@ sudo mkdir -p /vx/ui/.config/gtk-3.0
 sudo ln -s /vx/code/config/gtksettings.ini /vx/ui/.config/gtk-3.0/settings.ini
 
 # vendor user setup 
-sudo ln -s /vx/code/config/admin_bash_profile /vx/vendor/.bash_profile
 sudo ln -s /vx/code/config/vendor-functions /vx/vendor/vendor-functions
 
 # Make sure our cmdline file is readable by vx-vendor
@@ -308,6 +306,16 @@ sudo chmod -R go-rwX /var/vx/services
 sudo chown -R vx-services:vx-services /var/vx/data
 sudo chmod -R u=rwX /var/vx/data
 sudo chmod -R go-rwX /var/vx/data
+
+# Custom login shells for vx-ui and vx-vendor users
+for user in vx-ui vx-vendor
+do
+  user_home_dir=$( getent passwd "${user}" | cut -d: -f6 )
+  sudo cp ${complete_system_dir}/config/${user}-shell ${user_home_dir}/.
+  sudo chown ${user}:${user} ${user_home_dir}/${user}-shell
+  sudo chmod 700 ${user_home_dir}/${user}-shell
+  sudo chsh -s ${user_home_dir}/${user}-shell ${user}
+done
 
 # Config is writable by the vx-vendor user and readable/executable by all vx-* users, with the
 # exception of the app-flags subdirectory and /vx/config/openssl.cnf, which are special-cased to be
