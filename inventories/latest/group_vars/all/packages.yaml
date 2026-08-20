@@ -13,6 +13,19 @@ kernel_and_firmware_packages:
   - linux-image-amd64
   - linux-headers-amd64
 
+xlibre_packages:
+  - xlibre
+  - xlibre-x11-common
+  - xserver-xlibre
+  - xserver-xlibre-core
+  - xserver-xlibre-input-all
+  - xserver-xlibre-input-libinput
+  - xserver-xlibre-video-all
+  - xserver-xlibre-video-amdgpu
+  - xserver-xlibre-video-fbdev
+  - xserver-xlibre-video-intel
+  - xserver-xlibre-video-radeon
+
 all_packages:
   - alsa-utils
   - brightnessctl
@@ -87,16 +100,9 @@ all_packages:
   - unzip
   - usbguard
   - wget
-  - x11-common
   - xdg-utils
   - xinit
   - xinput
-  - xorg
-  - xserver-xorg-core
-  - xserver-xorg-input-all
-  - xserver-xorg-input-libinput
-  - xserver-xorg-input-wacom
-  - xserver-xorg-video-all
   - xxd
   - zip
 
