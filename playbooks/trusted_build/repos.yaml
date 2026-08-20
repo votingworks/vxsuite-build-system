@@ -68,6 +68,22 @@
         become_user: "{{ user_to_configure }}"
         when: not ( full_git_clone | default(false) | bool )
 
+      #-- The vxsuite version used in a build is normally pinned by the
+      #-- vxsuite-complete-system submodule. Set vxsuite_version_override in
+      #-- the inventory (or via --extra-vars) to a branch/tag/commit to fetch
+      #-- and check out that version in the vxsuite subdirectory instead,
+      #-- after the clone and submodule update above.
+      - name: Override the vxsuite submodule version in vxsuite-complete-system
+        ansible.builtin.git:
+          repo: "https://github.com/votingworks/vxsuite.git"
+          dest: "{{ download_code_directory }}/vxsuite-complete-system/vxsuite"
+          version: "{{ vxsuite_version_override }}"
+        when:
+          - vxsuite_version_override is defined
+          - "'vxsuite-complete-system' in repos"
+        become: true
+        become_user: "{{ user_to_configure }}"
+
       tags:
         - online
 

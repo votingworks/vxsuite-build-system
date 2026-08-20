@@ -47,6 +47,6 @@ ansible-playbook -i inventories/${ansible_inventory} playbooks/virtmanager/insta
 
 echo "Create the base Debian image"
 sleep 5
-ansible-playbook -i inventories/${ansible_inventory} playbooks/virtmanager/create-base-vm.yaml
+ansible-playbook -i inventories/${ansible_inventory} playbooks/virtmanager/create-base-vm.yaml "${@:2}"
 
 exit 0

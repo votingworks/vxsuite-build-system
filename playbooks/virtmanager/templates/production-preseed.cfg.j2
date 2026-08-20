@@ -438,7 +438,7 @@ d-i apt-setup/local0/key string http://votingworks-apt-snapshots.s3.us-west-2.am
 tasksel tasksel/first multiselect standard
 
 # Individual additional packages to install
-d-i pkgsel/include string sudo vim git rsync gpg gpg-agent
+d-i pkgsel/include string sudo vim git rsync gpg gpg-agent openssh-server
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
 #d-i pkgsel/upgrade select none

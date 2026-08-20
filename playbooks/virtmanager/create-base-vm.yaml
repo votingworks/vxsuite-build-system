@@ -12,6 +12,14 @@
         vm_name: "{{ vm_name }}-{{ apt_snapshot_date }}-{{ release_name }}"
       when: apt_snapshot_date is defined and release_name is defined
 
+    #-- Naming-only suffix so bases from inventories without an APT snapshot
+    #-- (e.g. latest) still get a datestamped name instead of a bare vm_name.
+    #-- Unlike apt_snapshot_date, this has no effect on the preseed/apt config.
+    - name: Add a caller-provided name suffix for inventories without an APT snapshot
+      set_fact:
+        vm_name: "{{ vm_name }}-{{ base_image_name_suffix }}"
+      when: base_image_name_suffix is defined and (apt_snapshot_date is not defined or release_name is not defined)
+
     - name: Allocate 60% of system RAM for the VM
       set_fact:
         vm_ram: "{{ (ansible_facts['memtotal_mb'] * 0.60)|round(0, 'floor')|int }}"
