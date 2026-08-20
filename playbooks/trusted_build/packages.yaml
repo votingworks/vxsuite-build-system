@@ -6,6 +6,10 @@
   become: true
 
   tasks:
+    - name: Install xlibre packages, if applicable
+      ansible.builtin.include_tasks: xlibre_packages.yaml
+      when: (xlibre_packages is defined) and (xlibre_packages|length > 0)
+
     - name: Refresh packages from the inventory
       include_vars:
         file: "{{ inventory_dir }}/group_vars/all/packages.yaml"

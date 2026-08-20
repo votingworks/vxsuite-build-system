@@ -1,45 +1,39 @@
 ---
 
-- name: Install XLibre packages
-  hosts: 127.0.0.1
-  connection: local
-  become: true
+- name: Perform xlibre specific configuration and install
+  block:
 
-  tasks:
-    - name: Perform xlibre specific configuration and install
-      block:
+    - name: Download the XLibre key
+      ansible.builtin.get_url:
+        url: "https://xlibre-deb.github.io/key.asc"
+        dest: "/etc/apt/trusted.gpg.d/xlibre.asc"
+        mode: 0644
+      when: apt_snaptshot_date is not defined
+      tags:
+        - online
 
-        - name: Download the XLibre key
-          ansible.builtin.get_url:
-            url: "https://xlibre-deb.github.io/key.asc"
-            dest: "/etc/apt/trusted.gpg.d/xlibre.asc"
-            mode: 0644
-          when: apt_snaptshot_date is not defined
-          tags:
-            - online
+    - name: Add XLibre apt repo source
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/xlibre.asc] https://xlibre-deb.github.io/debian bookworm main"
+        state: present
+        filename: "xlibre"
+      when: apt_snaptshot_date is not defined
+      tags:
+        - online
 
-        - name: Add XLibre apt repo source
-          ansible.builtin.apt_repository:
-            repo: "deb [signed-by=/etc/apt/trusted.gpg.d/xlibre.asc] https://xlibre-deb.github.io/debian bookworm main"
-            state: present
-            filename: "xlibre"
-          when: apt_snaptshot_date is not defined
-          tags:
-            - online
+    - name: Update apt sources
+      ansible.builtin.apt:
+        update_cache: true
+      when: apt_snaptshot_date is not defined
+      tags:
+        - online
 
-        - name: Update apt sources
-          ansible.builtin.apt:
-            update_cache: true
-          when: apt_snaptshot_date is not defined
-          tags:
-            - online
+    - name: Refresh all_packages with xlibre_packages list
+      set_fact:
+        all_packages: "{{ xlibre_packages | unique | select | list }}"
 
-        - name: Refresh all_packages with xlibre_packages list
-          set_fact:
-            all_packages: "{{ xlibre_packages | unique | select | list }}"
+    - name: Import the apt role which supports online and offline builds
+      ansible.builtin.import_role:
+        name: apt
 
-        - name: Import the apt role which supports online and offline builds
-          ansible.builtin.import_role:
-            name: apt
-
-      when: (xlibre_packages is defined) and (xlibre_packages|length > 0)
+  when: (xlibre_packages is defined) and (xlibre_packages|length > 0)
