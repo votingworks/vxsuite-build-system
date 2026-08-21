@@ -7,7 +7,7 @@ fi
 
 set -euo pipefail
 
-default_inventory="vxdev-stable"
+default_inventory="vxdev-latest"
 ansible_inventory=${1:-$default_inventory}
 
 debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
