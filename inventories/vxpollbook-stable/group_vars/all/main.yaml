@@ -1,9 +1,9 @@
 repos:
-  kiosk-browser:
+  vxsuite-complete-system:
     version: vxpollbook-v1.2.1-rc2
   vxsuite:
     version: vxpollbook-v1.2.1-rc2
-  vxsuite-complete-system:
+  kiosk-browser:
     version: vxpollbook-v1.2.1-rc2
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-vxpollbook-v1.2.1"

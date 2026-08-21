@@ -1,6 +1,10 @@
 repos:
   vxsuite-complete-system:
     version: main
+  vxsuite:
+    version: main
+  kiosk-browser:
+    version: main
 full_git_clone: true
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "vxdev-base"
