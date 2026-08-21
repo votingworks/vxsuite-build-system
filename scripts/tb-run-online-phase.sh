@@ -46,6 +46,16 @@ echo "Run prepare_for_build playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/prepare_for_build.yaml
 
+# vxsuite and kiosk-browser used to exist as submodules within vxsuite-complete-system. We now
+# clone them separately and move them back into vxsuite-complete-system.
+for former_submodule in vxsuite kiosk-browser; do
+  src="${local_user_home_dir}/code/${former_submodule}"
+  [[ -L "${src}" ]] || { echo "Expected symlink at ${src} but none found" >&2; exit 1; }
+  rm -rf "${vxsuite_complete_system_dir}/${former_submodule}"
+  mv "$(readlink "${src}")" "${vxsuite_complete_system_dir}/${former_submodule}"
+  rm -f "${src}"
+done
+
 if [[ ! -d $vxsuite_complete_system_dir ]]; then
   echo "ERROR: vxsuite-complete-system could not be found."
   exit 1

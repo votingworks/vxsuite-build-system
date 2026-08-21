@@ -1,5 +1,9 @@
 repos:
+  vxsuite-complete-system:
+    version: main
   vxsuite:
+    version: main
+  kiosk-browser:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-12.2"
