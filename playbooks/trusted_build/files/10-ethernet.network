@@ -2,4 +2,6 @@
 Type=ether
 
 [Network]
-LinkLocalAddressing=yes
+LinkLocalAddressing=ipv4
+IPv6AcceptRA=no
+DHCP=no
