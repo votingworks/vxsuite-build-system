@@ -1,8 +1,8 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: v4.1.0-rc1
   vxsuite:
-    version: 2b70392b86c17931057be72a924776f2de21ad7d
+    version: v4.1.0
   kiosk-browser:
     version: v4.1.0
 virt_image_path: "/var/lib/libvirt/images"
