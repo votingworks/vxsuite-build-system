@@ -63,8 +63,6 @@
 
       - name: Clone repos (shallow)
         ansible.builtin.include_tasks: shallow_clone.yaml
-        become: true
-        become_user: "{{ user_to_configure }}"
         loop: "{{ repos | dict2items }}"
         loop_control:
           loop_var: repo
