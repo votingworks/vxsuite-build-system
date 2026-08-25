@@ -13,7 +13,7 @@
       ansible.builtin.command:
         cmd: git init
         chdir: "{{ download_code_directory }}/{{ repo.key }}"
-      creates: "{{ download_code_directory }}/{{ repo.key }}.git"
+        creates: "{{ download_code_directory }}/{{ repo.key }}.git"
 
     - name: Add the remote origin
       ansible.builtin.command:
