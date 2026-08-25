@@ -97,6 +97,7 @@ build() {
   set -e
 }
 
+cd $vxsuite_dir
 echo "Download all Rust crates"
 pnpm --recursive install:rust-addon
 
