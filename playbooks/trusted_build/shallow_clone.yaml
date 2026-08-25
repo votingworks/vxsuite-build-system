@@ -20,11 +20,6 @@
         cmd: "git remote add origin https://github.com/votingworks/{{ repo.key }}.git"
         chdir: "{{ download_code_directory }}/{{ repo.key }}"
 
-    - name: Get the current commit
-      ansible.builtin.command:
-        cmd: git rev-parse HEAD
-        chdir: "{{ download_code_directory }}/{{ repo.key }}"
-
     - name: Shallow commit fetch
       ansible.builtin.command:
         cmd: "git fetch --depth 1 origin {{ repo.value.version }}"
