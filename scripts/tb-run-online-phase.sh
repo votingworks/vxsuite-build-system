@@ -51,7 +51,7 @@ if [[ ! -d $vxsuite_complete_system_dir ]]; then
   exit 1
 fi
 
-echo "Run prepare_build.sh in complete-system. This will take several minutes."
+echo "Run tb-prepare-build.sh in build-system. This will take several minutes."
 sleep 5
 cd $vxsuite_build_system_dir
 ./scripts/tb-prepare-build.sh admin central-scan mark mark-scan print scan

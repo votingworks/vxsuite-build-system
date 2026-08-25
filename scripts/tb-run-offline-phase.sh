@@ -51,7 +51,7 @@ sudo -n true 2>/dev/null || sudo -v
 
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/offline_build.yaml --skip-tags online
 
-echo "Run build.sh in complete-system. This will take several minutes."
+echo "Run tb-build.sh in build-system. This will take several minutes."
 sleep 5
 cd $vxsuite_build_system_dir
 ./scripts/tb-build.sh admin central-scan mark mark-scan print scan
