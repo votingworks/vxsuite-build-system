@@ -1,8 +1,10 @@
 repos:
   vxsuite-complete-system:
     version: main
-    vxsuite_version: 2b70392b86c17931057be72a924776f2de21ad7d
-    kiosk_browser_version: v4.1.0
+  vxsuite:
+    version: 2b70392b86c17931057be72a924776f2de21ad7d
+  kiosk-browser:
+    version: v4.1.0
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-latest"
 vm_disk_size_gb: 27

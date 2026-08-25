@@ -1,0 +1,37 @@
+- name: Create code directory
+  ansible.builtin.file:
+    path: "{{ downloads_directory }}/{{ repo.key }}"
+    state: directory
+
+- name: Initialize the git repo
+  ansible.builtin.command:
+    cmd: git init
+    chdir: "{{ downloads_directory }}/{{ repo.key }}"
+    creates: "{{ downloads_directory }}/{{ repo.key }}.git"
+
+- name: Add the remote origin
+  ansible.builtin.command:
+    cmd: "git remote add origin https://github.com/votingworks/{{ repo.key }}.git"
+    chdir: "{{ downloads_directory }}/{{ repo.key }}"
+    register: remote_origin_added
+    failed_when: remote_origin_added.rc != 0 and 'already exists' not in remote_origin_added.stderr
+
+- name: Get the current commit
+  ansible.builtin.command:
+    cmd: git rev-parse HEAD
+    chdir: "{{ downloads_directory }}/{{ repo.key }}"
+    register: current_commit
+    changed_when: false
+    failed_when: false
+
+- name: Shallow commit fetch
+  ansible.builtin.command:
+    cmd: "git fetch --depth 1 origin {{ repo.value.version }}"
+    chdir: "{{ downloads_directory }}/{{ repo.key }}"
+  when: current_commit.stdout != repo.value.version
+
+- name: Check out the fetched commit
+  ansible.builtin.command:
+    cmd: git checkout FETCH_HEAD
+    chdir: "{{ downloads_directory }}/{{ repo.key }}"
+  when: current_commit.stdout != repo.value.version
