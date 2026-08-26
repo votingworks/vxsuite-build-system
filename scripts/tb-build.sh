@@ -22,7 +22,6 @@ set -euo pipefail
 
 local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
-vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
 complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 vxsuite_dir="${local_user_home_dir}/code/vxsuite"
