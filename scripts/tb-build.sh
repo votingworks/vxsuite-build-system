@@ -98,7 +98,7 @@ build() {
     # temporary hack because the symlink works but somehow the copy doesn't for precinct-scanner
     cd ${BUILD_ROOT}
     rm -rf vxsuite # this is the built version
-    ln -s ../../vxsuite ./vxsuite
+    ln -s ../../ ./vxsuite
   )
   if [[ $? = 0 ]]; then
     echo -e "\e[32m✅${APP} built\e[0m"
