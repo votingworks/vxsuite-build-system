@@ -1,6 +1,11 @@
 repos:
   vxsuite-complete-system:
     version: main
+#-- Optionally override the vxsuite version used in the build. vxsuite is
+#-- normally pinned by the vxsuite-complete-system submodule; when this is
+#-- set, the vxsuite subdirectory is fetched and checked out at the given
+#-- branch/tag/commit after the clone and submodule update.
+# vxsuite_version_override: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-latest"
 vm_disk_size_gb: 27
