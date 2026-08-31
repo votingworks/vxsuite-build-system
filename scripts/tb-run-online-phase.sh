@@ -51,16 +51,22 @@ if [[ ! -d $vxsuite_complete_system_dir ]]; then
   exit 1
 fi
 
-echo "Run prepare_build.sh in complete-system. This will take several minutes."
+echo "Run tb-prepare-build.sh in build-system. This will take several minutes."
 sleep 5
-cd $vxsuite_complete_system_dir
-./prepare_build.sh admin central-scan mark mark-scan print scan
+cd $vxsuite_build_system_dir
+./scripts/tb-prepare-build.sh admin central-scan mark mark-scan print scan
 
 echo "Download necessary tools for TPM."
 sleep 5
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml --skip-tags offline
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/openssl_fips.yaml --skip-tags offline
+
+echo "Initialize TPM submodules."
+sleep 5
+cd $vxsuite_complete_system_dir
+git submodule update --init tpm2-software/
+
 
 echo "The online phase is complete."
 

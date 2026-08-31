@@ -62,10 +62,10 @@
         when: full_git_clone | default(false) | bool 
 
       - name: Clone repos (shallow)
-        ansible.builtin.command: "git clone --branch {{ item.value.version | default('main') }} --depth 1 --recurse-submodules --shallow-submodules https://github.com/votingworks/{{ item.key }}.git {{ download_code_directory }}/{{ item.key }}"
-        with_dict: "{{ repos }}"
-        become: true
-        become_user: "{{ user_to_configure }}"
+        ansible.builtin.include_tasks: shallow_clone.yaml
+        loop: "{{ repos | dict2items }}"
+        loop_control:
+          loop_var: repo
         when: not ( full_git_clone | default(false) | bool )
 
       tags:
