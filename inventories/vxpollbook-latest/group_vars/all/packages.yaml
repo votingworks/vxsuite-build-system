@@ -2,6 +2,19 @@
 batch_package_install: true
 upgrade_kernel: true
 
+xlibre_packages:
+  - xlibre
+  - xlibre-x11-common
+  - xserver-xlibre
+  - xserver-xlibre-core
+  - xserver-xlibre-input-all
+  - xserver-xlibre-input-libinput
+  - xserver-xlibre-video-all
+  - xserver-xlibre-video-amdgpu
+  - xserver-xlibre-video-fbdev
+  - xserver-xlibre-video-intel
+  - xserver-xlibre-video-radeon
+
 kernel_and_firmware_packages:
   - firmware-ath9k-htc
   - firmware-amd-graphics
@@ -84,16 +97,9 @@ all_packages:
   - unclutter
   - unzip
   - wget
-  - x11-common
   - xdg-utils
   - xinit
   - xinput
-  - xorg
-  - xserver-xorg-core
-  - xserver-xorg-input-all
-  - xserver-xorg-input-libinput
-  - xserver-xorg-input-wacom
-  - xserver-xorg-video-all
   - xxd
   - zip
   - avahi-daemon
