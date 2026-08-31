@@ -15,6 +15,20 @@ xlibre_packages:
   - xserver-xlibre-video-intel
   - xserver-xlibre-video-radeon
 
+kernel_and_firmware_packages:
+  - firmware-ath9k-htc
+  - firmware-amd-graphics
+  - firmware-iwlwifi
+  - firmware-linux
+  - firmware-linux-free
+  - firmware-linux-nonfree
+  - firmware-misc-nonfree
+  - firmware-realtek
+  - firmware-sof-signed
+  - linux-base
+  - linux-image-amd64
+  - linux-headers-amd64
+
 all_packages:
   - alsa-utils
   - brightnessctl
@@ -31,14 +45,6 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
-  - firmware-ath9k-htc
-  - firmware-amd-graphics
-  - firmware-iwlwifi
-  - firmware-linux
-  - firmware-linux-free
-  - firmware-misc-nonfree
-  - firmware-realtek
-  - firmware-sof-signed
   - fonts-wqy-zenhei
   - git
   - gvfs
