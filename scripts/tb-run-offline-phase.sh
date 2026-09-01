@@ -60,6 +60,9 @@ cd $vxsuite_build_system_dir
 cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml
 
+# Lock the network down as the final step
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/firewalld.yaml
+
 echo "The offline build phase is complete."
 echo "Depending on your needs, clone this VM and run setup-machine OR"
 echo "run setup-machine in this VM, understanding it is destructive."
