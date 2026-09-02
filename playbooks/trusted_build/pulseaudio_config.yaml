@@ -20,7 +20,6 @@
     owner: "{{ result.item }}"
     group: "{{ result.item }}"
     mode: 0644
-    recurse: yes
   loop: "{{ pulseaudio_getent_lookup.results }}"
   loop_control:
     loop_var: result
@@ -48,18 +47,18 @@
   loop: "{{ pulseaudio_getent_lookup.results }}"
   loop_control:
     loop_var: result
-    label: "{{ result.item }}"
   when: result.rc == 0
 
-- name: Debug pulseaudio getent
-  ansible.builtin.debug:
-    var: pulseaudio_getent_lookup
+- name: Ensure proper directory ownership without affecting symlink targets
+  ansible.builtin.command: "chown -R {{ item }}:{{ item }} {{ result.stdout.split(':')[5] }}/.config"
+  loop: "{{ pulseaudio_getent_lookup.results }}"
+  loop_control:
+    loop_var: result
 
 - name: Create pulseaudio config directory for vx-ui user
   ansible.builtin.file:
     path: "{{ pulseaudio_getent_lookup.results[vx-ui].stdout.split(':')[5] }}/.config/pulse"
     state: directory
-    recurse: yes
     owner: vx-ui
     group: vx-ui
 
