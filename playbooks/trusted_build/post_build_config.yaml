@@ -31,6 +31,9 @@
         dest: "/etc/apt/apt.conf.d/20auto-upgrades"
         mode: 0644
 
+    - name: Create hushlogin config for VX users
+      ansible.builtin.include_tasks: create_hushlogin.yaml
+
     - name: Configure logind to not idle and to ignore lid idle behaviors
       ansible.builtin.copy:
         src: "files/logind.conf"
