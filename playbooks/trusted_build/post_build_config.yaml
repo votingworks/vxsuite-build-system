@@ -31,6 +31,14 @@
         dest: "/etc/apt/apt.conf.d/20auto-upgrades"
         mode: 0644
 
+    - name: Copy the default network interfaces file
+      ansible.builtin.copy:
+        src: "files/default-interfaces"
+        dest: "/etc/network/interfaces"
+        owner: root
+        group: root
+        mode: 0644
+        
     - name: NTP and timezone configuration
       ansible.builtin.include_tasks: ntp_and_timezone_config.yaml
       
