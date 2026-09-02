@@ -54,3 +54,22 @@
 - name: Debug pulseaudio getent
   ansible.builtin.debug:
     var: pulseaudio_getent_lookup
+
+- name: Create pulseaudio config directory for vx-ui user
+  ansible.builtin.file:
+    path: "{{ pulseaudio_getent_lookup.results[vx-ui].stdout.split(':')[5]/.config/pulse"
+    state: directory
+    recurse: yes
+    owner: vx-ui
+    group: vx-ui
+
+- name: Create pulseaudio default config for vx-ui user
+  ansible.builtin.copy:
+    dest: "{{ pulseaudio_getent_lookup.results[vx-ui].stdout.split(':')[5]/.config/pulse/default.pa"
+    content: |
+      .include /etc/pulse/default.pa
+      .nofail
+      unload-module module-suspend-on-idle
+      .fail
+    owner: vx-ui
+    group: vx-ui
