@@ -12,7 +12,7 @@
     key: "{{ item }}"
   loop: "{{ hushlogin_users }}"
   register: hushlogin_getent_result
-  failed_when: false
+  ignore_errors: true
 
 - name: Fail if essential vx user accounts do not exist
   ansible.builtin.fail:
