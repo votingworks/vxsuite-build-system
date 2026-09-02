@@ -50,7 +50,7 @@
   when: result.rc == 0
 
 - name: Ensure proper directory ownership without affecting symlink targets
-  ansible.builtin.command: "chown -R {{ item }}:{{ item }} {{ result.stdout.split(':')[5] }}/.config"
+  ansible.builtin.command: "chown -R {{ result.item }}:{{ result.item }} {{ result.stdout.split(':')[5] }}/.config"
   loop: "{{ pulseaudio_getent_lookup.results }}"
   loop_control:
     loop_var: result
