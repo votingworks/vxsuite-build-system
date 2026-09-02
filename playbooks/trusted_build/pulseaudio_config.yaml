@@ -49,7 +49,7 @@
 
 - name: Create pulseaudio config directory for vx-ui user
   ansible.builtin.file:
-    path: "{{ pulseaudio_homedirs[vx-ui]/.config/pulse"
+    path: "{{ pulseaudio_homedirs[vx-ui] }}/.config/pulse"
     state: directory
     owner: vx-ui
     group: vx-ui
