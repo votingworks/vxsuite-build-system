@@ -1,0 +1,27 @@
+---
+
+- name: Define the list of users to configure hushlogin for
+  ansible.builtin.set_fact:
+    hushlogin_users:
+      - vx-vendor
+      - vx-ui
+
+- name: Look up each user
+  ansible.builtin.command: "getent passwd {{ item }}"
+  loop: "{{ hushlogin_users }}"
+  register: hushlogin_getent_lookup
+  changed_when: false
+  failed_when: false
+
+- name: Create .hushlogin directory for each user
+  ansible.builtin.file:
+    path: "{{ result.stdout.split(':')[5] }}/.hushlogin"
+    state: touch
+    owner: "{{ result.item }}"
+    group: "{{ result.item }}"
+    mode: 0644
+  loop: "{{ hushlogin_getent_lookup.results }}"
+  loop_control:
+    loop_var: result
+    label: "{{ result.item }}"
+  when: result.rc == 0
