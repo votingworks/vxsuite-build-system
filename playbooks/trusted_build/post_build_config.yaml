@@ -20,6 +20,13 @@
         recurse: yes
         follow: no
 
+    - name: Create /vx/config symlink
+      ansible.builtin.file:
+        src: /var/vx/config
+        dest: /vx/config
+        state: link
+        force: yes
+
     - name: Add /sbin to system default bashrc
       ansible.builtin.lineinfile:
         path: /etc/bash.bashrc
