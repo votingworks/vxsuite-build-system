@@ -1,0 +1,66 @@
+---
+
+- name: Define the list of users to configure pulseaudio for
+  ansible.builtin.set_fact:
+    pulseaudio_users:
+      - vx-vendor
+      - vx-ui
+
+- name: Look up each user
+  ansible.builtin.command: "getent passwd {{ item }}"
+  loop: "{{ pulseaudio_users }}"
+  register: pulseaudio_getent_lookup
+  changed_when: false
+  failed_when: false
+
+- name: Create a home directory dict for convenience
+  ansible.builtin.set_fact:
+    pulseaudio_homedirs: "{{ pulseaudio_homedirs | default({}) | combine({item.item: item.stdout.split(':')[5]}) }}"
+  loop: "{{ pulseaudio_getent_lookup.results }}"
+
+- name: Create systemd config directory for each user
+  ansible.builtin.file:
+    path: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0644
+  with_items: "{{ pulseaudio_homedirs }}"
+
+- name: Disable pulseaudio.service for each user
+  ansible.builtin.file:
+    src: /dev/null
+    dest: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user/pulseaudio.service"
+    state: link
+    force: yes
+  with_items: "{{ pulseaudio_homedirs }}"
+
+- name: Disable pulseaudio.socket for each user
+  ansible.builtin.file:
+    src: /dev/null
+    dest: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user/pulseaudio.socket"
+    state: link
+    force: yes
+  with_items: "{{ pulseaudio_homedirs }}"
+
+- name: Ensure proper directory ownership without affecting symlink targets
+  ansible.builtin.command: "chown -R {{ item }}:{{ item }} {{ pulseaudio_homedirs[item] }}/.config"
+  with_items: "{{ pulseaudio_homedirs }}"
+
+- name: Create pulseaudio config directory for vx-ui user
+  ansible.builtin.file:
+    path: "{{ pulseaudio_homedirs['vx-ui'] }}/.config/pulse"
+    state: directory
+    owner: vx-ui
+    group: vx-ui
+
+- name: Create pulseaudio default config for vx-ui user
+  ansible.builtin.copy:
+    dest: "{{ pulseaudio_homedirs['vx-ui'] }}/.config/pulse/default.pa"
+    content: |
+      .include /etc/pulse/default.pa
+      .nofail
+      unload-module module-suspend-on-idle
+      .fail
+    owner: vx-ui
+    group: vx-ui
