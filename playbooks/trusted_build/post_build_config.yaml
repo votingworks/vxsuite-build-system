@@ -38,6 +38,23 @@
         owner: root
         group: root
         mode: 0644
+        
+    - name: NTP and timezone configuration
+      ansible.builtin.include_tasks: ntp_and_timezone_config.yaml
+      
+    - name: Check if ipp-usb is present
+      ansible.builtin.stat:
+        path: /etc/ipp-usb/ipp-usb.conf
+      register: ipp_usb_conf
+
+    # If the ipp-usb config is present, disable dns-sd
+    - name: Disable dns-sd in ipp-usb config
+      ansible.builtin.lineinfile:
+        path: /etc/ipp-usb/ipp-usb.conf
+        regexp: '^(\s*)dns-sd\s*='
+        line: '\1dns-sd = disable'
+        backrefs: yes
+      when: ipp_usb_conf.stat.exists
 
     - name: Configure logind to not idle and to ignore lid idle behaviors
       ansible.builtin.copy:
