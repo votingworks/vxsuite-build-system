@@ -32,7 +32,7 @@
         mode: 0644
 
     - name: NTP and timezone configuration
-      ansible.builtin.include_tasks: ntp-and-timezone-config.yaml
+      ansible.builtin.include_tasks: ntp_and_timezone_config.yaml
 
     - name: Configure logind to not idle and to ignore lid idle behaviors
       ansible.builtin.copy:
