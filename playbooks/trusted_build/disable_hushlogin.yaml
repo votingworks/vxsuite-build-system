@@ -1,0 +1,32 @@
+---
+
+- name: Define the list of users to configure hushlogin for
+  ansible.builtin.set_fact:
+    hushlogin_users:
+      - vx-vendor
+      - vx-ui
+
+- name: Check for the existence of the user
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ item }}"
+  loop: "{{ hushlogin_users }}"
+  register: hushlogin_getent_result
+  failed_when: false
+
+- name: Fail if essential vx user accounts do not exist
+  ansible.builtin.fail:
+    msg: "User '{{ item.item }}' does not exist."
+  loop: "{{ hushlogin_getent_result.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.failed
+
+- name: Create .hushlogin directory for each user
+  ansible.builtin.file:
+    path: "{{ ansible_facts.getent_passwd[item].5 }}/.hushlogin"
+    state: touch
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0644
+  loop: "{{ hushlogin_users }}"
