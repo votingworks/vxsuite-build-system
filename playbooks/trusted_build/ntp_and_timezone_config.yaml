@@ -1,0 +1,30 @@
+---
+
+# NTP and timezone configs
+
+# This replaces the setup-machine.sh command: timedatectl set-ntp no
+# Under the hood, it's really doing this, so let's do that directly
+- name: Disable network time sync
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: stopped
+    enabled: false
+
+- name: Remove existing /etc/localtime
+  ansible.builtin.file:
+    path: /etc/localtime
+    state: absent
+
+- name: Symlink Chicago to /vx/config/localtime as a default
+  ansible.builtin.file:
+    src: /usr/share/zoneinfo/America/Chicago
+    dest: /vx/config/localtime
+    state: link
+    force: yes
+
+- name: Symlink /etc/localtime to /vx/config/localtime
+  ansible.builtin.file:
+    src: /vx/config/localtime
+    dest: /etc/localtime
+    state: link
+    force: yes
