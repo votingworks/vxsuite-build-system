@@ -34,6 +34,9 @@
     - name: Create hushlogin config for VX users
       ansible.builtin.include_tasks: create_hushlogin.yaml
       
+    - name: Create pulseaudio config for VX users
+      ansible.builtin.include_tasks: pulseaudio_config.yaml
+
     - name: Copy the default network interfaces file
       ansible.builtin.copy:
         src: "files/default-interfaces"
