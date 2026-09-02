@@ -13,58 +13,50 @@
   changed_when: false
   failed_when: false
 
+- name: Create a home directory dict for convenience
+  ansible.builtin.set_fact:
+    pulseaudio_homedirs: "{{ pulseaudio_homedirs | default({}) | combine({item.item: item.stdout.split(':')[5]}) }}"
+  loop: "{{ pulseaudio_getent_lookup.results }}"
+
 - name: Create systemd config directory for each user
   ansible.builtin.file:
-    path: "{{ result.stdout.split(':')[5] }}/.config/systemd/user"
+    path: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user"
     state: directory
-    owner: "{{ result.item }}"
-    group: "{{ result.item }}"
+    owner: "{{ item }}"
+    group: "{{ item }}"
     mode: 0644
-  loop: "{{ pulseaudio_getent_lookup.results }}"
-  loop_control:
-    loop_var: result
-    label: "{{ result.item }}"
-  when: result.rc == 0
+  loop: "{{ pulseaudio_homedirs }}"
 
 - name: Disable pulseaudio.service for each user
   ansible.builtin.file:
     src: /dev/null
-    dest: "{{ result.stdout.split(':')[5] }}/.config/systemd/user/pulseaudio.service"
+    dest: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user/pulseaudio.service"
     state: link
     force: yes
-  loop: "{{ pulseaudio_getent_lookup.results }}"
-  loop_control:
-    loop_var: result
-    label: "{{ result.item }}"
-  when: result.rc == 0
+  loop: "{{ pulseaudio_homedirs }}"
 
 - name: Disable pulseaudio.socket for each user
   ansible.builtin.file:
     src: /dev/null
-    dest: "{{ result.stdout.split(':')[5] }}/.config/systemd/user/pulseaudio.socket"
+    dest: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user/pulseaudio.socket"
     state: link
     force: yes
-  loop: "{{ pulseaudio_getent_lookup.results }}"
-  loop_control:
-    loop_var: result
-  when: result.rc == 0
+  loop: "{{ pulseaudio_homedirs }}"
 
 - name: Ensure proper directory ownership without affecting symlink targets
-  ansible.builtin.command: "chown -R {{ result.item }}:{{ result.item }} {{ result.stdout.split(':')[5] }}/.config"
-  loop: "{{ pulseaudio_getent_lookup.results }}"
-  loop_control:
-    loop_var: result
+  ansible.builtin.command: "chown -R {{ item }}:{{ item }} {{ pulseaudio_homedirs[item] }}/.config"
+  loop: "{{ pulseaudio_homedirs }}"
 
 - name: Create pulseaudio config directory for vx-ui user
   ansible.builtin.file:
-    path: "{{ pulseaudio_getent_lookup.results[vx-ui].stdout.split(':')[5] }}/.config/pulse"
+    path: "{{ pulseaudio_homedirs[vx-ui]/.config/pulse"
     state: directory
     owner: vx-ui
     group: vx-ui
 
 - name: Create pulseaudio default config for vx-ui user
   ansible.builtin.copy:
-    dest: "{{ pulseaudio_getent_lookup.results[vx-ui].stdout.split(':')[5] }}/.config/pulse/default.pa"
+    dest: "{{ pulseaudio_homedirs[vx-ui] }}/.config/pulse/default.pa"
     content: |
       .include /etc/pulse/default.pa
       .nofail
