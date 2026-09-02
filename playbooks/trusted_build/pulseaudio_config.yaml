@@ -9,7 +9,7 @@
 - name: Look up each user
   ansible.builtin.command: "getent passwd {{ item }}"
   loop: "{{ pulseaudio_users }}"
-  register: pulseaudio_gentent_lookup
+  register: pulseaudio_getent_lookup
   changed_when: false
   failed_when: false
 
