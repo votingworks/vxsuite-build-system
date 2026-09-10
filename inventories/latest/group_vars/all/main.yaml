@@ -1,8 +1,8 @@
 repos:
   vxsuite-complete-system:
-    version: main
+    version: 2026-09-10-hwta-branch
   vxsuite:
-    version: main
+    version: 2026-09-10-hwta-branch
   kiosk-browser:
     version: main
 virt_image_path: "/var/lib/libvirt/images"

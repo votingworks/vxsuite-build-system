@@ -54,7 +54,7 @@ ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/off
 echo "Run tb-build.sh in build-system. This will take several minutes."
 sleep 5
 cd $vxsuite_build_system_dir
-./scripts/tb-build.sh admin central-scan mark mark-scan print scan
+./scripts/tb-build.sh mark # admin central-scan mark mark-scan print scan
 
 # Run shared post build config steps
 cd $vxsuite_build_system_dir

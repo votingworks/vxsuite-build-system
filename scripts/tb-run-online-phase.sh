@@ -54,7 +54,7 @@ fi
 echo "Run tb-prepare-build.sh in build-system. This will take several minutes."
 sleep 5
 cd $vxsuite_build_system_dir
-./scripts/tb-prepare-build.sh admin central-scan mark mark-scan print scan
+./scripts/tb-prepare-build.sh mark # admin central-scan mark mark-scan print scan
 
 echo "Download necessary tools for TPM."
 sleep 5
