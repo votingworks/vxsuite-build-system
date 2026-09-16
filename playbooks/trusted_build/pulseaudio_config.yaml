@@ -20,32 +20,32 @@
 
 - name: Create systemd config directory for each user
   ansible.builtin.file:
-    path: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user"
+    path: "{{ item.value }}/.config/systemd/user"
     state: directory
-    owner: "{{ item }}"
-    group: "{{ item }}"
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
     mode: 0644
-  with_items: "{{ pulseaudio_homedirs }}"
+  with_dict: "{{ pulseaudio_homedirs }}"
 
 - name: Disable pulseaudio.service for each user
   ansible.builtin.file:
     src: /dev/null
-    dest: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user/pulseaudio.service"
+    dest: "{{ item.value }}/.config/systemd/user/pulseaudio.service"
     state: link
     force: yes
-  with_items: "{{ pulseaudio_homedirs }}"
+  with_dict: "{{ pulseaudio_homedirs }}"
 
 - name: Disable pulseaudio.socket for each user
   ansible.builtin.file:
     src: /dev/null
-    dest: "{{ pulseaudio_homedirs[item] }}/.config/systemd/user/pulseaudio.socket"
+    dest: "{{ item.value }}/.config/systemd/user/pulseaudio.socket"
     state: link
     force: yes
-  with_items: "{{ pulseaudio_homedirs }}"
+  with_dict: "{{ pulseaudio_homedirs }}"
 
 - name: Ensure proper directory ownership without affecting symlink targets
-  ansible.builtin.command: "chown -R {{ item }}:{{ item }} {{ pulseaudio_homedirs[item] }}/.config"
-  with_items: "{{ pulseaudio_homedirs }}"
+  ansible.builtin.command: "chown -R {{ item.key }}:{{ item.key }} {{ item.value }}/.config"
+  with_dict: "{{ pulseaudio_homedirs }}"
 
 - name: Create pulseaudio config directory for vx-ui user
   ansible.builtin.file:
