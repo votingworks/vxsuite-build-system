@@ -91,6 +91,7 @@ all_packages:
   - sbsigntool
   - swig
   - systemd-boot-efi
+  - systemd-cryptsetup
   - tar
   - trash-cli
   - unclutter
