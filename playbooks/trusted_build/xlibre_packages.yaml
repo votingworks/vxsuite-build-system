@@ -14,7 +14,7 @@
 
     - name: Add XLibre apt repo source
       ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/xlibre.asc] https://xlibre-deb.github.io/debian bookworm main"
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/xlibre.asc] https://xlibre-deb.github.io/debian {{ debian_release_name }} main"
         state: present
         filename: "xlibre"
       when: apt_snaptshot_date is not defined
