@@ -45,7 +45,7 @@ function pip_install ()
   local phase=$1
   local pip_requirements="${DIR}/pip_deb${debian_major_version}_${system_architecture}_requirements.txt"
 
-  if [[ "$debian_major_version" == "12" ]]; then
+  if (( "$debian_major_version" > 11 )); then
     cd ${DIR}/..
     mkdir -p .virtualenv
     cd .virtualenv && virtualenv ansible
@@ -64,7 +64,7 @@ function pip_install ()
 
   # We need to make sure the local user's virtualenv isn't owned by root
   # so that complete-system setup-machine can delete it
-  if [[ "$debian_major_version" == "12" ]]; then
+  if (( $debian_major_version > 11 )); then
     cd ${DIR}/..
     chown -R ${local_user}:${local_user} .virtualenv   
   fi

@@ -38,7 +38,7 @@ fi
 
 cd $vxsuite_build_system_dir
 
-if [[ "$debian_major_version" == "12" ]]; then
+if (( $debian_major_version > 11 )); then
   source .virtualenv/ansible/bin/activate
 fi
 
