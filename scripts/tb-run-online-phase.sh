@@ -56,17 +56,19 @@ sleep 5
 cd $vxsuite_build_system_dir
 ./scripts/tb-prepare-build.sh admin central-scan mark mark-scan print scan
 
-echo "Download necessary tools for TPM."
-sleep 5
-cd $vxsuite_build_system_dir
-ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml --skip-tags offline
-ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/openssl_fips.yaml --skip-tags offline
-
 echo "Initialize TPM submodules."
 sleep 5
 cd $vxsuite_complete_system_dir
 git submodule update --init tpm2-software/
 
+echo "Download necessary tools for TPM."
+sleep 5
+cd $vxsuite_build_system_dir
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml --skip-tags offline
+
+echo "Install OpenSSL with FIPS support"
+sleep 5
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/openssl_fips.yaml --skip-tags offline
 
 echo "The online phase is complete."
 
