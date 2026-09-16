@@ -22,7 +22,7 @@ function pip_requirements ()
 
   mkdir -p $tmp_dir
 
-  if [[ "$debian_major_version" == "12" ]]; then
+  if [[ "$debian_major_version" == "12" || "$debian_major_version" == "13" ]]; then
     mkdir -p ${tmp_dir}/.virtualenv
     cd ${tmp_dir}/.virtualenv && virtualenv ansible
     cd ..
