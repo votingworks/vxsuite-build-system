@@ -255,7 +255,7 @@ d-i partman-auto/expert_recipe string     \
     method{ efi }                          \
     format{ }                             \
     .                                     \
-    128 512 256 ext2                      \
+    512 512 256 ext2                      \
     \$defaultignore{ }                    \
     method{ format }                      \
     format{ }                             \
@@ -394,6 +394,7 @@ d-i partman-basicfilesystems/no_swap boolean false
 # You can choose to install non-free and contrib software.
 #d-i apt-setup/non-free boolean true
 #d-i apt-setup/contrib boolean true
+d-i apt-setup/non-free-firmware boolean true
 # Uncomment this if you don't want to use a network mirror.
 #d-i apt-setup/use_mirror boolean false
 # Select which update services to use; define the mirrors to be used.
