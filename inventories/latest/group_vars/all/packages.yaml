@@ -64,7 +64,6 @@ all_packages:
   - libpcsclite-dev
   - libpixman-1-dev
   - libpng-dev
-  - libsane
   - libsane1
   - libsane-common
   - libsane-hpaio
