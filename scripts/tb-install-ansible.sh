@@ -20,7 +20,7 @@ function apt_install ()
 {
   local phase=$1
   if [[ "$debian_major_version" == "13" ]]; then
-    local python_packages="python3=3.13.5-1 python3-pip=25.1.1 python3-virtualenv=20.31.2"
+    local python_packages="python3=3.13.5-1 python3-pip=25.1.1+dfsg-1 python3-virtualenv=20.31.2+ds-1+deb13u1"
   elif [[ "$debian_major_version" == "12" ]]; then
     local python_packages="python3=3.11.2-1+b1 python3-pip=23.0.1+dfsg-1 python3-virtualenv=20.17.1+ds-1"
   else
