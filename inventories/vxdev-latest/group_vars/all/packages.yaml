@@ -96,6 +96,7 @@ all_packages:
   - xserver-xorg-input-wacom
   - xserver-xorg-video-all
   - xxd
+  - yq
   - zip
 
 tpm_packages:
