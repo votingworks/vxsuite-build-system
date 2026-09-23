@@ -44,6 +44,14 @@
     - name: Create pulseaudio config for VX users
       ansible.builtin.include_tasks: pulseaudio_config.yaml
 
+    - name: Add polkit rules for smartcard reader access
+      ansible.builtin.copy:
+        src: "files/pcscd.rules"
+        dest: "/etc/polkit-1/rules.d/10-pcscd.rules"
+        owner: root
+        group: root
+        mode: 0644
+
     - name: Copy the default network interfaces file
       ansible.builtin.copy:
         src: "files/default-interfaces"
