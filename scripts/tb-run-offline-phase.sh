@@ -12,6 +12,7 @@ local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
 vxsuite_complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
+vxsuite_dir="${local_user_home_dir}/code/vxsuite"
 
 if [[ ! -d $vxsuite_build_system_dir ]]; then
   echo "ERROR: vxsuite-build-system could not be found."
@@ -29,6 +30,20 @@ if [[ ! -d ${vxsuite_build_system_dir}/inventories/${ansible_inventory} ]]; then
   echo "ERROR: The $ansible_inventory inventory could not be found."
   echo "You can find a list of inventories in: ${vxsuite_build_system_dir}/inventories"
   exit 1
+fi
+
+hwta=false
+if [[ "${2:-}" == "--hwta" ]]; then
+  echo "Building hardware test apps rather than standard apps"
+  hwta=true
+fi
+
+if [[ "${hwta}" == "true" ]]; then
+  if grep -q '^REACT_APP_VX_ENABLE_HARDWARE_TEST_APP=FALSE$' "${vxsuite_dir}/.env"; then
+    sed -i 's/^REACT_APP_VX_ENABLE_HARDWARE_TEST_APP=FALSE$/REACT_APP_VX_ENABLE_HARDWARE_TEST_APP=TRUE/' "${vxsuite_dir}/.env"
+  elif ! grep -q '^REACT_APP_VX_ENABLE_HARDWARE_TEST_APP=TRUE$' "${vxsuite_dir}/.env"; then
+    echo "REACT_APP_VX_ENABLE_HARDWARE_TEST_APP=TRUE" >> "${vxsuite_dir}/.env"
+  fi
 fi
 
 if [[ ! -f .virtualenv/ansible/bin/activate ]]; then
