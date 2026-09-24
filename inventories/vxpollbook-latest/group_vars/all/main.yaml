@@ -1,9 +1,9 @@
 repos:
-  kiosk-browser:
+  vxsuite-complete-system:
     version: main
   vxsuite:
     version: main
-  vxsuite-complete-system:
+  kiosk-browser:
     version: main
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-vxpollbook-latest"
