@@ -1,10 +1,10 @@
 repos:
-  kiosk-browser:
-    version: vxpollbook-v1.2.1-rc2
-  vxsuite:
-    version: vxpollbook-v1.2.1-rc2
   vxsuite-complete-system:
-    version: vxpollbook-v1.2.1-rc2
+    version: bc3fb5a73ab40e5a7768b459aadbebe28fa2181c # vxpollbook-v1.2.1-rc2
+  vxsuite:
+    version: 89d39d81bf03c1515aefcb80db7fab7c62a93559 # vxpollbook-v1.2.1-rc2
+  kiosk-browser:
+    version: c36700c8b28efa31137fbb1c358e0e51477704d1 # vxpollbook-v1.2.1-rc2
 virt_image_path: "/var/lib/libvirt/images"
 vm_name: "debian-vxpollbook-v1.2.1"
 vm_disk_size_gb: 35
