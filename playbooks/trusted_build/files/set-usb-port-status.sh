@@ -7,19 +7,17 @@ action="${1:-status}"
 
 MASS_STORAGE="08:*:*"
 KEYBOARD="03:01:*"
-MOUSE="03:02:*"
 PRINTER="07:*:*"
 
 rules_path="/var/etc/usbguard-rules.conf"
 
 if [[ $action == "block" ]]; then
   # generate list of always allowed devices
-  usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${MOUSE} | grep -v ${PRINTER} > ${rules_path}
+  usbguard generate-policy | grep -v ${MASS_STORAGE} | grep -v ${KEYBOARD} | grep -v ${PRINTER} > ${rules_path}
   BLOCK_RULES=$(cat <<EOF
-# Block external USB storage, keyboards, and mice
+# Block external USB storage, keyboards, and printers
 block with-interface one-of { ${MASS_STORAGE} }
 block with-interface one-of { ${KEYBOARD} }
-block with-interface one-of { ${MOUSE} }
 block with-interface one-of { ${PRINTER} }
 EOF
 )
