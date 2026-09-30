@@ -552,4 +552,4 @@ d-i preseed/late_command string \
 	in-target su - vx -c "git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system"; \
 	echo "vx ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/99-vxbuild; \
 	chmod 0440 /target/etc/sudoers.d/99-vxbuild; \
-	in-target "systemctl enable serial-getty@ttyS0.service";
+	in-target systemctl enable serial-getty@ttyS0.service;
