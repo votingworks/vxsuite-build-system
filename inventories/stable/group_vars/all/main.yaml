@@ -1,12 +1,12 @@
 repos:
   vxsuite-complete-system:
-    version: 51b70a64657dcd12c23722f8e371ac21aeefc845 # v4.1.0-rc1
+    version: 42bd8be5faf2a651ba1dc6a5e0e8b7837486dc4a # v4.1.1-alpha
   vxsuite:
-    version: a64b8cce3be86c036b5b6214b9b9ffbdfdde2528 # v4.1.0-rc1
+    version: 8d7d36325d2ee601e7327be5449602c0d395cee6 # v4.1.1-alpha
   kiosk-browser:
-    version: 8e041c2b7a7e68f9223469f0a3f90efc23eb12dc # v4.1.0
+    version: e5c833c21e9647edabe0362c4f88f00d6934f08c # v4.1.1-alpha
 virt_image_path: "/var/lib/libvirt/images"
-vm_name: "debian-v4.1.0"
+vm_name: "debian-v4.1.1"
 vm_disk_size_gb: 27
 iso_version: "12.2.0"
 iso_name: "debian-{{ iso_version }}-amd64-netinst.iso"
