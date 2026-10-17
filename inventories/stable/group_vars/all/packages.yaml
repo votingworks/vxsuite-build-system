@@ -1,19 +1,40 @@
 ---
 batch_package_install: true
 upgrade_kernel: true
-apt_snapshot_date: "20260709"
+apt_snapshot_date: "20261016"
 release_name: "bookworm"
+
+kernel_and_firmware_packages:
+  - firmware-amd-graphics
+  - firmware-linux
+  - firmware-linux-free
+  - firmware-linux-nonfree
+  - firmware-misc-nonfree
+  - firmware-sof-signed
+  - linux-base
+  - linux-image-amd64
+  - linux-headers-amd64
+
+xlibre_packages:
+  - xlibre
+  - xlibre-x11-common
+  - xserver-xlibre
+  - xserver-xlibre-core
+  - xserver-xlibre-input-all
+  - xserver-xlibre-input-libinput
+  - xserver-xlibre-video-all
+  - xserver-xlibre-video-amdgpu
+  - xserver-xlibre-video-fbdev
+  - xserver-xlibre-video-intel
+  - xserver-xlibre-video-radeon
 
 all_packages:
   - alsa-utils
   - brightnessctl
   - build-essential
-  - chromium=147.0.7727.137-1~deb12u1
-  - chromium-common=147.0.7727.137-1~deb12u1
   - cloud-guest-utils
   - cryptsetup
   - cups
-  - cups-bsd
   - cups-client
   - curl
   - ddcutil
@@ -23,11 +44,6 @@ all_packages:
   - exfatprogs
   - fdisk
   - firewalld
-  - firmware-amd-graphics
-  - firmware-linux
-  - firmware-linux-free
-  - firmware-misc-nonfree
-  - firmware-sof-signed
   - fonts-noto-core
   - fonts-wqy-zenhei
   - git
@@ -84,16 +100,9 @@ all_packages:
   - unzip
   - usbguard
   - wget
-  - x11-common
   - xdg-utils
   - xinit
   - xinput
-  - xorg
-  - xserver-xorg-core
-  - xserver-xorg-input-all
-  - xserver-xorg-input-libinput
-  - xserver-xorg-input-wacom
-  - xserver-xorg-video-all
   - xxd
   - zip
 
