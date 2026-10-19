@@ -1,6 +1,6 @@
 repos:
   vxsuite-complete-system:
-    version: 42bd8be5faf2a651ba1dc6a5e0e8b7837486dc4a # v4.1.1-alpha
+    version: e3674a059c52a76e6f6ca7e378da16f6dfb06a4e # v4.1.1-alpha
   vxsuite:
     version: 8d7d36325d2ee601e7327be5449602c0d395cee6 # v4.1.1-alpha
   kiosk-browser:
