@@ -8,7 +8,7 @@
         url: "https://xlibre-deb.github.io/key.asc"
         dest: "/etc/apt/trusted.gpg.d/xlibre.asc"
         mode: 0644
-      when: apt_snaptshot_date is not defined
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
@@ -17,14 +17,14 @@
         repo: "deb [signed-by=/etc/apt/trusted.gpg.d/xlibre.asc] https://xlibre-deb.github.io/debian bookworm main"
         state: present
         filename: "xlibre"
-      when: apt_snaptshot_date is not defined
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
     - name: Update apt sources
       ansible.builtin.apt:
         update_cache: true
-      when: apt_snaptshot_date is not defined
+      when: apt_snapshot_date is not defined
       tags:
         - online
 
