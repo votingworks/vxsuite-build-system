@@ -80,7 +80,6 @@
         path: /etc/libccid_Info.plist
         regexp: '(<key>{{ item.key }}</key>\s*<array>\n)(?!\s*<string>{{ item.value }}</string>)'
         replace: '\1\t\t<string>{{ item.value }}</string>\n'
-        backup: true
       loop:
         - { key: ifdVendorID, value: '0x2CE3' }
         - { key: ifdProductID, value: '0x9569' }
