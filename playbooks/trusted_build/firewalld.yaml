@@ -41,6 +41,7 @@
       loop:
         - "OUTPUT 0 -o lo -j ACCEPT"
         - "OUTPUT 0 -d 169.254.0.0/16 -p udp --dport 5353 -j ACCEPT"
+        - "OUTPUT 0 -d 224.0.0.251 -p udp --dport 5353 -j ACCEPT"
         - "OUTPUT 0 -d 169.254.0.0/16 -p udp -m multiport --dports 500,4500 -j ACCEPT"
         - "OUTPUT 0 -d 169.254.0.0/16 -p esp -j ACCEPT"
         - "OUTPUT 0 -d 169.254.0.0/16 -m policy --dir out --pol ipsec --mode transport --proto esp -j ACCEPT"
