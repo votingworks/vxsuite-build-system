@@ -27,7 +27,7 @@
       ansible.builtin.command: "firewall-cmd --permanent --zone=vxnet --add-source=169.254.0.0/16"
 
     - name: Add PREROUTING firewall rules
-      ansible.builtin.command: "firewall-cmd --permanet --direct --add-rule ipv4 raw {{ item }}"
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 raw {{ item }}"
       loop:
         - "PREROUTING 0 -i lo -j ACCEPT"
         - "PREROUTING 0 -s 169.254.0.0/16 -p udp --dport 5353 -j ACCEPT"
@@ -37,7 +37,7 @@
         - "PREROUTING 1 -s 169.254.0.0/16 -j DROP"
 
     - name: Add OUTPUT firewall rules
-      ansible.builtin.command: "firewall-cmd --permanet --direct --add-rule ipv4 raw {{ item }}"
+      ansible.builtin.command: "firewall-cmd --permanent --direct --add-rule ipv4 raw {{ item }}"
       loop:
         - "OUTPUT 0 -o lo -j ACCEPT"
         - "OUTPUT 0 -d 169.254.0.0/16 -p udp --dport 5353 -j ACCEPT"
