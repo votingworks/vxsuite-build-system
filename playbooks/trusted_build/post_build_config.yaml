@@ -75,6 +75,16 @@
         dest: "/etc/systemd/logind.conf"
         mode: 0644
 
+    - name: Add HP EliteBook 6 G2ah card reader to libccid plist
+      ansible.builtin.replace:
+        path: /etc/libccid_Info.plist
+        regexp: '(<key>{{ item.key }}</key>\s*<array>\n)(?!\s*<string>{{ item.value }}</string>)'
+        replace: '\1\t\t<string>{{ item.value }}</string>\n'
+      loop:
+        - { key: ifdVendorID, value: '0x2CE3' }
+        - { key: ifdProductID, value: '0x9569' }
+        - { key: ifdFriendlyName, value: 'Generic EMV Smartcard Reader' }
+
     - name: Automatically load the i2c-dev module used by ddcutil
       ansible.builtin.copy:
         src: "files/ddcutil.conf"
