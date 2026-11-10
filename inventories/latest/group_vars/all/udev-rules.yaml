@@ -20,3 +20,14 @@ udev_rules:
     rules: ATTRS{idVendor}=="28cd", ATTRS{idProduct}=="4002", MODE="0664", GROUP="fai100"
   60-fujitsu-printer:
     rules: SUBSYSTEM=="usb", ATTR{idVendor}=="0430", ATTR{idProduct}=="0626", MODE="0660", GROUP="plugdev"
+
+udev_hwdb:
+  70-vxmark-tactile-controller:
+    hwdb: |
+      # Remap VxMark Storm accessibility controller keybindings on every device
+      # connection so the remap isn't lost when USB ports are disabled.
+      evdev:input:b0003v2047p09D0*
+       KEYBOARD_KEY_c00ea=minus
+       KEYBOARD_KEY_c00e9=equal
+       KEYBOARD_KEY_70072=r
+       KEYBOARD_KEY_70073=p
