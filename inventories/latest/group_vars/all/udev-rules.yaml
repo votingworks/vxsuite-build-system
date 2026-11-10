@@ -20,3 +20,17 @@ udev_rules:
     rules: ATTRS{idVendor}=="28cd", ATTRS{idProduct}=="4002", MODE="0664", GROUP="fai100"
   60-fujitsu-printer:
     rules: SUBSYSTEM=="usb", ATTR{idVendor}=="0430", ATTR{idProduct}=="0626", MODE="0660", GROUP="plugdev"
+
+# Note: hwdb property lines must be indented exactly one space more than
+#       their match line
+udev_hwdb:
+  70-vxmark-tactile-controller:
+    hwdb: |
+      # VxMark AudioNav tactile controller: remap media keys to VxSuite
+      # keybindings (volume down/up, help, pause). Applied on every device add,
+      # so the remap survives USB port disable/enable and replugs.
+      evdev:input:b0003v0D8Cp0170*
+       KEYBOARD_KEY_c00ea=minus
+       KEYBOARD_KEY_c00e9=equal
+       KEYBOARD_KEY_70072=r
+       KEYBOARD_KEY_70073=p

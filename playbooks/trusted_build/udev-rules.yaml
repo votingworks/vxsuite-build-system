@@ -12,3 +12,23 @@
       with_dict:
         - "{{ udev_rules | default({}) }}"
 
+    - name: Ensure /etc/udev/hwdb.d exists
+      ansible.builtin.file:
+        path: /etc/udev/hwdb.d
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: Create udev hwdb files
+      ansible.builtin.copy:
+        dest: "/etc/udev/hwdb.d/{{ item.key }}.hwdb"
+        content: "{{ item.value.hwdb }}"
+      with_dict:
+        - "{{ udev_hwdb | default({}) }}"
+      register: udev_hwdb_files
+
+    - name: Compile the udev hwdb
+      ansible.builtin.command: systemd-hwdb update
+      when: udev_hwdb_files.changed
+
