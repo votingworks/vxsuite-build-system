@@ -5,6 +5,8 @@
   become: yes
 
 - import_playbook: kernel.yaml
+- import_playbook: users.yaml
+- import_playbook: system_links.yaml
 - import_playbook: packages.yaml
 - import_playbook: initialize_encrypted_volumes.yaml
 - import_playbook: node.yaml
