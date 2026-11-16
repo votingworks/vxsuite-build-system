@@ -40,8 +40,12 @@ if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
     VENDOR_PASSWORD='insecure'
     echo "OK, creating a QA image with sudo privileges for the vx-vendor user and terminal access via TTY2."
     echo "Using password insecure for the vx-vendor user."
-    sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins.ts $build_dir/vxpollbook/apps/pollbook/backend/.
-    sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate-check-ins $build_dir/vxpollbook/apps/pollbook/backend/.
+    if [[ -f "${local_user_home_dir}/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins.ts" ]]; then
+      sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins.ts $build_dir/vxpollbook/apps/pollbook/backend/.
+    fi
+    if [[ -f "${local_user_home_dir}/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins" ]]; then
+      sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate-check-ins $build_dir/vxpollbook/apps/pollbook/backend/.
+    fi
 
 else
     IS_QA_IMAGE=0
