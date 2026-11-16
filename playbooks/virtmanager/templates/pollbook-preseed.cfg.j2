@@ -263,7 +263,7 @@ d-i partman-auto/expert_recipe string     \
     filesystem{ ext2 }                     \
     mountpoint{ /boot }                   \
     .                                     \
-    8000 800 8000 ext4                    \
+    9000 800 9000 ext4                    \
     \$lvmok{ }                            \
     method{ format }                      \
     format{ }                             \
@@ -282,7 +282,14 @@ d-i partman-auto/expert_recipe string     \
    use_filesystem{ } filesystem{ ext4 }     \
     mountpoint{ /tmp }                    \
     .                                     \
-    15000 3000 15000 ext4                   \
+    12000 500 12000 ext4                   \
+    \$lvmok{ }                            \
+    method{ format }                      \
+    format{ }                             \
+    use_filesystem{ } filesystem{ ext4 }    \
+    mountpoint{ /vxbuild }                   \
+    .                                     \
+    500 500 500 ext4                   \
     \$lvmok{ }                            \
     method{ format }                      \
     format{ }                             \
@@ -529,9 +536,18 @@ d-i debian-installer/exit/poweroff boolean true
 # still a usable /target directory. You can chroot to /target and use it
 # directly, or use the apt-install and in-target commands to easily install
 # packages and run commands in the target system.
-{% if apt_snapshot_date is defined and release_name is defined %}
 d-i preseed/late_command string \
+{% if apt_snapshot_date is defined and release_name is defined %}
 	wget -O "/target/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc" "https://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/votingworks-apt-{{ apt_snapshot_date }}.pub"; \
 	echo "deb [check-valid-until=no signed-by=/etc/apt/trusted.gpg.d/votingworks-apt-{{ apt_snapshot_date }}.asc] http://votingworks-apt-snapshots.s3.us-west-2.amazonaws.com/{{ apt_snapshot_date }}/{{ apt_snapshot_date }}/ {{ release_name }} main" > /target/etc/apt/sources.list; \
-	in-target apt-get -y update;
+	in-target apt-get -y update; \
 {% endif %}
+	cp -a /target/home/vx/. /target/vxbuild/; \
+	rm -rf /target/home/vx; \
+	ln -s /vxbuild /target/home/vx; \
+	cp -a /target/etc/skel/. /target/home/vx/; \
+	in-target "chown vx:vx /home/vx/.{profile,bashrc,bash_logout}"; \
+	in-target su - vx -c "mkdir -p /home/vx/code"; \
+	in-target su - vx -c "git clone https://github.com/votingworks/vxsuite-build-system /home/vx/code/vxsuite-build-system"; \
+	echo "vx ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/99-vxbuild; \
+	chmod 0440 /target/etc/sudoers.d/99-vxbuild;
