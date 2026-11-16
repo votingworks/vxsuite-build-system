@@ -49,6 +49,14 @@ echo "Run vxpollbook playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_build.yaml
 
+echo "Initialize TPM submodules."
+sleep 5
+pushd $vxsuite_complete_system_dir
+git submodule update --init tpm2-software/
+popd
+
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml
+
 if [[ ! -d $kiosk_browser_dir ]]; then
   echo "ERROR: kiosk-browser directory could not be found."
   exit 1
