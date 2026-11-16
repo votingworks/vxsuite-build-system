@@ -119,4 +119,5 @@ cd $vxsuite_build_system_dir
 sudo -n true 2>/dev/null || sudo -v
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_firewalld.yaml
 
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml
 exit 0

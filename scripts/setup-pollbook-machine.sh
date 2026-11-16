@@ -97,13 +97,6 @@ echo
 #fi
 
 sudo chown :lpadmin /sbin/lpinfo
-echo "export PATH=$PATH:/sbin" | sudo tee -a /etc/bash.bashrc
-
-# turn off automatic updates
-sudo cp $standard_config_files_dir/20auto-upgrades /etc/apt/apt.conf.d/
-
-# make sure machine never shuts down on idle, and does shut down on power key (no hibernate or anything.)
-sudo cp $standard_config_files_dir/logind.conf /etc/systemd/
 
 echo "Creating necessary directories"
 # directory structure
@@ -397,47 +390,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable barcode-scanner-daemon.service
 sudo systemctl start barcode-scanner-daemon.service
 
-
-# To provide a boot sequence with as few console logs as possible
-# we suppress the messages from the login command
-for user in vx-vendor vx-ui
-do
-  user_home_dir=$( getent passwd "${user}" | cut -d: -f6 )
-  sudo touch ${user_home_dir}/.hushlogin
-  sudo chown ${user}:${user} ${user_home_dir}/.hushlogin
-done
-
-# We need to disable pulseaudio for users since it runs per user
-# We manually start the pulseaudio service within vxsuite for the vx-ui user
-# Note: Depending on future use-cases, we may need to disable pulseaudio 
-# for the vx-services user. It is not currently necessary though.
-for user in vx-vendor vx-ui
-do
-  user_home_dir=$( getent passwd "${user}" | cut -d: -f6 )
-  sudo mkdir -p ${user_home_dir}/.config/systemd/user
-  sudo ln -s /dev/null ${user_home_dir}/.config/systemd/user/pulseaudio.service
-  sudo ln -s /dev/null ${user_home_dir}/.config/systemd/user/pulseaudio.socket
-  sudo chown -R ${user}:${user} ${user_home_dir}/.config
-done
-
-# We suspend pulseaudio idling via ~vx-ui/.xinitrc, but, anecdotally, it seems
-# like there is a race condition that can result in the pulseaudio config
-# still idling audio in the event of a USB error during X initialization
-# Rather than applying a work-around at the system level, we configure
-# the vx-ui user to always suspend, regardless of any USB errors during boot
-# according to pulseaudio best practices
-vx_ui_homedir=$( getent passwd vx-ui | cut -d: -f6 )
-sudo mkdir -p ${vx_ui_homedir}/.config/pulse
-sudo tee ${vx_ui_homedir}/.config/pulse/default.pa > /dev/null << 'PULSE'
-.include /etc/pulse/default.pa
-.nofail
-unload-module module-suspend-on-idle
-.fail
-PULSE
-
-# Fix permissions so vx-ui owns the pulseaudio config
-sudo chown -R vx-ui:vx-ui ${vx_ui_homedir}/.config/pulse
-
 # Enable the mesh network and related services
 sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
@@ -450,14 +402,6 @@ sudo systemctl start avahi-autoipd
 echo "Successfully setup machine."
 
 # now we remove permissions, reset passwords, and ready for production.
-
-# cleanup
-sudo apt remove -y git firefox snapd > /dev/null 2>&1 || true
-sudo apt autoremove -y > /dev/null 2>&1 || true
-sudo rm -f /var/cache/apt/archives/*.deb
-sudo rm -rf /var/tmp/code 
-sudo rm -rf /var/tmp/downloads
-sudo rm -rf /var/tmp/rust*
 
 # set password for vx-vendor
 (echo $VENDOR_PASSWORD; echo $VENDOR_PASSWORD) | sudo passwd vx-vendor
