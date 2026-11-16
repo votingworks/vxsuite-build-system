@@ -9,7 +9,6 @@
 - import_playbook: initialize_encrypted_volumes.yaml
 - import_playbook: node.yaml
 - import_playbook: rust.yaml
-- import_playbook: rust_targets.yaml
 - import_playbook: rubygems.yaml
 - import_playbook: repos.yaml
 - import_playbook: pollbook_label_printer.yaml
