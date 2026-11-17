@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
 
 ###
-# build.sh – Build apps for testing or production.
+# tb-build.sh – Build VxSuite apps for production.
 #
-# This script builds one or all of the VxSuite applications. It is used by
-# setup-machine.sh when a machine becomes specialized and locked down.
+# Builds the requested apps (all of them by default) in place in the vxsuite
+# repo, then lays out `vxsuite/build/<app>` with the run scripts and config
+# from vxsuite-complete-system plus a `vxsuite` symlink back to the repo.
+# setup-machine.sh and run.sh in vxsuite-complete-system consume that layout.
 #
-# To keep the machine able to switch between apps for testing purposes, run:
+#   ./tb-build.sh [all|admin|central-scan|mark|mark-scan|print|scan]...
 #
-#   ./build.sh all
-#
-# Then, you can run a specific app for testing like so:
-#
-#   ./run.sh mark
-#
-# This will leave the machine in an unlocked, unspecialized state suitable for
-# testing out new builds/features/etc.
+# This runs during the offline phase of a trusted build, so everything it
+# needs must already have been fetched by tb-prepare-build.sh.
 ###
 
 set -euo pipefail
 
-local_user=`logname`
+local_user=$(logname)
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
 complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
@@ -29,116 +25,93 @@ vxsuite_dir="${local_user_home_dir}/code/vxsuite"
 # Make sure PATH includes cargo and /sbin
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}:/sbin/"
 
-# Define vxsuite apps that can be built, along with the expected path prefix
 ALL_APPS=(admin central-scan mark mark-scan print scan)
-APPS_PATH_PREFIX="${vxsuite_dir}/apps"
 
-# Define vxsuite services that can be built, along with the expected path prefix
-ALL_SERVICES=(converter-ms-sems)
-SERVICES_PATH_PREFIX="${vxsuite_dir}/services"
+# Rust daemons that VxMarkScan runs alongside the app. setup-machine.sh picks
+# which ones to install (BMD 150 vs 155), so build all of them.
+MARK_SCAN_DAEMONS=(accessible-controller pat-device-input fai-100-controller)
 
 usage() {
-  echo "usage: ./build.sh [all|$(IFS=\| ; echo "${ALL_APPS[*]}")]"
+  echo "usage: ./tb-build.sh [all|$(IFS=\| ; echo "${ALL_APPS[*]}")]..."
   echo
   echo "Build all or some of the VxSuite apps."
 }
 
 APPS_TO_BUILD=()
 
-# Determine which apps to build
+contains() {
+  local needle="$1"
+  shift
+  local item
+  for item in "$@"; do
+    [[ "${item}" == "${needle}" ]] && return 0
+  done
+  return 1
+}
+
 if [ $# = 0 ]; then
-  APPS_TO_BUILD+=(${ALL_APPS[@]})
+  APPS_TO_BUILD=("${ALL_APPS[@]}")
 else
-  for arg in $@; do
-    if [[ " ${ALL_APPS[@]} " =~ " ${arg} " ]]; then
-      if [[ ! " ${APPS_TO_BUILD[@]} " =~ " ${arg} " ]]; then
-        APPS_TO_BUILD+=($arg)
+  for arg in "$@"; do
+    if contains "${arg}" "${ALL_APPS[@]}"; then
+      if ! contains "${arg}" "${APPS_TO_BUILD[@]}"; then
+        APPS_TO_BUILD+=("${arg}")
       fi
     elif [[ "${arg}" = all ]]; then
-      APPS_TO_BUILD=(${ALL_APPS[@]})
+      APPS_TO_BUILD=("${ALL_APPS[@]}")
     elif [[ "${arg}" = -h || "${arg}" = --help ]]; then
       usage
       exit 0
-    elif [[ "${arg}" = -* ]]; then
-      echo "✘ unknown option: ${arg}" >&2
-      usage >&2
-      exit 1
     else
-      echo "✘ unknown app: ${arg}" >&2
+      echo "✘ unknown app or option: ${arg}" >&2
       usage >&2
       exit 1
     fi
   done
 fi
 
-# Function that builds a single app
-build() {
-  local APP="$1"
-  echo "🔨Building ${APP}"
-  export BUILD_ROOT="${vxsuite_dir}/build/${APP}"
-  rm -rf "${BUILD_ROOT}"
-  # In order to get the subshell exit code without exiting the whole script, we
-  # need to temporarily set +e
-  set +e
-  (
-    set -euo pipefail
-
-    cd "${vxsuite_dir}/apps/${APP}/frontend"
-
-    BUILD_ROOT="${BUILD_ROOT}/vxsuite" ./script/prod-build
-
-    cp -rp \
-      "${complete_system_dir}/run-scripts/run-${APP}.sh" \
-      "${complete_system_dir}/run-scripts/run-kiosk-browser.sh" \
-      "${complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
-      "${complete_system_dir}/config" \
-      "${complete_system_dir}/app-scripts" \
-      "${BUILD_ROOT}"
-
-    # temporary hack because the symlink works but somehow the copy doesn't for precinct-scanner
-    cd ${BUILD_ROOT}
-    rm -rf vxsuite # this is the built version
-    ln -s ../../ ./vxsuite
-  )
-  if [[ $? = 0 ]]; then
-    echo -e "\e[32m✅${APP} built\e[0m"
-  else
-    echo -e "\e[31m✘ ${APP} build failed! check the logs above\e[0m" >&2
-    exit 1
-  fi
-  set -e
-}
-
-echo "Building ${#APPS_TO_BUILD[@]} app(s): ${APPS_TO_BUILD[@]}"
+echo "Building ${#APPS_TO_BUILD[@]} app(s): ${APPS_TO_BUILD[*]}"
 
 if ! which kiosk-browser >/dev/null 2>&1
 then
-  cd $kiosk_browser_dir
+  cd "${kiosk_browser_dir}"
   make build
   sudo dpkg -i dist/kiosk-browser_*.deb
 fi
 
+# Build every app's frontend and backend in a single turbo run. turbo builds
+# their workspace dependencies first and runs independent tasks in parallel.
+turbo_filters=()
 for app in "${APPS_TO_BUILD[@]}"; do
-  build "${app}"
-  # mark-scan has additional daemons that need to be built
-  # crates were fetched while online, now we build the release while offline
-  if [[ "${app}" == "mark-scan" ]]; then
-    # default to 155 daemons
-    vx_daemons="accessible-controller pat-device-input"
-    vxsuite_env_file="${vxsuite_dir}/.env"
+  turbo_filters+=("--filter=./apps/${app}/frontend" "--filter=./apps/${app}/backend")
+done
+echo "🔨 Building with turbo"
+cd "${vxsuite_dir}"
+pnpm exec turbo run build:self "${turbo_filters[@]}"
 
-    # check for the 150 env var to build the 150 daemon instead
-    if grep REACT_APP_VX_MARK_SCAN_USE_BMD_150 $vxsuite_env_file | grep -i true > /dev/null 2>&1
-    then
-      vx_daemons="fai-100-controller"
-    fi
+if contains mark-scan "${APPS_TO_BUILD[@]}"; then
+  for daemon in "${MARK_SCAN_DAEMONS[@]}"; do
+    echo "🔨 Building mark-scan ${daemon}"
+    # Each daemon's Makefile runs ./target/release/<bin>, so build into the
+    # crate's own target directory. Crates were fetched while online.
+    (cd "${vxsuite_dir}/apps/mark-scan/${daemon}" && cargo build --offline --release --target-dir target)
+  done
+fi
 
-    for vx_daemon in ${vx_daemons}
-    do
-      cd "${vxsuite_dir}/apps/mark-scan/${vx_daemon}"
-      mkdir -p target && cargo build --offline --release --target-dir target/.
-    done
-  fi
+for app in "${APPS_TO_BUILD[@]}"; do
+  echo "📦 Assembling build/${app}"
+  build_root="${vxsuite_dir}/build/${app}"
+  rm -rf "${build_root}"
+  mkdir -p "${build_root}"
+  cp -rp \
+    "${complete_system_dir}/run-scripts/run-${app}.sh" \
+    "${complete_system_dir}/run-scripts/run-kiosk-browser.sh" \
+    "${complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
+    "${complete_system_dir}/config" \
+    "${complete_system_dir}/app-scripts" \
+    "${build_root}"
+  # The run scripts expect the built repo at ./vxsuite
+  ln -s ../.. "${build_root}/vxsuite"
 done
 
-exit 0
+echo -e "\e[32m✅ Built ${APPS_TO_BUILD[*]}\e[0m"
