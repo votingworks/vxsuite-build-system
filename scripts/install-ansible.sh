@@ -30,7 +30,4 @@ else
   exit 1
 fi
 
-# Ansible 2.19 is a trip, breaks long-standing sudo inheritance behaviors
-echo "Defaults !tty_tickets" | sudo tee /etc/sudoers.d/vx
-
 exit 0
