@@ -75,6 +75,9 @@ sleep 5
 sudo -n true 2>/dev/null || sudo -v
 # Make sure cargo is available in case it hasn't been sourced yet
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
+cd $vxsuite_dir
+pnpm --recursive install:rust-addon
+
 cd $pollbook_dir
 pnpm install
 export BUILD_ROOT="${local_user_home_dir}/build"
