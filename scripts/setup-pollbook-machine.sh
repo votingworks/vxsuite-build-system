@@ -344,8 +344,6 @@ sudo ln -fs /vx/config/etc/hostname /etc/hostname
 sudo mv /etc/swanctl/ /vx/config/etc/
 sudo ln -fs /vx/config/etc/swanctl /etc/swanctl
 
-sudo cp ${complete_system_dir}/config/interfaces /etc/network/interfaces
-
 # non-graphical login
 sudo systemctl set-default multi-user.target
 
