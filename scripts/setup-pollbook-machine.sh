@@ -174,7 +174,7 @@ sudo cp "$pollbook_config_files_dir/99-citizen-driver.rules" /etc/udev/rules.d/.
 ### set up CUPS to read/write all config out of /var to be compatible with read-only root filesystem
 
 # copy existing cups config structure to new /var location
-sudo mkdir /var/etc
+sudo mkdir -p /var/etc
 sudo cp -rp /etc/cups /var/etc/
 sudo rm -rf /etc/cups
 
@@ -245,7 +245,6 @@ sudo ln -s /vx/code/config/logo.bmp /vx/vendor/config/logo.bmp
 
 # machine configuration
 sudo mkdir -p /var/vx/config
-sudo mkdir /var/vx/config/app-flags
 sudo ln -sf /var/vx/config /vx/config
 
 sudo ln -s /vx/code/config/read-vx-machine-config.sh /vx/config/read-vx-machine-config.sh
