@@ -27,9 +27,8 @@ echo "Install node modules"
 pnpm install --frozen-lockfile
 
 echo "Download all Rust crates"
-# The root Cargo workspace covers the mark-scan daemons; the native addons
-# outside it fetch their own crates via `install:rust-addon`.
-cargo fetch
+# Every package with Rust code, including the mark-scan daemons, fetches its
+# crates in `install:rust-addon`.
 pnpm --recursive install:rust-addon
 
 if ! which kiosk-browser >/dev/null 2>&1

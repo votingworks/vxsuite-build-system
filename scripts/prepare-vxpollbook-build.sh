@@ -69,6 +69,8 @@ sudo -n true 2>/dev/null || sudo -v
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
 cd $pollbook_dir
 pnpm install
+# Rust builds run with --offline, so fetch every package's crates up front
+pnpm --dir "${vxsuite_dir}" --recursive install:rust-addon
 export BUILD_ROOT="${local_user_home_dir}/build"
 set +e
   (
@@ -100,9 +102,9 @@ set +e
     cp -rp "${vxsuite_dir}/libs/fixtures" "${BUILD_ROOT}/vxpollbook/libs/"
   )
 
-# Build the barcode scanner app
-cd "${pollbook_dir}/barcode-scanner-daemon"
-mkdir -p target && cargo build --release --target-dir target/.
+# prod-build builds the barcode scanner daemon as a dependency of the backend,
+# but its packed copy leaves out the gitignored build/ directory that holds the
+# binary, so copy the daemon over it.
 cp -rp "${pollbook_dir}/barcode-scanner-daemon" "${BUILD_ROOT}/vxpollbook/apps/pollbook/"
 
 # This runs as the very last step since it locks the network down

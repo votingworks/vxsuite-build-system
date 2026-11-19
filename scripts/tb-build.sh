@@ -27,10 +27,6 @@ export PATH="${local_user_home_dir}/.cargo/bin:${PATH}:/sbin/"
 
 ALL_APPS=(admin central-scan mark mark-scan print scan)
 
-# Rust daemons that VxMarkScan runs alongside the app. setup-machine.sh picks
-# which ones to install (BMD 150 vs 155), so build all of them.
-MARK_SCAN_DAEMONS=(accessible-controller pat-device-input fai-100-controller)
-
 usage() {
   echo "usage: ./tb-build.sh [all|$(IFS=\| ; echo "${ALL_APPS[*]}")]..."
   echo
@@ -80,7 +76,8 @@ then
 fi
 
 # Build every app's frontend and backend in a single turbo run. turbo builds
-# their workspace dependencies first and runs independent tasks in parallel.
+# their workspace dependencies first, including the Rust daemons that the
+# backends depend on, and runs independent tasks in parallel.
 turbo_filters=()
 for app in "${APPS_TO_BUILD[@]}"; do
   turbo_filters+=("--filter=./apps/${app}/frontend" "--filter=./apps/${app}/backend")
@@ -89,14 +86,13 @@ echo "🔨 Building with turbo"
 cd "${vxsuite_dir}"
 pnpm exec turbo run build:self "${turbo_filters[@]}"
 
-if contains mark-scan "${APPS_TO_BUILD[@]}"; then
-  for daemon in "${MARK_SCAN_DAEMONS[@]}"; do
-    echo "🔨 Building mark-scan ${daemon}"
-    # Each daemon's Makefile runs ./target/release/<bin>, so build into the
-    # crate's own target directory. Crates were fetched while online.
-    (cd "${vxsuite_dir}/apps/mark-scan/${daemon}" && cargo build --offline --release --target-dir target)
-  done
-fi
+# Builds copy the Rust binaries the apps run into their package's build/
+# directory, so cargo's target/ directories hold only intermediates (~1.5G).
+# setup-machine.sh copies the repo onto the small root partition, so remove
+# them along with turbo's cache.
+echo "🧹 Removing build intermediates"
+find -H "${vxsuite_dir}" -name node_modules -prune \
+  -o -type d \( -name target -o -name .turbo \) -prune -exec rm -rf {} +
 
 for app in "${APPS_TO_BUILD[@]}"; do
   echo "📦 Assembling build/${app}"
