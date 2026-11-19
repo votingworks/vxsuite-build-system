@@ -25,6 +25,10 @@ vxsuite_dir="${local_user_home_dir}/code/vxsuite"
 # Make sure PATH includes cargo and /sbin
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}:/sbin/"
 
+# Have cargo use only the crates tb-prepare-build.sh fetched, so a missing one
+# fails right away instead of on a network timeout.
+export CARGO_NET_OFFLINE=true
+
 ALL_APPS=(admin central-scan mark mark-scan print scan)
 
 usage() {

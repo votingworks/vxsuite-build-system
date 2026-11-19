@@ -69,8 +69,6 @@ sudo -n true 2>/dev/null || sudo -v
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
 cd $pollbook_dir
 pnpm install
-# Rust builds run with --offline, so fetch every package's crates up front
-pnpm --dir "${vxsuite_dir}" --recursive install:rust-addon
 export BUILD_ROOT="${local_user_home_dir}/build"
 set +e
   (
