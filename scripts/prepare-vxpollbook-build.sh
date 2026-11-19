@@ -100,11 +100,6 @@ set +e
     cp -rp "${vxsuite_dir}/libs/fixtures" "${BUILD_ROOT}/vxpollbook/libs/"
   )
 
-# prod-build builds the barcode scanner daemon as a dependency of the backend,
-# but its packed copy leaves out the gitignored build/ directory that holds the
-# binary, so copy the daemon over it.
-cp -rp "${pollbook_dir}/barcode-scanner-daemon" "${BUILD_ROOT}/vxpollbook/apps/pollbook/"
-
 # This runs as the very last step since it locks the network down
 # to only loopback and mesh traffic
 cd $vxsuite_build_system_dir
