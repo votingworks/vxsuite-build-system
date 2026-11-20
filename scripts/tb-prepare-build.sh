@@ -1,135 +1,41 @@
 #!/usr/bin/env bash
 
 ###
-# build.sh – Build apps for testing or production.
+# tb-prepare-build.sh – Fetch everything tb-build.sh needs while online.
 #
-# This script builds one or all of the VxSuite applications. It is used by
-# setup-machine.sh when a machine becomes specialized and locked down.
+# Runs during the online phase of a trusted build. It installs the vxsuite
+# workspace's node modules and fetches all Rust crates so that tb-build.sh can
+# run offline.
 #
-# To keep the machine able to switch between apps for testing purposes, run:
-#
-#   ./build.sh all
-#
-# Then, you can run a specific app for testing like so:
-#
-#   ./run.sh mark
-#
-# This will leave the machine in an unlocked, unspecialized state suitable for
-# testing out new builds/features/etc.
+# The vxsuite workspace has a single lockfile, so this prepares every app at
+# once; app arguments are accepted for compatibility but have no effect.
 ###
 
 set -euo pipefail
 
-local_user=`logname`
+local_user=$(logname)
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
-complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 vxsuite_dir="${local_user_home_dir}/code/vxsuite"
 
 # Make sure PATH includes cargo and /sbin
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}:/sbin/"
 
-# Define vxsuite apps that can be built, along with the expected path prefix
-ALL_APPS=(admin central-scan mark mark-scan print scan)
-APPS_PATH_PREFIX="${vxsuite_dir}/apps"
+cd "${vxsuite_dir}"
 
-# Define vxsuite services that can be built, along with the expected path prefix
-ALL_SERVICES=(converter-ms-sems)
-SERVICES_PATH_PREFIX="${vxsuite_dir}/services"
+echo "Install node modules"
+pnpm install --frozen-lockfile
 
-usage() {
-  echo "usage: ./prepare_build.sh [all|$(IFS=\| ; echo "${ALL_APPS[*]}")]"
-  echo
-  echo "Prepare to build all or some of the VxSuite apps."
-}
-
-APPS_TO_BUILD=()
-
-# Determine which apps to build
-if [ $# = 0 ]; then
-  APPS_TO_BUILD+=(${ALL_APPS[@]})
-else
-  for arg in $@; do
-    if [[ " ${ALL_APPS[@]} " =~ " ${arg} " ]]; then
-      if [[ ! " ${APPS_TO_BUILD[@]} " =~ " ${arg} " ]]; then
-        APPS_TO_BUILD+=($arg)
-      fi
-    elif [[ "${arg}" = all ]]; then
-      APPS_TO_BUILD=(${ALL_APPS[@]})
-    elif [[ "${arg}" = -h || "${arg}" = --help ]]; then
-      usage
-      exit 0
-    elif [[ "${arg}" = -* ]]; then
-      echo "✘ unknown option: ${arg}" >&2
-      usage >&2
-      exit 1
-    else
-      echo "✘ unknown app: ${arg}" >&2
-      usage >&2
-      exit 1
-    fi
-  done
-fi
-
-# Function that builds a single app
-build() {
-  local APP="$1"
-  echo "🔨Preparing ${APP} for build"
-  export BUILD_ROOT="${vxsuite_dir}/build/${APP}"
-  rm -rf "${BUILD_ROOT}"
-  # In order to get the subshell exit code without exiting the whole script, we
-  # need to temporarily set +e
-  set +e
-  (
-    set -euo pipefail
-
-    cd "${vxsuite_dir}/apps/${APP}/frontend"
-
-    pnpm install --frozen-lockfile
-  )
-  if [[ $? = 0 ]]; then
-    echo -e "\e[32m✅${APP} ready for building\e[0m"
-  else
-    echo -e "\e[31m✘ ${APP} build prep failed! check the logs above\e[0m" >&2
-    exit 1
-  fi
-  set -e
-}
-
-cd $vxsuite_dir
 echo "Download all Rust crates"
+# Every package with Rust code, including the mark-scan daemons, fetches its
+# crates in `install:rust-addon`.
 pnpm --recursive install:rust-addon
 
 if ! which kiosk-browser >/dev/null 2>&1
 then
   echo "Download all kiosk-browser tools"
-  cd $kiosk_browser_dir
+  cd "${kiosk_browser_dir}"
   make install
 fi
 
-echo "Preparing ${#APPS_TO_BUILD[@]} app(s): ${APPS_TO_BUILD[@]}"
-
-for app in "${APPS_TO_BUILD[@]}"; do
-  build "${app}"
-  # mark-scan has additional daemons that need to be built
-  # so we fetch their Rust crates while online
-  if [[ "${app}" == "mark-scan" ]]; then
-    # default to 155 daemons
-    vx_daemons="accessible-controller pat-device-input"
-    vxsuite_env_file="${vxsuite_dir}/.env"
-
-    # check for the 150 env var to build the 150 daemon instead
-    if grep REACT_APP_VX_MARK_SCAN_USE_BMD_150 $vxsuite_env_file | grep -i true > /dev/null 2>&1
-    then
-      vx_daemons="fai-100-controller"
-    fi
-
-    for vx_daemon in ${vx_daemons}
-    do
-      cd "${vxsuite_dir}/apps/mark-scan/${vx_daemon}"
-      cargo fetch
-    done
-  fi
-done
-
-exit 0
+echo -e "\e[32m✅ Ready for building\e[0m"
