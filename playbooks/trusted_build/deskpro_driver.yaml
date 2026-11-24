@@ -1,0 +1,103 @@
+---
+#-- The DeskPro driver is private: scripts/tb-fetch-deskpro-driver.sh supplies AWS
+#-- credentials for the download, and setup-machine.sh installs the staged copy.
+- name: Download and stage the DeskPro driver
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+
+  tasks:
+
+    - import_tasks: shared_tasks/user_to_configure.yaml
+    - import_tasks: shared_tasks/well_known_paths.yaml
+
+    - name: Download, verify, and stage the DeskPro driver
+      when: deskpro_driver is defined
+      block:
+
+        - name: Define DeskPro driver paths
+          set_fact:
+            deskpro_driver_download_path: "{{ well_known_paths['tools']['system_path'] }}/deskpro/{{ deskpro_driver.s3_key | basename }}"
+            deskpro_driver_staged_path: "/opt/deskpro-driver.tar.gz"
+
+        - name: Ensure the DeskPro download directory exists
+          ansible.builtin.file:
+            path: "{{ deskpro_driver_download_path | dirname }}"
+            state: directory
+            mode: 0755
+
+        - name: Check for an existing DeskPro driver download
+          ansible.builtin.stat:
+            path: "{{ deskpro_driver_download_path }}"
+            checksum_algorithm: sha256
+          register: deskpro_driver_existing
+          tags:
+            - online
+
+        - name: Download the DeskPro driver from S3
+          when: not deskpro_driver_existing.stat.exists or deskpro_driver_existing.stat.checksum != deskpro_driver.checksum
+          tags:
+            - online
+          block:
+
+            - name: Require AWS credentials
+              ansible.builtin.assert:
+                that:
+                  - lookup('env', 'AWS_ACCESS_KEY_ID') | length > 0
+                  - lookup('env', 'AWS_SECRET_ACCESS_KEY') | length > 0
+                fail_msg: "AWS credentials are required to download the DeskPro driver. Run scripts/tb-fetch-deskpro-driver.sh."
+
+            # Credentials go to curl on stdin so they never appear in the process list.
+            - name: Download the DeskPro driver with a SigV4-signed request
+              ansible.builtin.command:
+                argv:
+                  - curl
+                  - --fail
+                  - --silent
+                  - --show-error
+                  - --config
+                  - "-"
+                  - --aws-sigv4
+                  - "aws:amz:{{ deskpro_driver.s3_region }}:s3"
+                  - --header
+                  - "x-amz-content-sha256: UNSIGNED-PAYLOAD"
+                  - --output
+                  - "{{ deskpro_driver_download_path }}"
+                  - "{{ deskpro_driver_s3_endpoint | default('https://' ~ deskpro_driver.s3_bucket ~ '.s3.' ~ deskpro_driver.s3_region ~ '.amazonaws.com') }}/{{ deskpro_driver.s3_key }}"
+                stdin: |
+                  user = "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}:{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+                  {% if lookup('env', 'AWS_SESSION_TOKEN') %}
+                  header = "x-amz-security-token: {{ lookup('env', 'AWS_SESSION_TOKEN') }}"
+                  {% endif %}
+              register: deskpro_driver_curl
+              failed_when: false
+              no_log: true
+
+            - name: Report a failed DeskPro driver download
+              ansible.builtin.fail:
+                msg: "Downloading the DeskPro driver failed: {{ deskpro_driver_curl.stderr }}"
+              when: deskpro_driver_curl.rc != 0
+
+        - name: Checksum the DeskPro driver
+          ansible.builtin.stat:
+            path: "{{ deskpro_driver_download_path }}"
+            checksum_algorithm: sha256
+          register: deskpro_driver_download
+
+        - name: Verify the DeskPro driver checksum
+          ansible.builtin.assert:
+            that:
+              - deskpro_driver_download.stat.exists
+              - deskpro_driver_download.stat.checksum == deskpro_driver.checksum
+            fail_msg: "{{ deskpro_driver_download_path }} is missing or does not match the expected checksum."
+
+        - name: Stage the DeskPro driver for setup-machine.sh
+          ansible.builtin.copy:
+            src: "{{ deskpro_driver_download_path }}"
+            dest: "{{ deskpro_driver_staged_path }}"
+            remote_src: true
+            owner: root
+            group: root
+            mode: 0644
+          tags:
+            - offline

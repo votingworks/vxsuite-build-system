@@ -62,6 +62,11 @@ cd $vxsuite_build_system_dir
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml --skip-tags offline
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/openssl_fips.yaml --skip-tags offline
 
+echo "Download the DeskPro driver."
+sleep 5
+cd $vxsuite_build_system_dir
+./scripts/tb-fetch-deskpro-driver.sh ${ansible_inventory}
+
 echo "Initialize TPM submodules."
 sleep 5
 cd $vxsuite_complete_system_dir

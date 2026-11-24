@@ -13,6 +13,7 @@
 - import_playbook: rubygems.yaml
 - import_playbook: tpm.yaml
 - import_playbook: openssl_fips.yaml
+- import_playbook: deskpro_driver.yaml
 - import_playbook: logrotate.yaml
 - import_playbook: rsyslog.yaml
 - import_playbook: fips_install_service.yaml

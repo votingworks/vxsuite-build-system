@@ -1,0 +1,7 @@
+---
+deskpro_driver:
+  version: "2026-10-02"
+  s3_bucket: votingworks-private-vendor-artifacts
+  s3_region: us-west-2
+  s3_key: deskpro/scamaxusb3-2026-10-02.tar.gz
+  checksum: "a5456acc90ce0b8ac692ac945eb9623678889e6a12ac8654872a904def5dcecf"
