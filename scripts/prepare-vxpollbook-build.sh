@@ -11,8 +11,8 @@ debian_major_version=$(cat /etc/debian_version | cut -d'.' -f1)
 local_user=`logname`
 local_user_home_dir=$( getent passwd "${local_user}" | cut -d: -f6 )
 vxsuite_build_system_dir="${local_user_home_dir}/code/vxsuite-build-system"
+vxsuite_complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 kiosk_browser_dir="${local_user_home_dir}/code/kiosk-browser"
-complete_system_dir="${local_user_home_dir}/code/vxsuite-complete-system"
 vxsuite_dir="${local_user_home_dir}/code/vxsuite"
 pollbook_dir="${vxsuite_dir}/apps/pollbook"
 
@@ -49,6 +49,14 @@ echo "Run vxpollbook playbook. This will take several minutes."
 sleep 5
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_build.yaml
 
+echo "Initialize TPM submodules."
+sleep 5
+pushd $vxsuite_complete_system_dir
+git submodule update --init tpm2-software/
+popd
+
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/tpm.yaml
+
 if [[ ! -d $kiosk_browser_dir ]]; then
   echo "ERROR: kiosk-browser directory could not be found."
   exit 1
@@ -67,6 +75,9 @@ sleep 5
 sudo -n true 2>/dev/null || sudo -v
 # Make sure cargo is available in case it hasn't been sourced yet
 export PATH="${local_user_home_dir}/.cargo/bin:${PATH}"
+cd $vxsuite_dir
+pnpm --recursive install:rust-addon
+
 cd $pollbook_dir
 pnpm install
 export BUILD_ROOT="${local_user_home_dir}/build"
@@ -80,11 +91,11 @@ set +e
 
     cp -rp \
       "${vxsuite_build_system_dir}/scripts/pollbook-files/run-vxpollbook.sh" \
-      "${complete_system_dir}/run-scripts/run-kiosk-browser.sh" \
-      "${complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
-      "${complete_system_dir}/config" \
-      "${complete_system_dir}/app-scripts" \
-      "${complete_system_dir}/setup-scripts/setup-logging.sh" \
+      "${vxsuite_complete_system_dir}/run-scripts/run-kiosk-browser.sh" \
+      "${vxsuite_complete_system_dir}/run-scripts/run-kiosk-browser-forever-and-log.sh" \
+      "${vxsuite_complete_system_dir}/config" \
+      "${vxsuite_complete_system_dir}/app-scripts" \
+      "${vxsuite_complete_system_dir}/setup-scripts/setup-logging.sh" \
       "${BUILD_ROOT}"
 
     # TODO: Understand why this is necessary
@@ -111,4 +122,5 @@ cd $vxsuite_build_system_dir
 sudo -n true 2>/dev/null || sudo -v
 ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/pollbook_firewalld.yaml
 
+ansible-playbook -i inventories/${ansible_inventory} playbooks/trusted_build/post_build_config.yaml
 exit 0

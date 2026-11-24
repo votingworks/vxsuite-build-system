@@ -40,8 +40,12 @@ if [[ $qa_image_flag == 'y' || $qa_image_flag == 'Y' ]]; then
     VENDOR_PASSWORD='insecure'
     echo "OK, creating a QA image with sudo privileges for the vx-vendor user and terminal access via TTY2."
     echo "Using password insecure for the vx-vendor user."
-    sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins.ts $build_dir/vxpollbook/apps/pollbook/backend/.
-    sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate-check-ins $build_dir/vxpollbook/apps/pollbook/backend/.
+    if [[ -f "${local_user_home_dir}/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins.ts" ]]; then
+      sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins.ts $build_dir/vxpollbook/apps/pollbook/backend/.
+    fi
+    if [[ -f "${local_user_home_dir}/code/vxsuite/apps/pollbook/backend/scripts/simulate_check_ins" ]]; then
+      sudo cp $local_user_home_dir/code/vxsuite/apps/pollbook/backend/scripts/simulate-check-ins $build_dir/vxpollbook/apps/pollbook/backend/.
+    fi
 
 else
     IS_QA_IMAGE=0
@@ -93,13 +97,6 @@ echo
 #fi
 
 sudo chown :lpadmin /sbin/lpinfo
-echo "export PATH=$PATH:/sbin" | sudo tee -a /etc/bash.bashrc
-
-# turn off automatic updates
-sudo cp $standard_config_files_dir/20auto-upgrades /etc/apt/apt.conf.d/
-
-# make sure machine never shuts down on idle, and does shut down on power key (no hibernate or anything.)
-sudo cp $standard_config_files_dir/logind.conf /etc/systemd/
 
 echo "Creating necessary directories"
 # directory structure
@@ -177,7 +174,7 @@ sudo cp "$pollbook_config_files_dir/99-citizen-driver.rules" /etc/udev/rules.d/.
 ### set up CUPS to read/write all config out of /var to be compatible with read-only root filesystem
 
 # copy existing cups config structure to new /var location
-sudo mkdir /var/etc
+sudo mkdir -p /var/etc
 sudo cp -rp /etc/cups /var/etc/
 sudo rm -rf /etc/cups
 
@@ -248,7 +245,6 @@ sudo ln -s /vx/code/config/logo.bmp /vx/vendor/config/logo.bmp
 
 # machine configuration
 sudo mkdir -p /var/vx/config
-sudo mkdir /var/vx/config/app-flags
 sudo ln -sf /var/vx/config /vx/config
 
 sudo ln -s /vx/code/config/read-vx-machine-config.sh /vx/config/read-vx-machine-config.sh
@@ -348,8 +344,6 @@ sudo ln -fs /vx/config/etc/hostname /etc/hostname
 sudo mv /etc/swanctl/ /vx/config/etc/
 sudo ln -fs /vx/config/etc/swanctl /etc/swanctl
 
-sudo cp ${complete_system_dir}/config/interfaces /etc/network/interfaces
-
 # non-graphical login
 sudo systemctl set-default multi-user.target
 
@@ -393,47 +387,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable barcode-scanner-daemon.service
 sudo systemctl start barcode-scanner-daemon.service
 
-
-# To provide a boot sequence with as few console logs as possible
-# we suppress the messages from the login command
-for user in vx-vendor vx-ui
-do
-  user_home_dir=$( getent passwd "${user}" | cut -d: -f6 )
-  sudo touch ${user_home_dir}/.hushlogin
-  sudo chown ${user}:${user} ${user_home_dir}/.hushlogin
-done
-
-# We need to disable pulseaudio for users since it runs per user
-# We manually start the pulseaudio service within vxsuite for the vx-ui user
-# Note: Depending on future use-cases, we may need to disable pulseaudio 
-# for the vx-services user. It is not currently necessary though.
-for user in vx-vendor vx-ui
-do
-  user_home_dir=$( getent passwd "${user}" | cut -d: -f6 )
-  sudo mkdir -p ${user_home_dir}/.config/systemd/user
-  sudo ln -s /dev/null ${user_home_dir}/.config/systemd/user/pulseaudio.service
-  sudo ln -s /dev/null ${user_home_dir}/.config/systemd/user/pulseaudio.socket
-  sudo chown -R ${user}:${user} ${user_home_dir}/.config
-done
-
-# We suspend pulseaudio idling via ~vx-ui/.xinitrc, but, anecdotally, it seems
-# like there is a race condition that can result in the pulseaudio config
-# still idling audio in the event of a USB error during X initialization
-# Rather than applying a work-around at the system level, we configure
-# the vx-ui user to always suspend, regardless of any USB errors during boot
-# according to pulseaudio best practices
-vx_ui_homedir=$( getent passwd vx-ui | cut -d: -f6 )
-sudo mkdir -p ${vx_ui_homedir}/.config/pulse
-sudo tee ${vx_ui_homedir}/.config/pulse/default.pa > /dev/null << 'PULSE'
-.include /etc/pulse/default.pa
-.nofail
-unload-module module-suspend-on-idle
-.fail
-PULSE
-
-# Fix permissions so vx-ui owns the pulseaudio config
-sudo chown -R vx-ui:vx-ui ${vx_ui_homedir}/.config/pulse
-
 # Enable the mesh network and related services
 sudo udevadm control --reload-rules
 sudo systemctl daemon-reload
@@ -446,14 +399,6 @@ sudo systemctl start avahi-autoipd
 echo "Successfully setup machine."
 
 # now we remove permissions, reset passwords, and ready for production.
-
-# cleanup
-sudo apt remove -y git firefox snapd > /dev/null 2>&1 || true
-sudo apt autoremove -y > /dev/null 2>&1 || true
-sudo rm -f /var/cache/apt/archives/*.deb
-sudo rm -rf /var/tmp/code 
-sudo rm -rf /var/tmp/downloads
-sudo rm -rf /var/tmp/rust*
 
 # set password for vx-vendor
 (echo $VENDOR_PASSWORD; echo $VENDOR_PASSWORD) | sudo passwd vx-vendor
@@ -497,6 +442,29 @@ fi
 # Set up a one-time run of fstrim to reduce VM size
 sudo cp /vx/code/config/vm-fstrim.service /etc/systemd/system/
 sudo systemctl enable vm-fstrim.service
+
+# pnpm 9 and 10 self-manage their version at runtime. On startup, pnpm compares
+# the version of the binary being run against the `packageManager` field in the
+# relevant package.json, and if they differ, it tries to download and install
+# the pinned version globally. While builds will complete without issue, a
+# production image generated by a true Trusted Build process will fail at
+# runtime because an attempt will be made to fetch pnpm and will fail because
+# of the lack of network connectivity. We already pin pnpm so disable this
+# behavior entirely as a remedy.
+#
+# Note: pnpm 11 removes the manage-package-manager-versions setting and will
+# require another update.
+#
+grep 'manage-package-manager-versions=false' /vx/code/vxsuite/.npmrc > /dev/null 2>&1 || echo 'manage-package-manager-versions=false' >> /vx/code/vxsuite/.npmrc
+
+# pnpm 10 also verifies node_modules against the lockfile before running any
+# script and attempts a `pnpm install` when they differ. /vx/code is read-only
+# at runtime and there is no network, so the install fails with EACCES and the
+# app does not start. This setting lives in pnpm-workspace.yaml, which takes
+# precedence over .npmrc in pnpm 10, so it has to be patched there.
+if grep -q '^verifyDepsBeforeRun:' /vx/code/vxsuite/pnpm-workspace.yaml 2>/dev/null; then
+    sudo sed -i 's/^verifyDepsBeforeRun:.*/verifyDepsBeforeRun: false/' /vx/code/vxsuite/pnpm-workspace.yaml
+fi
 
 # Set up a one-time run to wipe the vx user directory
 sudo cp /vx/code/config/vx-cleanup.service /etc/systemd/system/
