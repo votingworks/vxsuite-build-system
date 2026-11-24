@@ -6,25 +6,41 @@
   connection: local
   become: true
 
+  vars:
+    deskpro_driver_staged_path: "/opt/deskpro-driver.tar.gz"
+    deskpro_driver_disabled_marker: "/opt/deskpro-driver.disabled"
+
   tasks:
 
     - import_tasks: shared_tasks/user_to_configure.yaml
     - import_tasks: shared_tasks/well_known_paths.yaml
 
+    - name: Require an explicit DeskPro driver configuration
+      ansible.builtin.assert:
+        that:
+          - deskpro_driver is defined
+          - deskpro_driver.enabled is defined
+          - deskpro_driver.enabled is boolean
+          - not deskpro_driver.enabled or (deskpro_driver.url is defined and deskpro_driver.checksum is defined)
+        fail_msg: >-
+          Set deskpro_driver in the inventory to either `{enabled: false}` or
+          `{enabled: true, url: ..., checksum: <sha256>}`, plus `s3_region` if the URL needs AWS credentials.
+
     - name: Download, verify, and stage the DeskPro driver
-      when: deskpro_driver is defined
+      when: deskpro_driver.enabled
       block:
 
-        - name: Define DeskPro driver paths
+        - name: Define the DeskPro driver download path
           set_fact:
-            deskpro_driver_download_path: "{{ well_known_paths['tools']['system_path'] }}/deskpro/{{ deskpro_driver.s3_key | basename }}"
-            deskpro_driver_staged_path: "/opt/deskpro-driver.tar.gz"
+            deskpro_driver_download_path: "{{ well_known_paths['tools']['system_path'] }}/deskpro/{{ deskpro_driver.url | urlsplit('path') | basename }}"
 
         - name: Ensure the DeskPro download directory exists
           ansible.builtin.file:
             path: "{{ deskpro_driver_download_path | dirname }}"
             state: directory
             mode: 0755
+          tags:
+            - online
 
         - name: Check for an existing DeskPro driver download
           ansible.builtin.stat:
@@ -34,40 +50,32 @@
           tags:
             - online
 
-        - name: Download the DeskPro driver from S3
+        - name: Download the DeskPro driver
           when: not deskpro_driver_existing.stat.exists or deskpro_driver_existing.stat.checksum != deskpro_driver.checksum
           tags:
             - online
           block:
 
-            - name: Require AWS credentials
+            - name: Require AWS credentials for an S3 download
               ansible.builtin.assert:
                 that:
                   - lookup('env', 'AWS_ACCESS_KEY_ID') | length > 0
                   - lookup('env', 'AWS_SECRET_ACCESS_KEY') | length > 0
                 fail_msg: "AWS credentials are required to download the DeskPro driver. Run scripts/tb-fetch-deskpro-driver.sh."
+              when: deskpro_driver.s3_region is defined
 
             # Credentials go to curl on stdin so they never appear in the process list.
-            - name: Download the DeskPro driver with a SigV4-signed request
+            - name: Download the DeskPro driver with curl
               ansible.builtin.command:
-                argv:
-                  - curl
-                  - --fail
-                  - --silent
-                  - --show-error
-                  - --config
-                  - "-"
-                  - --aws-sigv4
-                  - "aws:amz:{{ deskpro_driver.s3_region }}:s3"
-                  - --header
-                  - "x-amz-content-sha256: UNSIGNED-PAYLOAD"
-                  - --output
-                  - "{{ deskpro_driver_download_path }}"
-                  - "{{ deskpro_driver_s3_endpoint | default('https://' ~ deskpro_driver.s3_bucket ~ '.s3.' ~ deskpro_driver.s3_region ~ '.amazonaws.com') }}/{{ deskpro_driver.s3_key }}"
+                argv: "{{ ['curl', '--fail', '--silent', '--show-error', '--config', '-', '--output', deskpro_driver_download_path]
+                  + (['--aws-sigv4', 'aws:amz:' ~ deskpro_driver.s3_region ~ ':s3', '--header', 'x-amz-content-sha256: UNSIGNED-PAYLOAD'] if deskpro_driver.s3_region is defined else [])
+                  + [deskpro_driver.url] }}"
                 stdin: |
+                  {% if deskpro_driver.s3_region is defined %}
                   user = "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}:{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
                   {% if lookup('env', 'AWS_SESSION_TOKEN') %}
                   header = "x-amz-security-token: {{ lookup('env', 'AWS_SESSION_TOKEN') }}"
+                  {% endif %}
                   {% endif %}
               register: deskpro_driver_curl
               failed_when: false
@@ -101,3 +109,21 @@
             mode: 0644
           tags:
             - offline
+
+    - name: Remove the stale DeskPro driver state
+      ansible.builtin.file:
+        path: "{{ deskpro_driver_disabled_marker if deskpro_driver.enabled else deskpro_driver_staged_path }}"
+        state: absent
+      tags:
+        - offline
+
+    - name: Mark DeskPro support as disabled for setup-machine.sh
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ deskpro_driver_disabled_marker }}"
+        owner: root
+        group: root
+        mode: 0644
+      when: not deskpro_driver.enabled
+      tags:
+        - offline

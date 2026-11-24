@@ -1,0 +1,5 @@
+---
+#-- Either `enabled: false`, or `enabled: true` with a `url` and its sha256 `checksum`.
+#-- Setting `s3_region` signs the request with AWS credentials from tb-fetch-deskpro-driver.sh.
+deskpro_driver:
+  enabled: false

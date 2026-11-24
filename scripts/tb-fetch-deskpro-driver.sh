@@ -17,8 +17,13 @@ credentials_file=${DESKPRO_CREDENTIALS_FILE:-.aws.sh}
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-if ! grep -qs '^deskpro_driver:' inventories/"${ansible_inventory}"/group_vars/all/*.yaml; then
-  echo "The ${ansible_inventory} inventory does not include the DeskPro driver, skipping."
+playbook=(ansible-playbook -i "inventories/${ansible_inventory}" playbooks/trusted_build/deskpro_driver.yaml --skip-tags offline "$@")
+
+needs_credentials=$(ansible-inventory -i "inventories/${ansible_inventory}" --host localhost \
+  | python3 -I -c 'import json, sys; d = json.load(sys.stdin).get("deskpro_driver") or {}; print(str(d.get("enabled") is True and "s3_region" in d).lower())')
+
+if [[ "${needs_credentials}" != "true" ]]; then
+  "${playbook[@]}"
   exit 0
 fi
 
@@ -49,4 +54,4 @@ source <(printf '%s\n' "${credentials}")
 set +a
 unset credentials
 
-ansible-playbook -i "inventories/${ansible_inventory}" playbooks/trusted_build/deskpro_driver.yaml --skip-tags offline "$@"
+"${playbook[@]}"
