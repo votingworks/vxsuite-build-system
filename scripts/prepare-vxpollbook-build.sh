@@ -111,11 +111,6 @@ set +e
     cp -rp "${vxsuite_dir}/libs/fixtures" "${BUILD_ROOT}/vxpollbook/libs/"
   )
 
-# Build the barcode scanner app
-cd "${pollbook_dir}/barcode-scanner-daemon"
-mkdir -p target && cargo build --release --target-dir target/.
-cp -rp "${pollbook_dir}/barcode-scanner-daemon" "${BUILD_ROOT}/vxpollbook/apps/pollbook/"
-
 # This runs as the very last step since it locks the network down
 # to only loopback and mesh traffic
 cd $vxsuite_build_system_dir
