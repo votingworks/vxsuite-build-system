@@ -58,6 +58,7 @@ all_packages:
   - libglib2.0-bin
   - libgtk-3-0
   - libjpeg-dev
+  - liblcms2-2
   - libnotify4
   - libpango1.0-dev
   - libpcsclite1
@@ -68,7 +69,10 @@ all_packages:
   - libsane1
   - libsane-common
   - libsane-hpaio
+  - libtiff6
+  - libtiffxx6
   - libudev-dev
+  - libusb-1.0-0
   - libusb-1.0-0-dev
   - libx11-dev
   - libxss1
